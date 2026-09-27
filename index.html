@@ -31,7 +31,7 @@
           <h1>Learn AI systems<br /><em>before time leaves you behind.</em></h1>
           <p class="hero-lede">A guided journey from your first model call to reliable AI systems that can retrieve, reason, act, and recover.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#part-one">Begin the first jump <span>→</span></a>
+            <a class="button button-primary" href="part-one.html">Begin the first jump <span>→</span></a>
             <button class="button button-quiet" type="button" data-open-syllabus>View the syllabus</button>
           </div>
           <div class="hero-stats" aria-label="Course summary">
@@ -42,15 +42,15 @@
         </div>
 
         <div class="capacitor-stage" aria-label="Interactive Flux Capacitor course navigator">
-          <div class="time-readout"><span>DESTINATION TIME</span><strong id="time-readout">PART I · 1985</strong></div>
+          <div class="time-readout"><span>DESTINATION TIME</span><strong id="time-readout" role="status" aria-live="polite">PART I · 1985</strong></div>
           <div class="capacitor">
             <div class="coil coil-one"></div><div class="coil coil-two"></div><div class="coil coil-three"></div>
             <div class="core"><span></span></div>
-            <button class="terminal terminal-one active" type="button" data-part="one" aria-label="Select Part I: Out of Time">I</button>
-            <button class="terminal terminal-two" type="button" data-part="two" aria-label="Select Part II: Your Children's Tomorrow">II</button>
-            <button class="terminal terminal-three" type="button" data-part="three" aria-label="Select Part III: The Last Departure">III</button>
+            <button class="terminal terminal-one active" type="button" data-part="one" aria-pressed="true" aria-label="Select Part I: Out of Time">I</button>
+            <button class="terminal terminal-two" type="button" data-part="two" aria-pressed="false" aria-label="Select Part II: Your Children's Tomorrow">II</button>
+            <button class="terminal terminal-three" type="button" data-part="three" aria-pressed="false" aria-label="Select Part III: The Last Departure">III</button>
           </div>
-          <p id="capacitor-caption">Foundation systems: teach the machine how to speak, remember, and retrieve.</p>
+          <p id="capacitor-caption" aria-live="polite">Foundation systems: teach the machine how to speak, remember, and retrieve.</p>
           <div class="power-meter"><span>FLUX POWER</span><div><i id="power-fill"></i></div><b id="power-number">33%</b></div>
         </div>
       </section>
@@ -71,7 +71,7 @@
         <article id="part-one" class="journey-card part-one" data-journey="one">
           <div class="card-index">01 <span>PART I</span></div>
           <div class="card-content"><p class="card-kicker">THE PAST · 1985</p><h3>Out of Time</h3><p>Everyone has moved to AI. The professor sends you back to his first workshop, where an unfinished machine needs a voice, a memory, and a way to search its notes.</p><div class="lesson-tags"><span>LLMs</span><span>Memory</span><span>RAG</span><span>Evaluation</span></div></div>
-          <div class="card-footer"><span>08 lessons</span><button type="button" data-select-part="one">Set destination <span>→</span></button></div>
+          <div class="card-footer"><span>08 lessons</span><a href="part-one.html">Enter Part I <span>→</span></a></div>
         </article>
 
         <article class="journey-card part-two" data-journey="two">

@@ -16,6 +16,7 @@ function setPart(partId) {
   const part = parts[partId];
   document.querySelectorAll(".terminal").forEach((terminal) => {
     terminal.classList.toggle("active", terminal.dataset.part === partId);
+    terminal.setAttribute("aria-pressed", String(terminal.dataset.part === partId));
   });
   timeReadout.textContent = part.label;
   powerFill.style.width = part.power;
