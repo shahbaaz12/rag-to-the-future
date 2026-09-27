@@ -10,3 +10,15 @@
 .arrival { padding:8rem 1.3rem 9rem; text-align:center; background:linear-gradient(180deg,transparent,#0a111c 35%,#0a111c); } .arrival h2 { margin:1rem 0 1.3rem; } .arrival>p:not(.eyebrow) { max-width:580px; margin:0 auto 2rem; color:#b2bccb; line-height:1.7; } footer>a:last-child { color:var(--blue); font:500 .65rem var(--mono); letter-spacing:.07em; text-transform:uppercase; }
 @media (max-width:800px) { nav a:nth-child(2) { display:none; } .hero { grid-template-columns:1fr; min-height:auto; padding-top:4.5rem; } .status-panel { min-height:455px; } .flux-diagram { transform:scale(.87); margin:-.4rem auto -.5rem; } .mission { padding:5.5rem 1.3rem; } .mission-grid { grid-template-columns:1fr; gap:1rem; } .repair-header { display:block; } .progress { margin-top:1.2rem; } .repair-trigger { grid-template-columns:65px minmax(0,1fr) 1.5rem; gap:1rem; } .skill { display:none; } .repair-detail { grid-template-columns:1fr; gap:1rem; padding:0 1rem 1.8rem 5rem; } .completion { margin-top:.3rem; } }
 @media (max-width:480px) { .topbar,footer { align-items:flex-start; flex-direction:column; } nav { font-size:.62rem; } .brand small { font-size:.5rem; } .repair-trigger { grid-template-columns:45px minmax(0,1fr) 1.2rem; } .lesson-id { font-size:1.15rem; } .repair-title strong { font-size:1.28rem; } .repair-detail { padding-left:.2rem; } }
+
+/* Movie-inspired controls and title language shared with the home timeline. */
+:root { --ink:#04070e; --paper:#f7f2e8; --blue:#63dfff; --blue-deep:#087ed2; --gold:#ffb018; --red:#f0352c; --mono:"Share Tech Mono","DM Mono",monospace; --display:"Oswald",sans-serif; }
+body { background:radial-gradient(circle at 77% 7%,rgba(4,104,204,.42) 0,transparent 24rem),radial-gradient(circle at 8% 17%,rgba(232,65,24,.17) 0,transparent 30rem),linear-gradient(125deg,#030711,#071423 58%,#05060e); }
+.topbar, footer { padding-top:.35rem; padding-bottom:.35rem; background:rgba(3,7,14,.78); }
+.brand img { display:block; width:auto; height:4.35rem; object-fit:contain; }
+footer .brand img { height:3.55rem; }
+h1 { color:#ffe993; font-family:var(--display); font-style:italic; font-weight:700; letter-spacing:-.035em; line-height:.92; text-shadow:3px 3px 0 #c31717,7px 7px 0 #0759a5,0 0 24px rgba(255,130,20,.25); text-transform:uppercase; transform:skewY(-3deg); }
+.status-panel { border-color:rgba(93,221,255,.35); background:linear-gradient(135deg,rgba(8,17,29,.94),rgba(4,35,68,.74)); box-shadow:inset 0 0 80px rgba(114,216,255,.08),0 30px 100px rgba(0,0,0,.3),0 0 45px rgba(0,123,255,.1); }
+.flux-diagram { display:grid; place-items:center; }
+.flux-diagram img { width:min(100%,260px); filter:drop-shadow(0 0 18px rgba(76,224,255,.36)); }
+.arrival { background:linear-gradient(180deg,transparent,#081323 35%,#060914); }

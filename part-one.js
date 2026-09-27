@@ -6,14 +6,19 @@ const progressCount = document.querySelector("[data-progress-count]");
 
 function loadCompletedLessons() {
   try {
-    return JSON.parse(localStorage.getItem(storageKey)) ?? [];
+    const storedProgress = JSON.parse(localStorage.getItem(storageKey));
+    return Array.isArray(storedProgress) ? storedProgress : [];
   } catch {
     return [];
   }
 }
 
 function saveCompletedLessons(completedLessons) {
-  localStorage.setItem(storageKey, JSON.stringify(completedLessons));
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(completedLessons));
+  } catch {
+    // Progress remains visible for this visit when browser storage is unavailable.
+  }
 }
 
 function updateProgress() {
@@ -26,7 +31,8 @@ function updateProgress() {
 }
 
 function restoreProgress() {
-  const completedLessons = new Set(loadCompletedLessons());
+  const lessonIds = new Set([...completionInputs].map((input) => input.dataset.complete));
+  const completedLessons = new Set(loadCompletedLessons().filter((lessonId) => lessonIds.has(lessonId)));
 
   completionInputs.forEach((input) => {
     input.checked = completedLessons.has(input.dataset.complete);

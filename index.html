@@ -1,113 +1,112 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="RAG to the Future — an AI systems learning journey." />
-    <title>RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="RAG to the Future: a time-travel adventure through LLMs, retrieval, agents, and reliable AI systems." />
+  <title>RAG to the Future</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="#top" aria-label="RAG to the Future home">
-        <span class="brand-mark">RTF</span>
-        <span><strong>RAG to the Future</strong><small>AI SYSTEMS JOURNEY</small></span>
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="#journeys">Journeys</a>
-        <button class="nav-button" type="button" data-open-syllabus>Syllabus</button>
-        <a id="github-link" href="https://github.com/shahbaaz12/rag-to-the-future" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-      </nav>
-    </header>
-
-    <main id="top">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow"><span></span> CALIBRATING TEMPORAL INTELLIGENCE</p>
-          <h1>Learn AI systems<br /><em>before time leaves you behind.</em></h1>
-          <p class="hero-lede">A guided journey from your first model call to reliable AI systems that can retrieve, reason, act, and recover.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="part-one.html">Begin the first jump <span>→</span></a>
-            <button class="button button-quiet" type="button" data-open-syllabus>View the syllabus</button>
-          </div>
-          <div class="hero-stats" aria-label="Course summary">
-            <div><strong>24</strong><span>LESSONS</span></div>
-            <div><strong>03</strong><span>TIME JUMPS</span></div>
-            <div><strong>01</strong><span>EVOLVING SYSTEM</span></div>
-          </div>
+    <link rel="stylesheet" href="theme.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the journey</a>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
+    <nav aria-label="Primary navigation">
+      <a href="#journeys">The trilogy</a>
+      <button class="nav-button" type="button" data-open-syllabus>Syllabus</button>
+      <a id="github-link" href="https://github.com/shahbaaz12/rag-to-the-future" target="_blank" rel="noreferrer">GitHub ↗</a>
+    </nav>
+    <span class="header-label">AN AI LEARNING ADVENTURE</span>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="signal-dot"></span> THE FUTURE CALLED. YOU'RE NOT TOO LATE.</p>
+        <img class="hero-logo" src="assets/rag-to-the-future-logo.png" alt="" width="1808" height="896" fetchpriority="high" />
+        <h1 id="hero-title"><span class="sr-only">RAG to the Future. </span>Your next stop?<br /><em>The beginning of AI.</em></h1>
+        <p class="hero-lede">Everyone is building with AI. You feel left behind.<br class="desktop-break" /> Then a professor arrives with a time machine—and a plan.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="part-one.html">Begin the first jump <span aria-hidden="true">↗</span></a>
+          <button class="button button-quiet" type="button" data-open-syllabus>Explore the syllabus</button>
         </div>
-
-        <div class="capacitor-stage" aria-label="Interactive Flux Capacitor course navigator">
-          <div class="time-readout"><span>DESTINATION TIME</span><strong id="time-readout" role="status" aria-live="polite">PART I · 1985</strong></div>
-          <div class="capacitor">
-            <div class="coil coil-one"></div><div class="coil coil-two"></div><div class="coil coil-three"></div>
-            <div class="core"><span></span></div>
-            <button class="terminal terminal-one active" type="button" data-part="one" aria-pressed="true" aria-label="Select Part I: Out of Time">I</button>
-            <button class="terminal terminal-two" type="button" data-part="two" aria-pressed="false" aria-label="Select Part II: Your Children's Tomorrow">II</button>
-            <button class="terminal terminal-three" type="button" data-part="three" aria-pressed="false" aria-label="Select Part III: The Last Departure">III</button>
-          </div>
-          <p id="capacitor-caption" aria-live="polite">Foundation systems: teach the machine how to speak, remember, and retrieve.</p>
-          <div class="power-meter"><span>FLUX POWER</span><div><i id="power-fill"></i></div><b id="power-number">33%</b></div>
-        </div>
-      </section>
-
-      <section class="premise" aria-labelledby="premise-title">
-        <p class="eyebrow">THE PROFESSOR'S PROBLEM</p>
-        <h2 id="premise-title">The Flux Capacitor can move through time.<br />It just cannot reliably decide <em>where.</em></h2>
-        <p>The professor’s navigation intelligence invents destinations, forgets instructions, and cannot understand his research journals. Every lesson repairs the same companion system—until it can bring everyone home.</p>
-      </section>
-
-      <section id="journeys" class="journeys" aria-labelledby="journey-title">
-        <div class="section-heading">
-          <p class="eyebrow">THE LEARNING TIMELINE</p>
-          <h2 id="journey-title">Three jumps. One system<br />you learn to trust.</h2>
-          <button class="text-button" type="button" data-open-syllabus>Open all 24 lessons <span>→</span></button>
-        </div>
-
-        <article id="part-one" class="journey-card part-one" data-journey="one">
-          <div class="card-index">01 <span>PART I</span></div>
-          <div class="card-content"><p class="card-kicker">THE PAST · 1985</p><h3>Out of Time</h3><p>Everyone has moved to AI. The professor sends you back to his first workshop, where an unfinished machine needs a voice, a memory, and a way to search its notes.</p><div class="lesson-tags"><span>LLMs</span><span>Memory</span><span>RAG</span><span>Evaluation</span></div></div>
-          <div class="card-footer"><span>08 lessons</span><a href="part-one.html">Enter Part I <span>→</span></a></div>
-        </article>
-
-        <article class="journey-card part-two" data-journey="two">
-          <div class="card-index">02 <span>PART II</span></div>
-          <div class="card-content"><p class="card-kicker">THE FUTURE · 2045</p><h3>Your Children’s Tomorrow</h3><p>The system now runs a workshop. It can answer questions, but a rescue needs it to use tools, plan carefully, ask for approval, and know when its retrieval is not enough.</p><div class="lesson-tags"><span>Tools</span><span>Agents</span><span>LangGraph</span><span>Advanced RAG</span></div></div>
-          <div class="card-footer"><span>08 lessons</span><button type="button" data-select-part="two">Set destination <span>→</span></button></div>
-        </article>
-
-        <article class="journey-card part-three" data-journey="three">
-          <div class="card-index">03 <span>PART III</span></div>
-          <div class="card-content"><p class="card-kicker">THE FRONTIER · UNKNOWN</p><h3>The Last Departure</h3><p>You find the professor in a world of unreliable power and limited compute. A capable system is not enough; you must measure, secure, observe, and recover it.</p><div class="lesson-tags"><span>Evals</span><span>Observability</span><span>Security</span><span>Reliability</span></div></div>
-          <div class="card-footer"><span>08 lessons</span><button type="button" data-select-part="three">Set destination <span>→</span></button></div>
-        </article>
-      </section>
-
-      <section class="thesis">
-        <p class="eyebrow">THE COURSE ARC</p>
-        <div class="thesis-flow"><span>UNDERSTAND<br />AN ANSWER</span><i>→</i><span>CONTROL<br />AN ACTION</span><i>→</i><span>EARN<br />TRUST</span></div>
-        <blockquote>“You haven’t run out of time. You’ve been starting in the wrong place.”<cite>— THE PROFESSOR</cite></blockquote>
-      </section>
-    </main>
-
-    <footer>
-      <a class="brand" href="#top"><span class="brand-mark">RTF</span><span><strong>RAG to the Future</strong><small>THE FUTURE IS UNWRITTEN</small></span></a>
-      <a id="footer-github-link" href="https://github.com/shahbaaz12/rag-to-the-future" target="_blank" rel="noreferrer">Explore the project on GitHub ↗</a>
-    </footer>
-
-    <dialog id="syllabus-dialog" aria-labelledby="syllabus-title">
-      <div class="dialog-top"><div><p class="eyebrow">THE COMPLETE TIMELINE</p><h2 id="syllabus-title">24 repairs to the Flux Capacitor.</h2></div><button class="close-button" type="button" data-close-syllabus aria-label="Close syllabus">×</button></div>
-      <div class="syllabus-grid">
-        <section><p class="part-label">PART I · OUT OF TIME</p><ol start="1"><li>Is Anybody There?</li><li>Coordinates, Please</li><li>You Told Me That Yesterday</li><li>The Professor’s Notebooks</li><li>Finding the Right Memory</li><li>The Memory Vault</li><li>An Answer with Evidence</li><li>The First Jump</li></ol></section>
-        <section><p class="part-label">PART II · YOUR CHILDREN’S TOMORROW</p><ol start="9"><li>Give It Hands</li><li>A Plan Before a Leap</li><li>The Machine Chooses</li><li>Ask Before Changing Tomorrow</li><li>The Almost-Right Part</li><li>One Question, Several Archives</li><li>Follow the Missing Clue</li><li>The Rescue Run</li></ol></section>
-        <section><p class="part-label">PART III · THE LAST DEPARTURE</p><ol start="17"><li>The Test Track</li><li>The Confident Impostor</li><li>The Poisoned Almanac</li><li>Read the Instruments</li><li>Enough Power for One Jump</li><li>It Worked in the Professor’s Lab</li><li>When the Connection Breaks</li><li>The Future Is Unwritten</li></ol></section>
+        <p class="course-meta">24 LESSONS <span>/</span> 3 TIME JUMPS <span>/</span> 1 EVOLVING AI SYSTEM</p>
       </div>
-      <p class="dialog-note">Draft 1 · Lesson names and order are ready for syllabus review.</p>
-    </dialog>
-    <script src="script.js"></script>
-  </body>
+      <aside class="time-machine" aria-label="Time machine destination selector">
+        <div class="machine-top"><span class="eyebrow">TIME CIRCUITS</span><span class="machine-status">● ONLINE</span></div>
+        <div class="circuit-labels" aria-hidden="true"><span>MONTH</span><span>DAY</span><span>YEAR</span><span>PART</span></div>
+        <button class="time-row destination active" type="button" data-part="one" aria-pressed="true" aria-label="Select Part I: Out of Time, 1985">
+          <span class="digit-row"><b>OCT</b><b>26</b><b>1985</b><b>I</b></span>
+          <span class="tape-label">DESTINATION TIME <small>THE FUNDAMENTALS</small></span>
+        </button>
+        <button class="time-row present" type="button" data-part="two" aria-pressed="false" aria-label="Select Part II: Your Children's Tomorrow, 2045">
+          <span class="digit-row"><b>OCT</b><b>21</b><b>2045</b><b>II</b></span>
+          <span class="tape-label">FUTURE TIME <small>TOOLS &amp; AGENTS</small></span>
+        </button>
+        <button class="time-row departed" type="button" data-part="three" aria-pressed="false" aria-label="Select Part III: The Last Departure, unknown year">
+          <span class="digit-row"><b>---</b><b>--</b><b>----</b><b>III</b></span>
+          <span class="tape-label">LAST TIME DEPARTED <small>SYSTEMS YOU CAN TRUST</small></span>
+        </button>
+        <div class="machine-bottom"><span>SELECT A TIMELINE ABOVE</span><span class="power-light" aria-hidden="true"></span><span>POWER ON</span></div>
+        <p class="timeline-note">Story destinations, not dates in AI history.</p>
+      </aside>
+      <div class="fire-trails" aria-hidden="true"></div>
+    </section>
+    <section class="control-deck" aria-labelledby="deck-title">
+      <div class="flux-instrument"><img src="assets/flux-capacitor.svg" alt="A Y-shaped Flux Capacitor with three illuminated branches" width="360" height="320" /><span class="instrument-plate">FLUX CAPACITOR</span></div>
+      <div class="destination-brief">
+        <p class="eyebrow">YOUR WEBSITE IS THE FLUX CAPACITOR</p>
+        <h2 id="deck-title">Where we're going,<br /><em>we'll need understanding.</em></h2>
+        <p id="time-readout" class="selected-part" aria-live="polite">PART I · 1985 · OUT OF TIME</p>
+        <p id="capacitor-caption">Start in the professor's workshop. Give the machine a voice, a memory, and evidence for its answers.</p>
+        <a id="destination-link" class="text-link" href="part-one.html">Enter the 1985 workshop →</a>
+      </div>
+      <div class="speed-instrument"><span class="instrument-label">TIME-TRAVEL THRESHOLD</span><strong class="speed">88<span>MPH</span></strong><span class="instrument-plate">A LITTLE SCIENCE FICTION.<br />A LOT OF REAL LEARNING.</span></div>
+    </section>
+    <section id="journeys" class="journeys" aria-labelledby="journey-title">
+      <div class="section-heading"><div><p class="eyebrow">YOUR THREE-PART ADVENTURE</p><h2 id="journey-title">Great systems take <em>time.</em></h2></div><button class="text-link nav-button" type="button" data-open-syllabus>View all 24 lessons ↗</button></div>
+      <div class="trilogy">
+        <article class="journey-card part-one">
+          <div class="card-heading"><span class="episode">PART I</span><span class="era">1985</span></div>
+          <p class="card-kicker">GO BACK. GET THE BASICS.</p><h3>Out of<br />Time</h3>
+          <p>The professor's machine invents destinations and forgets instructions. Repair it, one fundamental at a time.</p>
+          <div class="lesson-tags"><span>LLMs</span><span>Memory</span><span>Embeddings</span><span>RAG</span></div>
+          <div class="card-footer"><span>01–08 / LESSONS</span><a href="part-one.html">Enter the workshop →</a></div>
+        </article>
+        <article class="journey-card part-two">
+          <div class="card-heading"><span class="episode">PART II</span><span class="era">2045</span></div>
+          <p class="card-kicker">GO FORWARD. TAKE CONTROL.</p><h3>Your Children's<br />Tomorrow</h3>
+          <p>Your children inherit the assistant. Now a rescue depends on its ability to use tools, follow a plan, and ask before acting.</p>
+          <div class="lesson-tags"><span>Tools</span><span>Agents</span><span>Graphs</span><span>Advanced RAG</span></div>
+          <div class="card-footer"><span>09–16 / PLANNED</span><button type="button" data-preview-part="two">Preview the mission →</button></div>
+        </article>
+        <article class="journey-card part-three">
+          <div class="card-heading"><span class="episode">PART III</span><span class="era">????</span></div>
+          <p class="card-kicker">GO FURTHER. EARN TRUST.</p><h3>The Last<br />Departure</h3>
+          <p>Stranded on the frontier with failing power and a broken connection, you must make the system dependable enough to bring everyone home.</p>
+          <div class="lesson-tags"><span>Evals</span><span>Security</span><span>Observability</span><span>Recovery</span></div>
+          <div class="card-footer"><span>17–24 / PLANNED</span><button type="button" data-preview-part="three">Preview the mission →</button></div>
+        </article>
+      </div>
+    </section>
+    <section class="professor-note"><span class="note-label">A NOTE FROM THE PROFESSOR</span><blockquote>“You haven't run out of time.<br />You've been starting in the wrong place.”</blockquote><p>One companion. Every lesson makes it a little more capable.<br />By the final jump, you'll know exactly how it works.</p><a class="button button-primary" href="part-one.html">Let's get you back to the basics ↗</a></section>
+  </main>
+  <footer><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><p>THE FUTURE IS UNWRITTEN. START LEARNING.</p><a id="footer-github-link" href="https://github.com/shahbaaz12/rag-to-the-future" target="_blank" rel="noreferrer">Source on GitHub ↗</a></footer>
+  <dialog id="syllabus-dialog" aria-labelledby="syllabus-title">
+    <div class="dialog-top"><div><p class="eyebrow">THE COMPLETE TIMELINE</p><h2 id="syllabus-title">24 lessons. <em>Three jumps.</em></h2></div><button class="close-button" type="button" data-close-syllabus aria-label="Close syllabus">×</button></div>
+    <div class="syllabus-grid">
+      <section><p class="part-label">PART I · OUT OF TIME</p><ol>
+        <li><a href="part-one.html#lesson-1">Is Anybody There?</a></li><li><a href="part-one.html#lesson-2">Coordinates, Please</a></li><li><a href="part-one.html#lesson-3">You Told Me That Yesterday</a></li><li><a href="part-one.html#lesson-4">The Professor’s Notebooks</a></li><li><a href="part-one.html#lesson-5">Finding the Right Memory</a></li><li><a href="part-one.html#lesson-6">The Memory Vault</a></li><li><a href="part-one.html#lesson-7">An Answer with Evidence</a></li><li><a href="part-one.html#lesson-8">The First Jump</a></li>
+      </ol></section>
+      <section><p class="part-label">PART II · PLANNED</p><ol start="9"><li>Give It Hands</li><li>A Plan Before a Leap</li><li>The Machine Chooses</li><li>Ask Before Changing Tomorrow</li><li>The Almost-Right Part</li><li>One Question, Several Archives</li><li>Follow the Missing Clue</li><li>The Rescue Run</li></ol></section>
+      <section><p class="part-label">PART III · PLANNED</p><ol start="17"><li>The Test Track</li><li>The Confident Impostor</li><li>The Poisoned Almanac</li><li>Read the Instruments</li><li>Enough Power for One Jump</li><li>It Worked in the Professor’s Lab</li><li>When the Connection Breaks</li><li>The Future Is Unwritten</li></ol></section>
+    </div>
+    <p class="dialog-note">Draft 1 · Part I workshop previews are available. Full lessons are in development.</p>
+  </dialog>
+  <script src="script.js"></script>
+</body>
 </html>
