@@ -1,22 +1,48 @@
-<!doctype html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 2: Create the local project, keep keys safe, and make the first direct Groq and Gemini calls." /><title>Lesson 2 · Set Up, Then Make the Call · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="lesson-3.html">Lesson 3 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p><h1 id="page-title">Set Up, Then Make the Call</h1><p class="lede">Create the local project, keep keys safe, and make the first direct Groq and Gemini calls.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document"><blockquote><strong>Review draft</strong>  This lesson gets the learner’s local project ready and makes the first real calls to hosted LLMs. The goal is a working environment, not a perfect production setup.</blockquote>
-<section class="reading"><h2>A note before we start</h2>
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 2: Create the local project, keep keys safe, and make the first direct Groq and Gemini calls." name="description"/><title>Lesson 2 · Set Up, Then Make the Call · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="lesson-3.html">Lesson 3 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p><h1 id="page-title">Set Up, Then Make the Call</h1><p class="lede">Create the local project, keep keys safe, and make the first direct Groq and Gemini calls.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<p><strong>Review draft</strong></p>
+<p>This lesson gets the learner’s local project ready and makes the first real calls to hosted LLMs. The goal is a working environment, not a perfect production setup.</p>
+</blockquote>
+<h2 class="snippet-section">A note before we start</h2>
 <p>We will build the exact code that is present in the GitHub repository. Before we get into prompts, models, or frameworks, we need a small project that can run Python, keep secrets out of source code, and install the libraries we need.</p>
 <p>Do not overthink the setup. Create the folder, run the commands, make one request, and move on. We will improve the application as the course gives us a reason to do so.</p>
-</section>
-<section class="reading"><h2>What you will be able to do</h2>
+<h2 class="snippet-section">What you will be able to do</h2>
 <p>By the end of this lesson, you can:</p>
-<ul><li>create a Python project with <code>uv</code>;</li><li>install the dependencies used in the first notebooks;</li><li>run a quick check that confirms the project works;</li><li>create and store a Groq or Gemini API key safely; and</li><li>explain how the first direct model calls work.</li></ul>
-</section>
-<hr />
-<section class="reading"><h2>Set up the project</h2>
+<ul>
+<li>create a Python project with <code>uv</code>;</li>
+<li>install the dependencies used in the first notebooks;</li>
+<li>run a quick check that confirms the project works;</li>
+<li>create and store a Groq or Gemini API key safely; and</li>
+<li>explain how the first direct model calls work.</li>
+</ul>
+<hr/>
+<h2 class="snippet-section">Set up the project</h2>
 <p>Create a new folder wherever you prefer, then open it in a terminal, VS Code, or another IDE.</p>
-<pre><code class="language-powershell">uv init .</code></pre>
+<h3>Initialise the project</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Powershell</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">uv init .</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">uv</span> <span class="n">init</span> <span class="p">.</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Run this inside the project folder. uv creates the basic Python project configuration.</p>
+<p class="snippet-result"><strong>Result</strong> The folder now contains the project files.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>This creates the basic Python project files, including a <code>pyproject.toml</code> file. <code>uv</code> will manage the virtual environment for you, so you do not need to activate it manually for this course. Run programs through <code>uv run</code> and it will use the project environment.</p>
 <p>If you do not yet have Python or <code>uv</code>, install them first. I used Python 3.11.9 and <code>uv</code> 0.11.3 while preparing these examples, but nearby versions should work too.</p>
 <h3>Add the first dependencies</h3>
 <p>Create a <code>requirements.txt</code> file and add the packages below:</p>
-<pre><code class="language-text">openai
+<h3>List the packages</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">openai
+google-genai
 langchain
 langchain-community
 langchain-openai
@@ -26,68 +52,351 @@ langchain-google-genai
 langgraph
 langsmith
 langchain-tavily
-jupyter</code></pre>
+jupyter</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">openai
+</span><span class="code-explorer__line" data-line="2">google-genai
+</span><span class="code-explorer__line" data-line="3">langchain
+</span><span class="code-explorer__line" data-line="4">langchain-community
+</span><span class="code-explorer__line" data-line="5">langchain-openai
+</span><span class="code-explorer__line" data-line="6">langchain-groq
+</span><span class="code-explorer__line" data-line="7">python-dotenv
+</span><span class="code-explorer__line" data-line="8">langchain-google-genai
+</span><span class="code-explorer__line" data-line="9">langgraph
+</span><span class="code-explorer__line" data-line="10">langsmith
+</span><span class="code-explorer__line" data-line="11">langchain-tavily
+</span><span class="code-explorer__line" data-line="12">jupyter
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Put these package names into requirements.txt. Some support later lessons; google-genai is needed for the direct Gemini SDK example.</p>
+<p class="snippet-result"><strong>Result</strong> The installer has a list of dependencies to read.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>Then install them:</p>
-<pre><code class="language-powershell">uv add -r requirements.txt</code></pre>
+<h3>Install the dependencies</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Powershell</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">uv add -r requirements.txt</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">uv</span> <span class="n">add</span> <span class="n">-r</span> <span class="n">requirements</span><span class="p">.</span><span class="n">txt</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The -r option reads package names from requirements.txt and adds them to the uv project.</p>
+<p class="snippet-result"><strong>Result</strong> The project dependencies are installed and recorded.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>Some of these packages belong to later lessons. Installing them now saves us from stopping every time a notebook introduces a new capability. For the first two notebooks, the important packages are <code>openai</code>, <code>python-dotenv</code>, <code>langchain</code>, <code>langchain-groq</code>, and <code>langchain-google-genai</code>.</p>
 <h3>Check that it works</h3>
 <p>Create a file called <code>hi.py</code>:</p>
-<pre><code class="language-python">import langchain
-
-print(&quot;Everything is working fine&quot;)
-print(langchain.__version__)</code></pre>
+<h3>Check the installation</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">import langchain</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">import</span><span class="w"> </span><span class="nn">langchain</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We import LangChain, then print a simple message and its installed version. This is a small environment check before making any API requests.</p>
+<p class="snippet-result"><strong>Result</strong> If both lines print, the import and script execution worked.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
+<h3>Check the installation</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print("Everything is working fine")
+print(langchain.__version__)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"Everything is working fine"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">langchain</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We import LangChain, then print a simple message and its installed version. This is a small environment check before making any API requests.</p>
+<p class="snippet-result"><strong>Result</strong> If both lines print, the import and script execution worked.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>Run it with:</p>
-<pre><code class="language-powershell">uv run hi.py</code></pre>
+<h3>Run through the project environment</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Powershell</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">uv run hi.py</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">uv</span> <span class="n">run</span> <span class="n">hi</span><span class="p">.</span><span class="n">py</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">uv run uses the project's managed environment to run this Python file. Manual activation is unnecessary for this command.</p>
+<p class="snippet-result"><strong>Result</strong> The script runs with the project's installed packages.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>If you see the message and a version number, we are good. If it fails, fix the environment here before going further. Debugging one small import error is much easier than debugging it inside a larger AI application later.</p>
-</section>
-<hr />
-<section class="reading"><h2>Organise the first part</h2>
+<hr/>
+<h2 class="snippet-section">Organise the first part</h2>
 <p>Create a folder named:</p>
-<pre><code class="language-text">Part I Understanding the Basics</code></pre>
+<h3>Name the notebook folder</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">Part I Understanding the Basics</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">Part I Understanding the Basics
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">This is a folder name, not a terminal command. It matches the location of the course notebooks.</p>
+<p class="snippet-result"><strong>Result</strong> The examples have a shared place in the project.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>This is where we will work through the notebooks in the repository. Start with <a href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb</a>.</p>
-</section>
-<hr />
-<section class="reading"><h2>Get a model key</h2>
+<hr/>
+<h2 class="snippet-section">Get a model key</h2>
 <p>An API key identifies your application to a model provider. Under the hood, your code makes an authenticated HTTP request to that provider’s API. The key tells the provider who is making the request and lets it apply the correct account permissions and limits.</p>
 <p>For these first examples, create a key from <strong>Groq</strong>. You can also create a key from <strong>Gemini</strong> and run the Gemini example in the notebook. Both are useful for learning because they offer ways to get started without committing to a paid OpenAI or Anthropic account.</p>
 <p>Create a file named <code>.env</code> in the project root and keep the key there:</p>
-<pre><code class="language-text">GROQ_API_KEY=your_key_here
+<h3>Store the provider settings</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">GROQ_API_KEY=your_key_here
 GROQ_API_BASE_URL=https://api.groq.com/openai/v1
-GEMINI_API_KEY=your_key_here</code></pre>
+GEMINI_API_KEY=your_key_here</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">GROQ_API_KEY=your_key_here
+</span><span class="code-explorer__line" data-line="2">GROQ_API_BASE_URL=https://api.groq.com/openai/v1
+</span><span class="code-explorer__line" data-line="3">GEMINI_API_KEY=your_key_here
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These are .env entries, not Python statements. Replace the placeholders with your own keys and keep the file out of Git.</p>
+<p class="snippet-result"><strong>Result</strong> The later load_dotenv call can load these settings.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>Never commit <code>.env</code> to Git. Add it to <code>.gitignore</code> before you push anything.</p>
 <p>OpenAI and Anthropic are excellent providers, but their APIs commonly require payment or billing setup. They are not required for these lessons. We are here to learn the application pattern first.</p>
-</section>
-<hr />
-<section class="reading"><h2>Your first direct LLM call</h2>
+<hr/>
+<h2 class="snippet-section">Your first direct LLM call</h2>
 <p>We have many proprietary providers, including OpenAI and Anthropic. In the first notebook, I demonstrate Groq and Gemini instead.</p>
 <p>The Groq example uses the OpenAI Python SDK:</p>
-<pre><code class="language-python">groq_client = OpenAI(
-    api_key=os.getenv(&quot;GROQ_API_KEY&quot;),
-    base_url=os.getenv(&quot;GROQ_API_BASE_URL&quot;, &quot;https://api.groq.com/openai/v1&quot;),
-)
-
+<h3>Import Python's environment helper</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">import os</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>os</code> lets us read the API settings that will be loaded into the environment.</p>
+<p class="snippet-result"><strong>Result</strong> We can read settings with os.getenv.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Import the SDK and settings loader</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from openai import OpenAI</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">OpenAI is the SDK client we use for Groq's compatible API. load_dotenv lets us keep the key in a local file.</p>
+<p class="snippet-result"><strong>Result</strong> The client constructor and settings loader are available.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load API settings from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load API settings from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load API settings from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Connect the client to Groq</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Groq supports the OpenAI API format, so the OpenAI client can call Groq.
+groq_client = OpenAI(
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url=os.getenv("GROQ_API_BASE_URL", "https://api.groq.com/openai/v1"),
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Groq supports the OpenAI API format, so the OpenAI client can call Groq.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">groq_client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GROQ_API_KEY"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">base_url</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GROQ_API_BASE_URL"</span><span class="p">,</span> <span class="s2">"https://api.groq.com/openai/v1"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We give the client our Groq key and endpoint. <code>os.getenv</code> reads the settings; the endpoint has a fallback if the URL is absent from .env.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Groq supports the OpenAI API format, so the OpenAI client can call Groq.</p></div>
+<p class="snippet-result"><strong>Result</strong> groq_client points at Groq's API.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Send the first request</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Send one prompt and keep the complete response object.
 groq_response = groq_client.responses.create(
-    model=&quot;openai/gpt-oss-120b&quot;,
-    instructions=&quot;You are a ghost of a sarcastic developer.&quot;,
-    input=&quot;Suggest one excuse for being late to office.&quot;,
-)
-
-print(groq_response.output_text)</code></pre>
+    model="openai/gpt-oss-120b",
+    instructions="You are a ghost of a sarcastic developer.",
+    input="Suggest one excuse for being late to office.",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Send one prompt and keep the complete response object.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">groq_response</span> <span class="o">=</span> <span class="n">groq_client</span><span class="o">.</span><span class="n">responses</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model</span><span class="o">=</span><span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">instructions</span><span class="o">=</span><span class="s2">"You are a ghost of a sarcastic developer."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">input</span><span class="o">=</span><span class="s2">"Suggest one excuse for being late to office."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>responses.create</code> sends the model name, the assistant's instructions, and our question. We keep the entire response in groq_response.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Send one prompt and keep the complete response object.</p></div>
+<p class="snippet-result"><strong>Result</strong> The provider returns a response object. The generated excuse can vary.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Print the answer</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Print only the text generated by the model.
+print(groq_response.output_text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Print only the text generated by the model.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">groq_response</span><span class="o">.</span><span class="n">output_text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>output_text</code> extracts the generated text, so we can read the answer without printing all the response metadata.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Print only the text generated by the model.</p></div>
+<p class="snippet-result"><strong>Result</strong> The model's answer appears in the notebook.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Optionally inspect available models</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 15</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Optional: inspect the model IDs available to this account.
+# available_models = groq_client.models.list()
+# for available_model in available_models.data:
+#     print(available_model.id)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Optional: inspect the model IDs available to this account.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="c1"># available_models = groq_client.models.list()</span>
+</span><span class="code-explorer__line" data-line="3"><span class="c1"># for available_model in available_models.data:</span>
+</span><span class="code-explorer__line" data-line="4"><span class="c1">#     print(available_model.id)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These lines are commented out in the notebook. If you choose to uncomment them, models.list asks the provider for the model IDs available to the account.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Optional: inspect the model IDs available to this account.</p><p class="snippet-comment"># available_models = groq_client.models.list()</p><p class="snippet-comment"># for available_model in available_models.data:</p><p class="snippet-comment">#     print(available_model.id)</p></div>
+<p class="snippet-result"><strong>Result</strong> Nothing runs while these lines remain comments.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+</figcaption></figure>
+<h3>Try the direct Gemini example</h3>
+<p>Continue after the Groq setup above.</p>
+<h3>Switch to Gemini's SDK</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#8845c25c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 16</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from google import genai</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">google</span><span class="w"> </span><span class="kn">import</span> <span class="n">genai</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Gemini uses the google.genai client here. We reuse the environment settings loaded earlier.</p>
+<p class="snippet-result"><strong>Result</strong> genai is available. Install google-genai to run this direct SDK example.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · 8845c25c</a>
+</figcaption></figure>
+<h3>Create the Gemini client</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#8845c25c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 17</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Create a Gemini client with the key loaded from .env.
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Create a Gemini client with the key loaded from .env.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">gemini_client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">))</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>genai.Client</code> reads the Gemini key from the environment. It is a separate provider client from groq_client.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Create a Gemini client with the key loaded from .env.</p></div>
+<p class="snippet-result"><strong>Result</strong> gemini_client is ready for the request.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · 8845c25c</a>
+</figcaption></figure>
+<h3>Send the Gemini request</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#8845c25c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 18</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 18" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Send one interaction and keep the complete response object.
+gemini_response = gemini_client.interactions.create(
+    model="gemini-3.1-flash-lite",
+    system_instruction="You are a T-Rex who loves cute things.",
+    input="Make an excuse for going to watch the butterflies.",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Send one interaction and keep the complete response object.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">gemini_response</span> <span class="o">=</span> <span class="n">gemini_client</span><span class="o">.</span><span class="n">interactions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model</span><span class="o">=</span><span class="s2">"gemini-3.1-flash-lite"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">system_instruction</span><span class="o">=</span><span class="s2">"You are a T-Rex who loves cute things."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">input</span><span class="o">=</span><span class="s2">"Make an excuse for going to watch the butterflies."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The interaction has a model, a system instruction, and an input. The calling shape differs from Groq's SDK example, but we still send a prompt and receive a response.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Send one interaction and keep the complete response object.</p></div>
+<p class="snippet-result"><strong>Result</strong> gemini_response holds the complete interaction response.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · 8845c25c</a>
+</figcaption></figure>
+<h3>Read Gemini's answer</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#8845c25c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 19</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 19" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Print only the text generated by the model.
+print(gemini_response.output_text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Print only the text generated by the model.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">gemini_response</span><span class="o">.</span><span class="n">output_text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We print the output_text from the interaction response. The exact wording is generated by the model.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Print only the text generated by the model.</p></div>
+<p class="snippet-result"><strong>Result</strong> The answer appears in the notebook.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · 8845c25c</a>
+</figcaption></figure>
 <p>Groq is compatible with the OpenAI API format, so we can comfortably use OpenAI-style APIs to call Groq-hosted models. Gemini has its own SDK and call shape. The important part is the same in both cases:</p>
-<pre><code class="language-text">load API key → create client → choose model → send input → inspect response</code></pre>
+<h3>Follow a direct call</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 20</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 20" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">load API key → create client → choose model → send input → inspect response</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">load API key → create client → choose model → send input → inspect response
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We prepare credentials and a client before sending the input to a chosen model. After the response arrives, our application decides how to use it.</p>
+<p class="snippet-result"><strong>Result</strong> The same broad sequence applies across providers.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+</figcaption></figure>
 <p>The provider hosts and runs the model. Your application decides what to send, receives the response, and decides what to do with it.</p>
-</section>
-<hr />
-<section class="reading"><h2>When changing the model becomes a problem</h2>
+<hr/>
+<h2 class="snippet-section">When changing the model becomes a problem</h2>
 <p>Say you built your application around one provider’s API. Then its price changes, its privacy policy no longer meets your company’s standards, or another provider becomes a better fit. Switching can become a real undertaking.</p>
 <p>The notebook can demonstrate a small change in only a few lines. In a real application, models may be woven into prompts, output parsing, evaluation, security reviews, deployment configuration, and user-facing behaviour. The change can easily turn into a multi-sprint development cycle.</p>
 <p>Yes, we will learn better ways to organise code. But let’s be honest: many projects accumulate shortcuts before anyone gets around to the architecture book. The useful lesson here is simple: know which parts of your code are provider-specific, and keep an eye on them from the beginning.</p>
-</section>
-<hr />
-<section class="reading"><h2>A quick note on open-source models</h2>
+<hr/>
+<h2 class="snippet-section">A quick note on open-source models</h2>
 <p>While we are here: you can download an open-source model, host it yourself, and make calls without paying a hosted-model provider for each request.</p>
 <p>Free is doing a lot of work in that sentence. You still pay for machines, electricity, deployment, monitoring, and your own time. Self-hosting is valuable and we will come back to it, but do not divert into it yet. First, learn to make a reliable hosted-model call and understand the application around it.</p>
-</section>
-<section class="reading"><h2>Next lesson</h2>
+<h2 class="snippet-section">Next lesson</h2>
 <p>We will use LangChain to give multiple model providers a more consistent interface, then see what still changes when we switch models.</p>
-</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Lesson 1</a></footer></body></html>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Lesson 1</a></footer><script defer="True" src="lesson-code-explorer.js"></script></body></html>

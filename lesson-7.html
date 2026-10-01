@@ -1,52 +1,288 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 7: give a model approved tools while keeping application control over execution." />
-    <title>Lesson 7 · Keep the Control · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="lesson-7.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
-      <nav aria-label="Lesson navigation"><a href="lesson-6.html">← Lesson 6</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="lesson-8.html">Lesson 8 →</a></nav>
-    </header>
-    <main>
-      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 07</p><p class="chapter-number">EXECUTION CONTROL / APPROVED ACTIONS</p><h1 id="page-title">Give the model <em>tools.</em> Keep control.</h1><p class="lede">A model may request a function. Your application decides whether that request is recognised, valid, permitted, and safe to run.</p><div class="hero-actions"><a class="button primary" href="#lesson">Inspect the loop <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Tool loop overview"><p class="panel-label">EXECUTION AUTHORITY</p><div class="route" aria-hidden="true"><b>USER</b><i></i><b>MODEL</b><i></i><b>APP</b><i></i><b>TOOL</b></div><dl><div><dt>MODEL</dt><dd>requests</dd></div><div><dt>APPLICATION</dt><dd>validates</dd></div><div><dt>TOOL</dt><dd>returns data</dd></div></dl><p class="panel-note">Tool calls are structured suggestions, not automatic permissions to run code or access data.</p></aside></section>
-      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console reaches for a switch.</h2></div><p>The navigation system proposes opening a sealed maintenance panel. The professor puts a hand over the switch: “A good suggestion still needs an operator.” The request is recorded; the panel stays closed until the application checks it.</p><a href="#lesson">Skip to the technical lesson →</a></aside>
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">A tool is a function your application makes available.</h2><p>Tools let a model request information or an action from outside the conversation. The model can propose a useful function and arguments; the software around it remains responsible for execution.</p></header>
-        <section class="reading" aria-labelledby="tool-title"><p class="number">01 · DEFINE A TOOL</p><h3 id="tool-title">Start with a small local lookup.</h3><p>A tool has a clear name, description, inputs, and output. In a real application it might query a database, read approved documents, check an order, or take an action the user authorised. This local example keeps the focus on the flow.</p><div class="code-card"><pre><code>@tool
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 7: give a model approved tools while keeping application control over execution." name="description"/><title>Lesson 7 · Keep the Control · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-6.html">← Lesson 6</a><a href="#lesson">Lesson</a><a href="lesson-8.html">Lesson 8 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART I · OUT OF TIME · LESSON 07</p><h1 id="page-title">Give the model tools. Keep control.</h1><p class="lede">A model may request a function. Your application decides whether that request is recognised, valid, permitted, and safe to run.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<p><strong>Review draft</strong></p>
+<p>This lesson introduces tool calling and the execution loop around it. The key idea is that the model may request a tool, but the application decides whether and how that tool runs.</p>
+</blockquote>
+<h2 class="snippet-section">A note from me</h2>
+<p>A model can write a very convincing answer about the current weather, your order status, or a course module. That does not mean it has actually checked any of them.</p>
+<p>Tools let the model request information or an action from the outside world. The important word is <em>request</em>. The model does not get to run random code on its own. Our application stays in charge.</p>
+<h2 class="snippet-section">What you will be able to do</h2>
+<ul>
+<li>define a small LangChain tool;</li>
+<li>let a model request that tool;</li>
+<li>execute only recognised tool calls; and</li>
+<li>explain the tool-execution loop.</li>
+</ul>
+<hr/>
+<h2 class="snippet-section">Set up once</h2>
+<p>Run these snippets in order in the associated notebook. Later snippets reuse the objects created here.</p>
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.tools import tool</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">ToolMessage</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These imports make the model constructor and the helpers used below available. We only need to run this setup once in the notebook session.</p>
+<p class="snippet-result"><strong>Result</strong> The imported names are ready for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-1</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load GROQ_API_KEY from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load GROQ_API_KEY from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load GROQ_API_KEY from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-1</a>
+</figcaption></figure>
+<h3>Choose the model and provider</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">groq_model = init_chat_model(
+    "openai/gpt-oss-120b",
+    model_provider="groq",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">groq_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>init_chat_model</code> creates the model object. The model identifier selects what we ask to run; <code>model_provider</code> selects the integration that sends the request. Creating this object does not generate a reply yet.</p>
+<p class="snippet-result"><strong>Result</strong> We can reuse this model object in the following snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-1</a>
+</figcaption></figure>
+<h2 class="snippet-section">What is a tool?</h2>
+<p>A tool is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorised.</p>
+<p>For the first example, we use a tiny local lookup. It keeps the focus on the flow rather than adding another API key.</p>
+<h3>Define the course lookup tool</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">@tool  # This decorator registers the function as a tool that can be used in LangChain.
 def get_course_module(module_number: int) -&gt; str:
     """Return the topic for a course module number from 1 through 7."""
     modules = {
+        1: "AI foundations",
+        2: "environment setup and direct model calls",
+        3: "LangChain and model settings",
+        4: "responses and prompts",
         5: "streaming, batching, structured output, and messages",
         6: "conversation memory and checkpointers",
         7: "tools and tool-execution loops",
     }
-    return modules.get(module_number, "That module number is not available.")</code></pre></div><p>The docstring matters: it helps the model understand when the tool is useful and what its input means.</p></section>
-        <section class="reading" aria-labelledby="request-title"><p class="number">02 · REQUEST, THEN EXECUTE</p><h3 id="request-title">Bind only permitted tools to the model.</h3><div class="code-card"><pre><code>tool_enabled_model = groq_model.bind_tools([get_course_module])
-model_message = tool_enabled_model.invoke(messages)</code></pre></div><p>The response may contain <code>tool_calls</code>: structured data describing a requested function and proposed arguments. That does not prove the function ran. Your application must match the request to an allow-list before it executes anything.</p><div class="code-card"><pre><code>for tool_call in model_message.tool_calls:
+    return modules.get(module_number, "That module number is not available.")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nd">@tool</span>  <span class="c1"># This decorator registers the function as a tool that can be used in LangChain.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">def</span><span class="w"> </span><span class="nf">get_course_module</span><span class="p">(</span><span class="n">module_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="3"><span class="w">    </span><span class="sd">"""Return the topic for a course module number from 1 through 7."""</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">modules</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="mi">1</span><span class="p">:</span> <span class="s2">"AI foundations"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">        <span class="mi">2</span><span class="p">:</span> <span class="s2">"environment setup and direct model calls"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="mi">3</span><span class="p">:</span> <span class="s2">"LangChain and model settings"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="8">        <span class="mi">4</span><span class="p">:</span> <span class="s2">"responses and prompts"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="9">        <span class="mi">5</span><span class="p">:</span> <span class="s2">"streaming, batching, structured output, and messages"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="10">        <span class="mi">6</span><span class="p">:</span> <span class="s2">"conversation memory and checkpointers"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="11">        <span class="mi">7</span><span class="p">:</span> <span class="s2">"tools and tool-execution loops"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="12">    <span class="p">}</span>
+</span><span class="code-explorer__line" data-line="13">    <span class="k">return</span> <span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_number</span><span class="p">,</span> <span class="s2">"That module number is not available."</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The decorator exposes this function as a tool. The docstring describes its purpose, module_number is the input, and the dictionary provides a local lookup. get supplies a fallback for an unknown module.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># This decorator registers the function as a tool that can be used in LangChain.</p></div>
+<p class="snippet-result"><strong>Result</strong> The tool can answer a module-number lookup when our application runs it.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-3</a>
+</figcaption></figure>
+<h3>Keep an explicit tool list</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">course_tools = [
+    get_course_module
+]  # This list can be expanded with more tools as needed.
+tools_by_name = {course_tool.name: course_tool for course_tool in course_tools}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">course_tools</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">get_course_module</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">]</span>  <span class="c1"># This list can be expanded with more tools as needed.</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">tools_by_name</span> <span class="o">=</span> <span class="p">{</span><span class="n">course_tool</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">course_tool</span> <span class="k">for</span> <span class="n">course_tool</span> <span class="ow">in</span> <span class="n">course_tools</span><span class="p">}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">course_tools contains the allowed tools. tools_by_name maps each tool's name to the object we can execute later.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># This list can be expanded with more tools as needed.</p></div>
+<p class="snippet-result"><strong>Result</strong> Our application has an explicit lookup for permitted tools.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-3</a>
+</figcaption></figure>
+<p>The docstring matters. It helps the model understand when the tool is useful and what its input means.</p>
+<hr/>
+<h2 class="snippet-section">The model requests; the application executes</h2>
+<p>First, bind the permitted tools to the model:</p>
+<h3>Tell the model which tools exist</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">tool_enabled_model = groq_model.bind_tools(course_tools)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">tool_enabled_model</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">(</span><span class="n">course_tools</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">bind_tools attaches the allowed tool descriptions to the model interface. This makes the tools available for requests; it does not execute one.</p>
+<p class="snippet-result"><strong>Result</strong> tool_enabled_model can produce tool-call requests.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-5</a>
+</figcaption></figure>
+<h3>Prepare the question</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">messages = [
+    SystemMessage("Use the course tool when the learner asks about a module number."),
+    HumanMessage("What will I learn in module 6?"),
+]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"Use the course tool when the learner asks about a module number."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"What will I learn in module 6?"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The system message explains when to use the course lookup. The human message asks about module 6.</p>
+<p class="snippet-result"><strong>Result</strong> messages contains the instruction and question.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-5</a>
+</figcaption></figure>
+<h3>Inspect the requested tool calls</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">model_message = tool_enabled_model.invoke(messages)
+print("Requested tool calls:", model_message.tool_calls)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">model_message</span> <span class="o">=</span> <span class="n">tool_enabled_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Requested tool calls:"</span><span class="p">,</span> <span class="n">model_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We invoke the model and inspect tool_calls. Each requested call describes a tool name and proposed arguments. The function has not run at this point.</p>
+<p class="snippet-result"><strong>Result</strong> model_message holds the model's request, if it chose a tool.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-5</a>
+</figcaption></figure>
+<p>The response may contain <code>tool_calls</code>. That is structured data describing the function the model wants to use and the arguments it proposes. It is not proof that the tool ran.</p>
+<p>Our application then finds the requested tool in its allow-list, executes it, and returns a <code>ToolMessage</code> with the result.</p>
+<h3>Save the model's request</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">messages.append(model_message)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_message</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We append the model message before adding tool results, keeping the request and its results together in the conversation.</p>
+<p class="snippet-result"><strong>Result</strong> The message history includes the tool-call request.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-7</a>
+</figcaption></figure>
+<h3>Execute an allowed tool and return its result</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">for tool_call in model_message.tool_calls:
     requested_tool = tools_by_name.get(tool_call["name"])
     if requested_tool is None:
+        # Do not execute a tool that the application did not explicitly allow.
         tool_result = "This tool is not available."
     else:
         tool_result = requested_tool.invoke(tool_call["args"])
 
     messages.append(
-        ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"])
-    )</code></pre></div></section>
-        <section class="loop-panel" aria-labelledby="loop-title"><p class="eyebrow">THE TOOL-EXECUTION LOOP</p><h3 id="loop-title">Send the result back for a normal answer.</h3><figure class="flow"><div><b>User request</b><small>asks a question</small></div><i aria-hidden="true">→</i><div><b>Model request</b><small>proposes a tool</small></div><i aria-hidden="true">→</i><div><b>Application</b><small>validates and runs it</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>uses the tool result</small></div><figcaption>The application sends the model request and tool result back to the model so it can answer the user.</figcaption></figure><p>The model never automatically calls the function. It hands your application structured information about a function that could help; your application controls whether, how, and with which data that function runs.</p></section>
-        <section class="reading" aria-labelledby="control-title"><p class="number">03 · KEEP CONTROL</p><h3 id="control-title">Treat a tool call like untrusted input.</h3><p>Before executing a real tool, the application should decide whether the requested tool is allowed, whether its arguments are valid, whether the user has permission, how it handles a slow or failed external service, and what it logs for investigation. Models reason about tools; applications own permissions and execution.</p><p>Work through the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb</a>.</p></section>
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Build one inspected tool loop.</h2><p>Define the course-module tool, bind it to a configured chat model, and ask a question that needs module 6. Print or inspect the model’s requested tool call. Execute only a request found in your allow-list, append a <code>ToolMessage</code>, then call the model again for the final answer.</p><ul><li>Check an unknown tool name returns a clear unavailable result.</li><li>Keep the tool’s input constrained to the expected argument.</li><li>Write down which step makes the actual execution decision.</li></ul><p class="outcome"><strong>Learning record:</strong> the model can request a tool, while the application retains control of the tool-execution loop.</p></section>
-      </article>
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 08</p><h2 id="next-title">Turn the loop into an <em>agent.</em></h2><p>Next, let a framework manage the standard loop while you continue to define approved tools, data access, permissions, and rules.</p><a class="button primary" href="lesson-8.html">Continue to lesson 8 <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 07</p><a href="lesson-6.html">← Previous lesson</a><a href="lesson-8.html">Next lesson →</a></footer>
-  </body>
-</html>
+        ToolMessage(
+            content=str(tool_result),
+            tool_call_id=tool_call["id"],
+        )
+    )</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">model_message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">requested_tool</span> <span class="o">=</span> <span class="n">tools_by_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="k">if</span> <span class="n">requested_tool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="4">        <span class="c1"># Do not execute a tool that the application did not explicitly allow.</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="n">tool_result</span> <span class="o">=</span> <span class="s2">"This tool is not available."</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">else</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="n">tool_result</span> <span class="o">=</span> <span class="n">requested_tool</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">"args"</span><span class="p">])</span>
+</span><span class="code-explorer__line" data-line="8"></span><span class="code-explorer__line" data-line="9">    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="10">        <span class="n">ToolMessage</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="11">            <span class="n">content</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tool_result</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="12">            <span class="n">tool_call_id</span><span class="o">=</span><span class="n">tool_call</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="13">        <span class="p">)</span>
+</span><span class="code-explorer__line" data-line="14">    <span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We look up the requested name in tools_by_name. A recognised tool runs with the proposed arguments; an unknown name receives a fallback. ToolMessage carries the result with the original call ID so the model can match it to the request.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Do not execute a tool that the application did not explicitly allow.</p></div>
+<p class="snippet-result"><strong>Result</strong> The history now contains the tool result for each request. This small example checks the tool name; real applications also need argument and permission checks.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-7</a>
+</figcaption></figure>
+<h3>Ask for the final answer</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/7-Tools-and-Tool-Loops.ipynb#tool-loop-7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">final_response = tool_enabled_model.invoke(messages)
+print(final_response.text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">final_response</span> <span class="o">=</span> <span class="n">tool_enabled_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">final_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We send the updated history back to the model. It can now use the tool result when composing an answer for the learner.</p>
+<p class="snippet-result"><strong>Result</strong> final_response holds the final text. This example handles one round of tool calls; more complex requests may need a repeated loop.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb · tool-loop-7</a>
+</figcaption></figure>
+<p>Finally, send the model’s request and the tool result back to the model so it can give the user a normal answer.</p>
+<h3>Follow the tool loop</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson7_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">user request → model requests a tool → application validates and runs it
+             → application sends result → model writes final answer</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">user request → model requests a tool → application validates and runs it
+</span><span class="code-explorer__line" data-line="2">             → application sends result → model writes final answer
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The model requests a tool. The application executes an allowed call and returns its result. The model then uses that result to write an answer.</p>
+<p class="snippet-result"><strong>Result</strong> Tool execution happens in the application or framework.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson7_final.md">lesson7_final.md · supplement</a>
+</figcaption></figure>
+<p>That is a tool-execution loop.</p>
+<p>Notice what the model did here. It handed our application structured information saying that a particular function could help answer the user’s question. It did <strong>not</strong> automatically call the function.</p>
+<p>Our application receives that request, checks whether the function is allowed, runs it with the proposed arguments, and returns the result to the model. That separation is deliberate: the model can suggest a tool, but the software we write controls what actually happens.</p>
+<hr/>
+<h2 class="snippet-section">Why the application must stay in control</h2>
+<p>The tool call is a suggestion from a model. Treat it like any other untrusted input. Before an application executes a real tool, it should decide:</p>
+<ul>
+<li>Is this tool on the allow-list?</li>
+<li>Are the arguments valid?</li>
+<li>Is this user allowed to perform this action?</li>
+<li>What happens if the external service is slow or fails?</li>
+<li>What should we log so we can investigate a mistake?</li>
+</ul>
+<p>We will add stronger patterns around this later. For now, keep the core idea: models reason about tools; applications own the permissions and execution.</p>
+<p>Work through the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb</a>.</p>
+<h2 class="snippet-section">Next lesson</h2>
+<p>We will let a framework manage this same loop as an agent, while we continue to control its tools and boundaries.</p>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 07</p><a href="lesson-6.html">← Lesson 6</a><a href="lesson-8.html">Lesson 8 →</a></footer><script src="lesson-code-explorer.js"></script></body></html>

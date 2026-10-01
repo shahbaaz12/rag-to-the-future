@@ -1,121 +1,368 @@
-<!doctype html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 6: Manual history, summaries, and checkpoints for separate conversations." /><title>Lesson 6 · Memory Between Turns · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-5.html">← Lesson 5</a><a href="#lesson">Lesson</a><a href="lesson-7.html">Lesson 7 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 06</p><h1 id="page-title">Memory Between Turns</h1><p class="lede">Manual history, summaries, and checkpoints for separate conversations.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document">
-<blockquote>
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 6: Manual history, summaries, and checkpoints for separate conversations." name="description"/><title>Lesson 6 · Memory Between Turns · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-5.html">← Lesson 5</a><a href="#lesson">Lesson</a><a href="lesson-7.html">Lesson 7 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 06</p><h1 id="page-title">Memory Between Turns</h1><p class="lede">Manual history, summaries, and checkpoints for separate conversations.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
 <p><strong>Review draft</strong></p>
 <p>This lesson makes conversation memory explicit. We first carry messages ourselves, then compress old history, and finally let a checkpointer restore the right conversation for each user.</p>
 </blockquote>
-<section class="reading"><h2>A note from me</h2>
+<h2 class="snippet-section">A note from me</h2>
 <p>A chat model can look as if it remembers you. It does not. Each model call only knows the messages and context that reach it in that call.</p>
 <p>So when a model remembers that Ada is learning about LLMs, something in our application carried that information forward. This lesson is about that “something.”</p>
-</section><section class="reading"><h2>What you will be able to do</h2>
+<h2 class="snippet-section">What you will be able to do</h2>
 <ul>
 <li>explain why a model does not remember a previous API call by itself;</li>
 <li>keep a short conversation history manually;</li>
 <li>replace old history with a compact summary; and</li>
 <li>use a checkpointer to keep separate conversations by <code>thread_id</code>.</li>
 </ul>
-
-</section><section class="reading"><h2>1. Manual memory: resend the history</h2>
-<p>The simplest memory is a Python list of messages. A message is text plus its role, and we send the complete list again on every turn.</p>
-<pre><code class="language-python">from langchain.chat_models import init_chat_model
-from langchain.messages import SystemMessage, HumanMessage, AIMessage
-
-model = init_chat_model(
+<hr/>
+<h2 class="snippet-section">Set up once</h2>
+<p>Run these setup snippets first. All three examples use this same model object.</p>
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from langchain.chat_models import init_chat_model
+from langchain.messages import SystemMessage, HumanMessage, AIMessage</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">AIMessage</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We import the model constructor and three message types. SystemMessage holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.</p>
+<p class="snippet-result"><strong>Result</strong> The names we need are available for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · memory-imports</a>
+</figcaption></figure>
+<h3>Create the model connection</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">model = init_chat_model(
     "openai/gpt-oss-120b",
     model_provider="groq",
     reasoning_effort="low",
-)
-
-messages = [SystemMessage("You are a concise assistant.")]
-
-# Turn 1
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">init_chat_model creates the Groq model object. The model name selects the hosted model, and reasoning_effort sets the requested reasoning level. This prepares the object; invoke will send the actual request.</p>
+<p class="snippet-result"><strong>Result</strong> We can reuse model for every example below. Make GROQ_API_KEY available before running the notebook.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · memory-imports</a>
+</figcaption></figure>
+<h2 class="snippet-section">1. Manual memory</h2>
+<p>The simplest memory is a Python list. Our application keeps the messages and sends them again on each turn.</p>
+<h3>Start the conversation</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">messages = [SystemMessage("You are a concise assistant.")]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a concise assistant."</span><span class="p">)]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We start a list with the assistant's instruction. This is the first message that later requests will receive.</p>
+<p class="snippet-result"><strong>Result</strong> messages contains one system message.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
+</figcaption></figure>
+<h3>Send the first message and save the reply</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Turn 1
 messages.append(HumanMessage("My name is Ada. I am learning about LLMs."))
 reply = model.invoke(messages)
 messages.append(AIMessage(reply.content))
-print("AI:", reply.content)
-
-# Turn 2: the model only knows Ada because we resend the whole list.
+print("AI:", reply.content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Turn 1</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"My name is Ada. I am learning about LLMs."</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">reply</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AIMessage</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="5"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">append adds Ada's introduction. invoke sends the current list to the model. We then add the reply as an AIMessage so the next request can include both sides of the exchange.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Turn 1</p></div>
+<p class="snippet-result"><strong>Result</strong> The list now contains the instruction, Ada's introduction, and the model's reply.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
+</figcaption></figure>
+<h3>Ask a follow-up with the same history</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Turn 2: the model only knows Ada because we resend the whole list.
 messages.append(HumanMessage("What is my name and what am I learning?"))
 reply = model.invoke(messages)
 messages.append(AIMessage(reply.content))
-print("AI:", reply.content)
-
-print(len(messages))
-</code></pre>
-<p>This is clear and useful for a short conversation. But every earlier message becomes input again. The history grows, token usage grows, and eventually we reach a context limit.</p>
-
-</section><section class="reading"><h2>2. Manual memory with summarisation</h2>
-<p>When history becomes large, we can keep the important idea while removing the full detail. First, turn old messages into text and ask the model for a short summary. Then replace the old messages with that summary.</p>
-<pre><code class="language-python"># Pretend a long conversation already happened.
+print("AI:", reply.content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Turn 2: the model only knows Ada because we resend the whole list.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"What is my name and what am I learning?"</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">reply</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AIMessage</span><span class="p">(</span><span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="5"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We add the follow-up, then send the entire list again. The earlier introduction is still in that list, so the model has context for Ada's name and what she is learning. We also save this second reply.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Turn 2: the model only knows Ada because we resend the whole list.</p></div>
+<p class="snippet-result"><strong>Result</strong> The model can answer using the introduction sent earlier. Its wording may vary.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
+</figcaption></figure>
+<h3>Count what we have stored</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print("Messages stored:", len(messages))</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"Messages stored:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">))</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">len(messages) counts message objects, rather than tokens. We have one instruction plus two human messages and two AI replies.</p>
+<p class="snippet-result"><strong>Result</strong> Messages stored: 5</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
+</figcaption></figure>
+<h2 class="snippet-section">2. Manual memory with summarisation</h2>
+<p>A growing history becomes more input on every call. Here we replace older details with a short summary. This example starts its own history list.</p>
+<h3>Prepare a sample history</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Pretend a long conversation already happened.
 messages = [
     SystemMessage("You are a concise assistant."),
     HumanMessage("My name is Ada. I am learning about LLMs."),
     AIMessage("Nice to meet you, Ada!"),
     HumanMessage("I like Python and I use Groq."),
     AIMessage("Great combo."),
-]
-
-# Step 1: summarise every old message except the system instruction.
+]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Pretend a long conversation already happened.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a concise assistant."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"My name is Ada. I am learning about LLMs."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">AIMessage</span><span class="p">(</span><span class="s2">"Nice to meet you, Ada!"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"I like Python and I use Groq."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="n">AIMessage</span><span class="p">(</span><span class="s2">"Great combo."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="8"><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We create a five-message conversation to practise on. Ada's name, Python preference, and Groq usage are the useful facts we want to carry forward.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Pretend a long conversation already happened.</p></div>
+<p class="snippet-result"><strong>Result</strong> This replaces the messages list from the manual-memory example.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · summary-code</a>
+</figcaption></figure>
+<h3>Turn the older messages into a summary</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Step 1: summarise every old message except the system instruction.
 old_text = "\n".join(f"{message.type}: {message.content}" for message in messages[1:])
 summary = model.invoke(
     f"Summarize this conversation in one line:\n{old_text}"
 ).content
-
-# Step 2: replace the detailed history with the summary.
+print("Summary:", summary)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Step 1: summarise every old message except the system instruction.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">old_text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">summary</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="sa">f</span><span class="s2">"Summarize this conversation in one line:</span><span class="se">\n</span><span class="si">{</span><span class="n">old_text</span><span class="si">}</span><span class="s2">"</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+</span><span class="code-explorer__line" data-line="6"><span class="nb">print</span><span class="p">(</span><span class="s2">"Summary:"</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">messages[1:] skips the system instruction. The join builds text containing each message's role and content. We ask the model to summarise that text and take the response content.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Step 1: summarise every old message except the system instruction.</p></div>
+<p class="snippet-result"><strong>Result</strong> summary holds the generated summary. Creating it uses an additional model call.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · summary-code</a>
+</figcaption></figure>
+<h3>Replace the full history</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Step 2: replace detailed history with a compact summary.
 messages = [
     messages[0],
     SystemMessage(f"Summary of earlier chat: {summary}"),
 ]
-
-# Step 3: the model has useful context with fewer tokens.
+print("Messages stored after summary:", len(messages))</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Step 2: replace detailed history with a compact summary.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">SystemMessage</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Summary of earlier chat: </span><span class="si">{</span><span class="n">summary</span><span class="si">}</span><span class="s2">"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">]</span>
+</span><span class="code-explorer__line" data-line="6"><span class="nb">print</span><span class="p">(</span><span class="s2">"Messages stored after summary:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">))</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We keep messages[0], the original instruction, and add the summary as another message. The full older conversation is no longer included in this list.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Step 2: replace detailed history with a compact summary.</p></div>
+<p class="snippet-result"><strong>Result</strong> Messages stored after summary: 2. Fewer messages only save tokens when their text is shorter too.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · summary-code</a>
+</figcaption></figure>
+<h3>Ask using the compact context</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Step 3: the model keeps useful context using fewer input tokens.
 messages.append(HumanMessage("What is my name and what do I use?"))
-print("AI:", model.invoke(messages).content)
-</code></pre>
-<p>Five messages became two. That is the benefit. The trade-off is that a summary can miss or alter a detail, so do not summarise facts that must remain exact without a way to recover them.</p>
-
-</section><section class="reading"><h2>3. Checkpointer: let the application store the history</h2>
-<p>Manually passing a list works, but a real application needs to keep different users and conversations separate. A <strong>checkpointer</strong> is the notebook that stores the chat history for us.</p>
-<p><code>InMemorySaver</code> is a simple in-process checkpointer for learning and local development. The important identifier is the <code>thread_id</code>: the same ID restores the same conversation; a different ID starts a different one.</p>
-<pre><code class="language-python">from langchain.agents import create_agent
-from langgraph.checkpoint.memory import InMemorySaver
-
-# The checkpointer stores history by thread ID.
-memory = InMemorySaver()
-
-agent = create_agent(
+print("AI:", model.invoke(messages).content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Step 3: the model keeps useful context using fewer input tokens.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"What is my name and what do I use?"</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We append a new question and send the instruction, summary, and question together. The model now relies on the summary to answer.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Step 3: the model keeps useful context using fewer input tokens.</p></div>
+<p class="snippet-result"><strong>Result</strong> The answer can use the facts retained in the summary. Summaries can omit details; keep or recover exact facts when needed.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · summary-code</a>
+</figcaption></figure>
+<h2 class="snippet-section">3. Checkpointer</h2>
+<p>A checkpointer stores and restores conversation state for a named thread. We use create_agent with no tools here as a simple conversation wrapper; the tools and agents lessons will explain it further.</p>
+<h3>Import the conversation wrapper and storage</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from langchain.agents import create_agent
+from langgraph.checkpoint.memory import InMemorySaver</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_agent</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.checkpoint.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemorySaver</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">create_agent builds the conversation wrapper. InMemorySaver supplies a place to store its state inside this Python process.</p>
+<p class="snippet-result"><strong>Result</strong> The imports are ready. This storage will disappear when the process ends.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Create the checkpointer</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># The checkpointer is the notebook that stores chat history.
+memory = InMemorySaver()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># The checkpointer is the notebook that stores chat history.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">memory</span> <span class="o">=</span> <span class="n">InMemorySaver</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We create one InMemorySaver instance. The agent in the next snippet will use this same instance to save and restore conversation state.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The checkpointer is the notebook that stores chat history.</p></div>
+<p class="snippet-result"><strong>Result</strong> memory is our local checkpointer.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Attach it to the agent</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">agent = create_agent(
     model,
     tools=[],
     system_prompt="You are a concise assistant.",
     checkpointer=memory,
-)
-
-user1_config = {"configurable": {"thread_id": "user1"}}
-
-# Turn 1: send only the new message.
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">agent</span> <span class="o">=</span> <span class="n">create_agent</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">model</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">tools</span><span class="o">=</span><span class="p">[],</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">system_prompt</span><span class="o">=</span><span class="s2">"You are a concise assistant."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">checkpointer</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We pass the existing model, an empty tools list, the assistant instruction, and our checkpointer to create_agent. The wrapper handles the saved conversation around each call.</p>
+<p class="snippet-result"><strong>Result</strong> agent is ready to accept new messages with a thread configuration.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Choose a conversation ID</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># The same thread ID means the same stored conversation.
+user1_config = {"configurable": {"thread_id": "user1"}}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># The same thread ID means the same stored conversation.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">user1_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"configurable"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"thread_id"</span><span class="p">:</span> <span class="s2">"user1"</span><span class="p">}}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">thread_id names the conversation whose saved state we want to use. It identifies a thread, rather than authenticating a user. In this example we name the first thread user1.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The same thread ID means the same stored conversation.</p></div>
+<p class="snippet-result"><strong>Result</strong> Calls with this configuration will continue the same conversation.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Send just the new introduction</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 15</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Turn 1: send only the new message.
 message1 = HumanMessage("My name is Ada. I am learning about LLMs.")
 response1 = agent.invoke({"messages": [message1]}, user1_config)
-print("AI:", response1["messages"][-1].content)
-
-# Turn 2: the checkpointer restores user1's earlier history.
+print("AI:", response1["messages"][-1].content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Turn 1: send only the new message.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">message1</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"My name is Ada. I am learning about LLMs."</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">response1</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">message1</span><span class="p">]},</span> <span class="n">user1_config</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">response1</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We send message1 with user1_config. The agent records the conversation in the checkpointer. The returned messages list includes the conversation state, so [-1] selects its latest reply.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Turn 1: send only the new message.</p></div>
+<p class="snippet-result"><strong>Result</strong> The user1 thread now contains Ada's introduction and the reply.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Continue the same thread</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 16</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Turn 2: the checkpointer restores user1's history.
 message2 = HumanMessage("What is my name and what am I learning?")
 response2 = agent.invoke({"messages": [message2]}, user1_config)
-print("AI:", response2["messages"][-1].content)
-
-# A new thread starts with no memory of Ada.
+print("AI:", response2["messages"][-1].content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Turn 2: the checkpointer restores user1's history.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">message2</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"What is my name and what am I learning?"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">response2</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">message2</span><span class="p">]},</span> <span class="n">user1_config</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">response2</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We send only the new question with the same configuration. The agent restores the earlier state for this thread and includes that context in the model request.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Turn 2: the checkpointer restores user1's history.</p></div>
+<p class="snippet-result"><strong>Result</strong> The model can use Ada's introduction even though we did not manually resend it.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
+<h3>Try a different thread</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 17</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># A different thread ID starts with empty memory.
 user2_config = {"configurable": {"thread_id": "user2"}}
 message3 = HumanMessage("What is my name?")
 response3 = agent.invoke({"messages": [message3]}, user2_config)
-print("AI:", response3["messages"][-1].content)
-</code></pre>
-<p>The checkpointer does not give the model a magical long-term brain. It gives the application a place to store and restore the right state. In production, choose storage, retention, access controls, and deletion rules deliberately.</p>
+print("AI:", response3["messages"][-1].content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># A different thread ID starts with empty memory.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">user2_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"configurable"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"thread_id"</span><span class="p">:</span> <span class="s2">"user2"</span><span class="p">}}</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">message3</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"What is my name?"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">response3</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">message3</span><span class="p">]},</span> <span class="n">user2_config</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">response3</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">user2_config selects a new thread. We ask for a name without supplying one in this conversation. The earlier user1 history is not restored for this ID.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># A different thread ID starts with empty memory.</p></div>
+<p class="snippet-result"><strong>Result</strong> There is no supplied name in user2's context. The assistant should ask for it rather than claim to remember Ada.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+</figcaption></figure>
 <p>Work through the complete examples in <a href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb</a>.</p>
-</section><section class="reading"><h2>Check your understanding</h2>
+<h2 class="snippet-section">Check your understanding</h2>
 <ol>
 <li>Why does the manual-memory example send the whole list again on turn two?</li>
 <li>What benefit and risk come from summarising old messages?</li>
 <li>What does a <code>thread_id</code> do?</li>
 <li>Why does a new <code>thread_id</code> not know Ada’s name?</li>
 </ol>
-</section><section class="reading"><h2>Next lesson</h2>
+<h2 class="snippet-section">Next lesson</h2>
 <p>We will let a model request a tool, then see why the application must control every tool execution.</p>
-</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 06</p><a href="lesson-5.html">← Lesson 5</a><a href="lesson-7.html">Lesson 7 →</a></footer></body></html>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 06</p><a href="lesson-5.html">← Lesson 5</a><a href="lesson-7.html">Lesson 7 →</a></footer><script src="lesson-code-explorer.js"></script></body></html>

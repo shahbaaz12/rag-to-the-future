@@ -1,45 +1,326 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 8: create agents from a model, instructions, and approved tools." />
-    <title>Lesson 8 · Agents Choose Tools · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-8.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-7.html">← Lesson 7</a><a href="#lesson">Lesson</a><a href="#exercise">Check understanding</a><a href="part-one.html">Part I map</a></nav></header>
-    <main>
-      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 08</p><p class="chapter-number">TOOL LOOPS / AGENT FRAMEWORKS</p><h1 id="page-title">Models that <em>choose</em> tools.</h1><p class="lede">An agent combines a model, instructions, and an approved tool set so a framework can manage the standard tool-execution loop.</p><div class="hero-actions"><a class="button primary" href="#lesson">Meet the agent <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Agent composition"><p class="panel-label">AGENT COMPONENTS</p><p class="agent-equation"><b>MODEL</b><i>+</i><b>RULES</b><i>+</i><b>TOOLS</b><i>=</i><strong>AGENT</strong></p><dl><div><dt>CHOICE</dt><dd>model</dd></div><div><dt>EXECUTION</dt><dd>framework</dd></div><div><dt>CONTROL</dt><dd>application</dd></div></dl><p class="panel-note">An agent can only use tools supplied to it, under the permissions and checks the application builds.</p></aside></section>
-      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console learns its approved routes.</h2></div><p>The workshop console receives a question about parts and prices. It studies the labelled switches, chooses two of them, and returns with a trace of each stop. The professor smiles: “It can choose a route. We still built every road.”</p><a href="#lesson">Skip to the technical lesson →</a></aside>
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">An agent manages a familiar loop.</h2><p>Lesson 7 made the execution loop visible. Agent frameworks save you from writing that standard loop for every application, while you stay responsible for tool definitions, access, permissions, error handling, and what users may ask it to do.</p></header>
-        <section class="reading" aria-labelledby="agent-title"><p class="number">01 · THE PARTS</p><h3 id="agent-title">Model + instructions + allowed tools = agent.</h3><p>The model reads the user request and decides whether a tool can help. The framework runs an approved tool, adds its result to the conversation, and asks the model for a final answer. An agent is not a magical employee: it can only use the tools you provide.</p></section>
-        <section class="reading" aria-labelledby="one-tool-title"><p class="number">02 · ONE TOOL</p><h3 id="one-tool-title">Create an inventory agent.</h3><p>The local inventory service below could stand in for a database or approved service in a real project.</p><div class="code-card"><pre><code>@tool
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 8: create agents from a model, instructions, and approved tools." name="description"/><title>Lesson 8 · Agents Choose Tools · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-7.html">← Lesson 7</a><a href="#lesson">Lesson</a><a href="part-one.html">Part I map →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART I · OUT OF TIME · LESSON 08</p><h1 id="page-title">Models that choose tools.</h1><p class="lede">An agent combines a model, instructions, and an approved tool set so a framework can manage the standard tool-execution loop.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<p><strong>Review draft</strong></p>
+<p>This lesson turns the tool loop from Lesson 7 into an agent. An agent combines a model, instructions, and an approved tool set so it can decide which tool might help answer a request.</p>
+</blockquote>
+<h2 class="snippet-section">A note from me</h2>
+<p>In Lesson 7, we wrote the tool-execution loop ourselves. The model asked for a function, our code ran it, and then we sent the result back for a final answer.</p>
+<p>That is exactly the right way to understand the flow. But writing that loop again for every application becomes repetitive. An agent framework can manage the loop for us while we focus on defining useful tools and setting the rules around them.</p>
+<h2 class="snippet-section">What you will be able to do</h2>
+<ul>
+<li>explain what an agent adds to a chat model;</li>
+<li>create an agent with one tool;</li>
+<li>create an agent with several approved tools; and</li>
+<li>inspect the messages produced during an agent run.</li>
+</ul>
+<hr/>
+<h2 class="snippet-section">What is an agent?</h2>
+<p>An agent is a small system made from three main parts:</p>
+<h3>Identify the agent's parts</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson8_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">model + instructions + allowed tools = agent</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">model + instructions + allowed tools = agent
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The model reasons about the request, instructions guide its behaviour, and allowed tools provide actions or information.</p>
+<p class="snippet-result"><strong>Result</strong> The framework can coordinate these parts as an agent.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson8_final.md">lesson8_final.md · supplement</a>
+</figcaption></figure>
+<p>The model reads the user request and decides whether a tool can help. The agent framework runs the approved tool, adds its result to the conversation, and asks the model to produce the final answer.</p>
+<p>An agent is not a magical employee that can do anything. It can only use the tools we give it, with the permissions and checks we build around those tools.</p>
+<hr/>
+<h2 class="snippet-section">Set up once</h2>
+<p>Run these snippets in order in the associated notebook. Later snippets reuse the objects created here.</p>
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#agent-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain.tools import tool</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_agent</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">SystemMessage</span>
+</span><span class="code-explorer__line" data-line="5"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These imports make the model constructor and the helpers used below available. We only need to run this setup once in the notebook session.</p>
+<p class="snippet-result"><strong>Result</strong> The imported names are ready for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · agent-imports</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#agent-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load GROQ_API_KEY from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load GROQ_API_KEY from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load GROQ_API_KEY from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · agent-imports</a>
+</figcaption></figure>
+<h3>Choose the model and provider</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#agent-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">inventory_model = init_chat_model(
+    "openai/gpt-oss-120b",
+    model_provider="groq",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">inventory_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>init_chat_model</code> creates the model object. The model identifier selects what we ask to run; <code>model_provider</code> selects the integration that sends the request. Creating this object does not generate a reply yet.</p>
+<p class="snippet-result"><strong>Result</strong> We can reuse this model object in the following snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · agent-imports</a>
+</figcaption></figure>
+<h2 class="snippet-section">A basic agent with one tool</h2>
+<p>Let’s use a small inventory service. The tool is only a Python function here, but in a real project it could call a service, query a database, or read an approved repository.</p>
+<h3>Define the stock tool</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#basic-agent-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">@tool
 def check_stock_service(item: str) -&gt; str:
     """Return the remaining stock quantity for an inventory item."""
-    stock_by_item = {"headphone": 6, "keyboard": 11, "laptop": 12}
+    stock_by_item = {
+        "headphone": 6,
+        "keyboard": 11,
+        "laptop": 12,
+    }
     quantity = stock_by_item.get(item.lower())
     if quantity is None:
         return f"{item} is not present in the stock database."
-    return f"{item} has {quantity} units left in stock."
-
-basic_inventory_agent = create_agent(
+    return f"{item} has {quantity} units left in stock."</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nd">@tool</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">def</span><span class="w"> </span><span class="nf">check_stock_service</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="3"><span class="w">    </span><span class="sd">"""Return the remaining stock quantity for an inventory item."""</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">stock_by_item</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="s2">"headphone"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">        <span class="s2">"keyboard"</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="s2">"laptop"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="p">}</span>
+</span><span class="code-explorer__line" data-line="9">    <span class="n">quantity</span> <span class="o">=</span> <span class="n">stock_by_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+</span><span class="code-explorer__line" data-line="10">    <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="11">        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2"> is not present in the stock database."</span>
+</span><span class="code-explorer__line" data-line="12">    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">quantity</span><span class="si">}</span><span class="s2"> units left in stock."</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The function looks up an item's stock using a lowercase name. It returns either a quantity or a clear message for an unknown item. The decorator and docstring describe the tool to the model.</p>
+<p class="snippet-result"><strong>Result</strong> check_stock_service is our one allowed stock tool.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · basic-agent-code</a>
+</figcaption></figure>
+<p>Then we create the agent:</p>
+<h3>Create the one-tool agent</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#basic-agent-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">basic_inventory_agent = create_agent(
     model=inventory_model,
     tools=[check_stock_service],
-)</code></pre></div><p>When someone asks, “How many laptops do we have?”, the agent can decide that <code>check_stock_service</code> is relevant. The framework handles the request, function call, tool result, and final response.</p></section>
-        <section class="reading" aria-labelledby="many-tools-title"><p class="number">03 · MULTIPLE TOOLS</p><h3 id="many-tools-title">Give the agent a bounded choice.</h3><div class="code-card"><pre><code>shopping_agent = create_agent(
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">basic_inventory_agent</span> <span class="o">=</span> <span class="n">create_agent</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">model</span><span class="o">=</span><span class="n">inventory_model</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">check_stock_service</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We give create_agent our model and a list containing the stock tool. The framework can manage the tool-call conversation using these supplied parts.</p>
+<p class="snippet-result"><strong>Result</strong> basic_inventory_agent is ready to receive a question.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · basic-agent-code</a>
+</figcaption></figure>
+<h3>Ask about laptop stock</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#basic-agent-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">basic_agent_result = basic_inventory_agent.invoke(
+    {
+        "messages": [
+            SystemMessage("You are a helpful inventory assistant."),
+            HumanMessage("How many laptops do we have?"),
+        ]
+    }
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">basic_agent_result</span> <span class="o">=</span> <span class="n">basic_inventory_agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="3">        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="4">            <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a helpful inventory assistant."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5">            <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"How many laptops do we have?"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="6">        <span class="p">]</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="p">}</span>
+</span><span class="code-explorer__line" data-line="8"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We invoke the agent with the inventory instruction and a human question. The framework runs the allowed tool when the model requests it and returns the resulting message history.</p>
+<p class="snippet-result"><strong>Result</strong> basic_agent_result contains the agent's conversation and response.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · basic-agent-code</a>
+</figcaption></figure>
+<h3>Read the final reply</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#basic-agent-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print(basic_agent_result["messages"][-1].content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="n">basic_agent_result</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The returned messages list includes the run's conversation. <code>[-1]</code> selects its last message and content gives its text.</p>
+<p class="snippet-result"><strong>Result</strong> We print the final response about laptop stock.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · basic-agent-code</a>
+</figcaption></figure>
+<p>When a user asks, “How many laptops do we have?”, the agent can decide that <code>check_stock_service</code> is relevant. The framework handles the tool request, function call, tool result, and final answer.</p>
+<hr/>
+<h2 class="snippet-section">Give an agent multiple tools</h2>
+<p>One tool answers one type of question. Real users often ask questions that need more than one source of information.</p>
+<h3>Define the price tool</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#multiple-tools-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">@tool
+def get_price_service(item: str) -&gt; str:
+    """Return the price in rupees for an inventory item."""
+    price_by_item = {
+        "headphone": 1999,
+        "keyboard": 1499,
+        "laptop": 54999,
+    }
+    price = price_by_item.get(item.lower())
+    if price is None:
+        return f"{item} does not have a price in the catalogue."
+    return f"{item} costs Rs {price}."</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nd">@tool</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">def</span><span class="w"> </span><span class="nf">get_price_service</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="3"><span class="w">    </span><span class="sd">"""Return the price in rupees for an inventory item."""</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">price_by_item</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="s2">"headphone"</span><span class="p">:</span> <span class="mi">1999</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">        <span class="s2">"keyboard"</span><span class="p">:</span> <span class="mi">1499</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="s2">"laptop"</span><span class="p">:</span> <span class="mi">54999</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="p">}</span>
+</span><span class="code-explorer__line" data-line="9">    <span class="n">price</span> <span class="o">=</span> <span class="n">price_by_item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+</span><span class="code-explorer__line" data-line="10">    <span class="k">if</span> <span class="n">price</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="11">        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2"> does not have a price in the catalogue."</span>
+</span><span class="code-explorer__line" data-line="12">    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2"> costs Rs </span><span class="si">{</span><span class="n">price</span><span class="si">}</span><span class="s2">."</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">This tool looks up an item's price in rupees. Its input style matches the stock tool, but it provides different information.</p>
+<p class="snippet-result"><strong>Result</strong> get_price_service supplies the price lookup.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · multiple-tools-code</a>
+</figcaption></figure>
+<h3>Give the agent both tools</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#multiple-tools-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">shopping_agent = create_agent(
     model=inventory_model,
     tools=[check_stock_service, get_price_service],
-)</code></pre></div><p>A question such as “Do we have laptops in stock, and what is the price?” can require two tools. The model chooses which supplied tool to call and in what order. It cannot call a tool absent from the approved list.</p><div class="code-card"><pre><code>for agent_message in multi_tool_result["messages"]:
-    print(f"{type(agent_message).__name__}: {agent_message.content}")</code></pre></div><p>Inspecting messages during a run reveals the user request, AI tool calls, tool results, and final response. It is a useful learning and debugging aid, rather than treating the agent as a black box.</p></section>
-        <section class="loop-panel" aria-labelledby="compare-title"><p class="eyebrow">AGENT VERSUS TOOL LOOP</p><h3 id="compare-title">The underlying sequence stays the same.</h3><figure class="flow"><div><b>User request</b><small>asks for help</small></div><i aria-hidden="true">→</i><div><b>Model</b><small>requests a tool</small></div><i aria-hidden="true">→</i><div><b>Allowed tool</b><small>returns a result</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>returns to the user</small></div><figcaption>Lesson 7 wrote each step directly. With <code>create_agent</code>, LangChain manages the standard loop.</figcaption></figure><p>You still control the important boundary: tool definitions, data access, permissions, error handling, and the actions a user is allowed to request.</p><p>Start with <a href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb</a> for the one-tool and multi-tool inventory examples.</p></section>
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CHECK YOUR UNDERSTANDING</p><h2 id="exercise-title">Trace the agent’s authority.</h2><ol><li>What three things make up the basic agent in this lesson?</li><li>Can an agent call a tool that was not supplied in its <code>tools</code> list?</li><li>Why is a tool docstring useful to an agent?</li><li>What does <code>create_agent</code> manage for us, and what do we still control?</li></ol><p class="outcome"><strong>Learning record:</strong> an agent can select among approved tools, while the application still sets the boundaries for execution.</p></section>
-      </article>
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">PART I COMPLETE</p><h2 id="next-title">The routes are <em>mapped.</em></h2><p>Return to the Part I map to review every repair and choose where to continue.</p><a class="button primary" href="part-one.html">Return to Part I map <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 08</p><a href="lesson-7.html">← Previous lesson</a><a href="part-one.html">Part I map</a></footer>
-  </body>
-</html>
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">shopping_agent</span> <span class="o">=</span> <span class="n">create_agent</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">model</span><span class="o">=</span><span class="n">inventory_model</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">check_stock_service</span><span class="p">,</span> <span class="n">get_price_service</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The tools list now contains stock and price lookups. The model can request either supplied tool as it works on the question.</p>
+<p class="snippet-result"><strong>Result</strong> shopping_agent has two available tools.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · multiple-tools-code</a>
+</figcaption></figure>
+<h3>Ask a question needing both lookups</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#multiple-tools-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">multi_tool_result = shopping_agent.invoke(
+    {
+        "messages": [
+            SystemMessage("You are a helpful inventory assistant."),
+            HumanMessage("Do we have laptops in stock, and what is the price?"),
+        ]
+    }
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">multi_tool_result</span> <span class="o">=</span> <span class="n">shopping_agent</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="3">        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="4">            <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a helpful inventory assistant."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5">            <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"Do we have laptops in stock, and what is the price?"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="6">        <span class="p">]</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="p">}</span>
+</span><span class="code-explorer__line" data-line="8"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We ask whether laptops are available and what they cost. The agent manages the tool requests and results needed for its answer.</p>
+<p class="snippet-result"><strong>Result</strong> multi_tool_result contains the conversation from this run.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · multiple-tools-code</a>
+</figcaption></figure>
+<p>Now a question such as “Do we have laptops in stock, and what is the price?” can require two tools. The model chooses which one to call and in what order; the framework only lets it choose from the tools we supplied.</p>
+<p>You can inspect the returned messages to see the flow:</p>
+<h3>Inspect the agent's messages</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/8-Agents.ipynb#multiple-tools-code">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Inspect the messages to see the agent's tool requests and final answer.
+for agent_message in multi_tool_result["messages"]:
+    print(f"{type(agent_message).__name__}: {agent_message.content}")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Inspect the messages to see the agent's tool requests and final answer.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">for</span> <span class="n">agent_message</span> <span class="ow">in</span> <span class="n">multi_tool_result</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">]:</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">agent_message</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">agent_message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We print each message's class name and content to follow the conversation. A tool-call AIMessage may have empty content: inspect its tool_calls property in the notebook if you also want the exact requested arguments.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Inspect the messages to see the agent's tool requests and final answer.</p></div>
+<p class="snippet-result"><strong>Result</strong> We can follow the human question, tool results, and final response.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb · multiple-tools-code</a>
+</figcaption></figure>
+<p>This is useful while learning and debugging. It lets you see the user request, AI tool calls, tool results, and final response rather than treating the agent as a black box.</p>
+<hr/>
+<h2 class="snippet-section">Agent versus tool loop</h2>
+<p>The underlying idea has not changed:</p>
+<h3>Follow the tool loop</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson8_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">user request → model requests a tool → application runs an allowed tool
+             → tool result returns to the model → final answer</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">user request → model requests a tool → application runs an allowed tool
+</span><span class="code-explorer__line" data-line="2">             → tool result returns to the model → final answer
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The model requests a tool. The application executes an allowed call and returns its result. The model then uses that result to write an answer.</p>
+<p class="snippet-result"><strong>Result</strong> Tool execution happens in the application or framework.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson8_final.md">lesson8_final.md · supplement</a>
+</figcaption></figure>
+<p>In Lesson 7, we wrote each step ourselves. With <code>create_agent</code>, LangChain manages the standard loop. We still own the parts that matter most: the tool definitions, data access, permissions, error handling, and what the user is allowed to ask the system to do.</p>
+<p>Start with <a href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb</a>. It contains both the one-tool and multi-tool inventory examples.</p>
+<h2 class="snippet-section">Check your understanding</h2>
+<ol>
+<li>What three things make up the basic agent in this lesson?</li>
+<li>Can an agent call a tool that was not supplied in its <code>tools</code> list?</li>
+<li>Why is a tool docstring useful to an agent?</li>
+<li>What does <code>create_agent</code> manage for us, and what do we still control?</li>
+</ol>
+<h2 class="snippet-section">Next lesson</h2>
+<p>We will make the agent more useful by connecting it to information that is relevant, current, and approved for the task.</p>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 08</p><a href="lesson-7.html">← Lesson 7</a><a href="part-one.html">Part I map →</a></footer><script src="lesson-code-explorer.js"></script></body></html>

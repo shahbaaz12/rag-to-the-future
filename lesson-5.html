@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 5: Streaming, batching, structured output, and labelled messages." name="description"/><title>Lesson 5 · More Than One Answer · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-4.html">← Lesson 4</a><a href="#lesson">Lesson</a><a href="lesson-6.html">Lesson 6 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 05</p><h1 id="page-title">More Than One Answer</h1><p class="lede">Streaming, batching, structured output, and labelled messages.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson">
-<blockquote>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 5: Streaming, batching, structured output, and labelled messages." name="description"/><title>Lesson 5 · More Than One Answer · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-4.html">← Lesson 4</a><a href="#lesson">Lesson</a><a href="lesson-6.html">Lesson 6 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 05</p><h1 id="page-title">More Than One Answer</h1><p class="lede">Streaming, batching, structured output, and labelled messages.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
 <p><strong>Review draft</strong></p>
 <p>A model can return text in several useful ways, return structured data instead of prose, and take part in a conversation. This lesson explains those features and gives each one a clear purpose.</p>
 </blockquote>
-<section class="reading"><h2>A note from me</h2>
+<h2 class="snippet-section">A note from me</h2>
 <p>Up to now, our model call has looked very simple: send one input, receive one answer, print it. That is useful, but it is only the beginning.</p>
 <p>What if we want the answer to appear word by word? What if we have a hundred unrelated requests? What if our Python code needs a list or an object instead of a paragraph? And how does a model distinguish a rule from a question?</p>
 <p>Let’s add those pieces one at a time.</p>
-</section><section class="reading"><h2>What you will be able to do</h2>
+<h2 class="snippet-section">What you will be able to do</h2>
 <ul>
 <li>stream a response as it is generated;</li>
 <li>batch independent requests;</li>
@@ -17,120 +16,575 @@
 <li>use system, human, and AI messages;</li>
 <li>explain how labelled messages shape a conversation.</li>
 </ul>
-
-</section><section class="reading"><h2>What else can we do with a model call?</h2>
+<hr/>
+<h2 class="snippet-section">Set up once</h2>
+<p>Run these snippets in order in the associated notebook. Later snippets reuse the objects created here.</p>
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">AIMessage</span><span class="p">,</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">SystemMessage</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These imports make the model constructor and the helpers used below available. We only need to run this setup once in the notebook session.</p>
+<p class="snippet-result"><strong>Result</strong> The imported names are ready for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-1</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load GROQ_API_KEY from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load GROQ_API_KEY from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load GROQ_API_KEY from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-1</a>
+</figcaption></figure>
+<h3>Choose the model and provider</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">groq_model = init_chat_model("openai/gpt-oss-120b", model_provider="groq")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">groq_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span><span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span> <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>init_chat_model</code> creates the model object. The model identifier selects what we ask to run; <code>model_provider</code> selects the integration that sends the request. Creating this object does not generate a reply yet.</p>
+<p class="snippet-result"><strong>Result</strong> We can reuse this model object in the following snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-1</a>
+</figcaption></figure>
+<h2 class="snippet-section">What else can we do with a model call?</h2>
 <h3>Streaming</h3>
 <p>Normally, <code>invoke</code> waits until the complete response is ready. Streaming lets our application receive small chunks while the model is still generating.</p>
-<pre><code class="language-python">for chunk in groq_model.stream("Explain API-key safety in three sentences."):
+<h3>Choose the streaming prompt</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">stream_prompt = "In a funny way explain why burgers are better than salads in 10 sentences."</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">stream_prompt</span> <span class="o">=</span> <span class="s2">"In a funny way explain why burgers are better than salads in 10 sentences."</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We store the question before starting the stream. This separates what we ask from how we receive the answer.</p>
+<p class="snippet-result"><strong>Result</strong> stream_prompt contains our burger-and-salad request.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-5</a>
+</figcaption></figure>
+<h3>Print each arriving chunk</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">for chunk in groq_model.stream(stream_prompt):
+    # Each chunk contains the next available piece of the model response.
     print(chunk.text, end="", flush=True)
-</code></pre>
+print()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">stream_prompt</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="c1"># Each chunk contains the next available piece of the model response.</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The loop receives chunks as the model produces them. <code>end=""</code> keeps them on the same line, and flush=True asks Python to show them immediately. The final print adds a newline.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Each chunk contains the next available piece of the model response.</p></div>
+<p class="snippet-result"><strong>Result</strong> The answer gradually appears while generation continues.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-5</a>
+</figcaption></figure>
+<h3>Why stream the answer?</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-5">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># You will see the model's response printed in real-time as it is generated, rather than waiting for the entire response to be completed. This is useful for long responses or when you want to provide immediate feedback to users.</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># You will see the model's response printed in real-time as it is generated, rather than waiting for the entire response to be completed. This is useful for long responses or when you want to provide immediate feedback to users.</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">This source comment explains the experience we just created: the user can start reading before the complete response is ready.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># You will see the model's response printed in real-time as it is generated, rather than waiting for the entire response to be completed. This is useful for long responses or when you want to provide immediate feedback to users.</p></div>
+<p class="snippet-result"><strong>Result</strong> The comment documents the purpose; it does not make another API call.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-5</a>
+</figcaption></figure>
 <p>It makes a long answer feel more responsive because the user can start reading it sooner. The model is still generating the same kind of response; streaming only changes how our application receives it.</p>
 <h3>Batching</h3>
 <p>Batching is for requests that do not depend on one another.</p>
-<pre><code class="language-python">batch_responses = groq_model.batch([
-    "Define an LLM in one sentence.",
+<h3>Prepare independent prompts</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">batch_prompts = [
     "Give one use for a low temperature setting.",
-])
-</code></pre>
+    "Give one use for a high temperature setting.",
+    "Define an LLM in one sentence.",
+]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">batch_prompts</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"Give one use for a low temperature setting."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"Give one use for a high temperature setting."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="s2">"Define an LLM in one sentence."</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Each item asks a separate question. None needs the answer from an earlier item.</p>
+<p class="snippet-result"><strong>Result</strong> batch_prompts holds three independent requests.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-7</a>
+</figcaption></figure>
+<h3>Run the batch and pair the results</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">batch_responses = groq_model.batch(batch_prompts)
+for prompt, batch_response in zip(batch_prompts, batch_responses):
+    print(f"Prompt: {prompt}")
+    print(f"Answer: {batch_response.text}")
+    print()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">batch_responses</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_prompts</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">for</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">batch_response</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch_prompts</span><span class="p">,</span> <span class="n">batch_responses</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Prompt: </span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Answer: </span><span class="si">{</span><span class="n">batch_response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">print</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>batch</code> submits the list through LangChain. zip pairs each original prompt with its response so our prints remain easy to follow.</p>
+<p class="snippet-result"><strong>Result</strong> We see a prompt and answer for every batch item. Provider limits still apply.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-7</a>
+</figcaption></figure>
 <p>It is useful when processing a list of records, prompts, or tests. It is not conversation memory, and it does not make dependent tasks safe to run at the same time.</p>
-
-</section><section class="reading"><h2>Structured output: ask for data, not just prose</h2>
+<hr/>
+<h2 class="snippet-section">Structured output: ask for data, not just prose</h2>
 <p>Models are good at writing paragraphs. Applications often need a predictable shape instead: fields we can put in a UI, store in a database, or pass to another function. <strong>Structured output</strong> tells the model and LangChain what shape our response needs.</p>
 <p>Let’s use a Pokédex. A normal prompt might return a nice paragraph about Pikachu. That is pleasant for a person to read, but our code cannot safely rely on the order of facts inside it. We want a name, type, level, and evolutions in named places.</p>
+<h3>Set up the structured-output notebook</h3>
+<p>Switch to 5-Structured-Outputs.ipynb and run its setup first. This notebook uses the same provider and adds our schema helpers.</p>
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#f0a76624">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from pydantic import BaseModel, Field
+from typing_extensions import TypedDict</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These imports make the model constructor and the helpers used below available. We only need to run this setup once in the notebook session.</p>
+<p class="snippet-result"><strong>Result</strong> The imported names are ready for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · f0a76624</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#f0a76624">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load GROQ_API_KEY from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load GROQ_API_KEY from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load GROQ_API_KEY from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · f0a76624</a>
+</figcaption></figure>
+<h3>Choose the model and provider</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#f0a76624">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">groq_model = init_chat_model(
+    "openai/gpt-oss-120b",
+    model_provider="groq",
+    reasoning_effort="low",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">groq_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>init_chat_model</code> creates the model object. The model identifier selects what we ask to run; <code>model_provider</code> selects the integration that sends the request. Creating this object does not generate a reply yet.</p>
+<p class="snippet-result"><strong>Result</strong> We can reuse this model object in the following snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · f0a76624</a>
+</figcaption></figure>
 <h3>Pydantic: a validated Python object</h3>
 <p>A Pydantic model describes the expected fields. <code>Field(description=...)</code> is useful because it explains each field to the model as well as to the reader of our code.</p>
-<pre><code class="language-python">from pydantic import BaseModel, Field
+<h3>Describe one Pokémon</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#84f43421">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">class Pokemon(BaseModel):
+    """One Pokémon entry returned by the model."""
 
-
-class Pokemon(BaseModel):
-    name: str = Field(description="The Pokémon's name.")
+    name: str = Field(description="The Pokémon name.")
     type: str = Field(description="Its main Pokémon type.")
     level: int = Field(description="A sensible level for this example.")
-    evolutions: list[str] = Field(description="Its possible evolution names.")
-</code></pre>
+    evolutions: list[str] = Field(description="Its possible evolution names.")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">class</span><span class="w"> </span><span class="nc">Pokemon</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="2"><span class="w">    </span><span class="sd">"""One Pokémon entry returned by the model."""</span>
+</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The Pokémon name."</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Its main Pokémon type."</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"A sensible level for this example."</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="n">evolutions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Its possible evolution names."</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Pokemon inherits from BaseModel. Its fields describe the shape we want: name, type, level, and a list of evolution names. Field descriptions tell the model what belongs in each field.</p>
+<p class="snippet-result"><strong>Result</strong> We have a Pydantic schema that checks the returned field types.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 84f43421</a>
+</figcaption></figure>
 <p>Now we wrap the normal model. The call still looks like <code>invoke</code>, but it returns a <code>Pokemon</code> object instead of a free-form <code>AIMessage</code>.</p>
-<pre><code class="language-python">pokemon_model = groq_model.with_structured_output(Pokemon)
-
-pokemon = pokemon_model.invoke("Give Pokédex details for Pikachu.")
-print(pokemon.name)
-print(pokemon.evolutions)
-</code></pre>
+<h3>Wrap the model with the schema</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#84f43421">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># This wrapped model returns a Pokemon object instead of free-form text.
+pokemon_model = groq_model.with_structured_output(Pokemon)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># This wrapped model returns a Pokemon object instead of free-form text.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">pokemon_model</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">with_structured_output</span><span class="p">(</span><span class="n">Pokemon</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">with_structured_output connects the Pokemon schema to the model call. We keep the wrapper in pokemon_model.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># This wrapped model returns a Pokemon object instead of free-form text.</p></div>
+<p class="snippet-result"><strong>Result</strong> The wrapper is ready to return a Pokemon object.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 84f43421</a>
+</figcaption></figure>
+<h3>Ask for Pikachu's data</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#ce853fb7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">pokemon = pokemon_model.invoke("Give Pokédex details for Pikachu.")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">pokemon</span> <span class="o">=</span> <span class="n">pokemon_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">"Give Pokédex details for Pikachu."</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The request still uses invoke, but it goes through the structured wrapper.</p>
+<p class="snippet-result"><strong>Result</strong> pokemon contains the generated Pokemon object.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · ce853fb7</a>
+</figcaption></figure>
+<h3>Read the named fields</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#ce853fb7">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 15</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print(pokemon)
+print("Name:", pokemon.name)
+print("Evolutions:", pokemon.evolutions)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="n">pokemon</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Name:"</span><span class="p">,</span> <span class="n">pokemon</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Evolutions:"</span><span class="p">,</span> <span class="n">pokemon</span><span class="o">.</span><span class="n">evolutions</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We print the whole object, then use dot notation for its name and evolutions. A valid shape does not guarantee that every generated fact is correct.</p>
+<p class="snippet-result"><strong>Result</strong> Our code can read the fields without scraping a paragraph.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · ce853fb7</a>
+</figcaption></figure>
 <p>We use dot notation because <code>pokemon</code> is a Pydantic object. Pydantic also checks that the returned fields can fit the types we asked for, such as a number for <code>level</code> and a list for <code>evolutions</code>.</p>
 <h3>A nested output: a Pokédex list</h3>
 <p>One Pokémon is a flat object. A Pokédex needs a list of those objects. We can reuse the <code>Pokemon</code> model inside another Pydantic model.</p>
-<pre><code class="language-python">class PokemonList(BaseModel):
+<h3>Describe a list of Pokémon</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#e70700b1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 16</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">class PokemonList(BaseModel):
+    """A small Pokédex result containing several Pokémon."""
+
     pokemons: list[Pokemon] = Field(
         description="The Pokémon included in this Pokédex result."
-    )
-
-
-pokedex_model = groq_model.with_structured_output(PokemonList)
-pokedex = pokedex_model.invoke(
+    )</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">class</span><span class="w"> </span><span class="nc">PokemonList</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="2"><span class="w">    </span><span class="sd">"""A small Pokédex result containing several Pokémon."""</span>
+</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4">    <span class="n">pokemons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Pokemon</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="n">description</span><span class="o">=</span><span class="s2">"The Pokémon included in this Pokédex result."</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">PokemonList is the outer object. Its pokemons field contains a list of Pokemon objects, reusing the schema we just defined.</p>
+<p class="snippet-result"><strong>Result</strong> We have a nested schema: one list containing several structured entries.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · e70700b1</a>
+</figcaption></figure>
+<h3>Create the Pokédex wrapper</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#e70700b1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 17</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">pokedex_model = groq_model.with_structured_output(PokemonList)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">pokedex_model</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">with_structured_output</span><span class="p">(</span><span class="n">PokemonList</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We wrap the same model with PokemonList for requests that need a collection.</p>
+<p class="snippet-result"><strong>Result</strong> pokedex_model expects the nested result shape.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · e70700b1</a>
+</figcaption></figure>
+<h3>Request a small Pokédex</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#45350e28">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 18</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 18" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">pokedex = pokedex_model.invoke(
     "Create a short Pokédex for three of Ash's Kanto Pokémon."
-)
-
-for pokemon in pokedex.pokemons:
-    print(pokemon.name, "-", pokemon.type)
-</code></pre>
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">pokedex</span> <span class="o">=</span> <span class="n">pokedex_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"Create a short Pokédex for three of Ash's Kanto Pokémon."</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We ask for three of Ash's Kanto Pokémon through the collection wrapper.</p>
+<p class="snippet-result"><strong>Result</strong> pokedex holds the generated list of Pokémon objects.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 45350e28</a>
+</figcaption></figure>
+<h3>Read each nested entry</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#45350e28">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 19</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 19" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">for pokemon in pokedex.pokemons:
+    print(f"{pokemon.name}: {pokemon.type}")
+    print("Evolutions:", pokemon.evolutions)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">for</span> <span class="n">pokemon</span> <span class="ow">in</span> <span class="n">pokedex</span><span class="o">.</span><span class="n">pokemons</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pokemon</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">pokemon</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="nb">print</span><span class="p">(</span><span class="s2">"Evolutions:"</span><span class="p">,</span> <span class="n">pokemon</span><span class="o">.</span><span class="n">evolutions</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We loop through pokedex.pokemons and access each object's name, type, and evolutions with dot notation.</p>
+<p class="snippet-result"><strong>Result</strong> We can use every entry in the same predictable way.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 45350e28</a>
+</figcaption></figure>
 <p><code>PokemonList</code> is the outer box. Its <code>pokemons</code> field is a list, and every item in that list must have the <code>Pokemon</code> shape. This is called a nested structured output. It is useful whenever one response contains a collection of repeated items: products in an order, people in a team, or search results.</p>
 <h3>TypedDict: the lighter option</h3>
 <p><code>TypedDict</code> describes the same kind of keys and value types using Python's typing tools. It is useful when we only need a normal dictionary and do not need Pydantic's object features or runtime validation.</p>
-<pre><code class="language-python">from typing_extensions import TypedDict
+<h3>Describe dictionary keys</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#37741c0a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 20</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 20" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">class PokemonDict(TypedDict):
+    """One simple Pokémon dictionary."""
 
-
-class PokemonDict(TypedDict):
     name: str
     type: str
     level: int
-    evolutions: list[str]
-
-
-typed_dict_model = groq_model.with_structured_output(PokemonDict)
-pokemon_dict = typed_dict_model.invoke("Give Pokédex details for Eevee.")
-
-print(pokemon_dict["name"])
-print(pokemon_dict["evolutions"])
-</code></pre>
+    evolutions: list[str]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">class</span><span class="w"> </span><span class="nc">PokemonDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="2"><span class="w">    </span><span class="sd">"""One simple Pokémon dictionary."""</span>
+</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="n">evolutions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">PokemonDict declares the keys and expected value types. TypedDict describes the shape for tooling and the structured-output schema; it does not perform Pydantic-style runtime validation on its own.</p>
+<p class="snippet-result"><strong>Result</strong> We have a schema for a regular Python dictionary.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 37741c0a</a>
+</figcaption></figure>
+<h3>Create the dictionary wrapper</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#37741c0a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 21</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 21" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># This wrapped model returns a regular dictionary.
+typed_dict_model = groq_model.with_structured_output(PokemonDict)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># This wrapped model returns a regular dictionary.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">typed_dict_model</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">with_structured_output</span><span class="p">(</span><span class="n">PokemonDict</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We pass PokemonDict to with_structured_output. This wrapper returns a dictionary rather than a Pydantic object.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># This wrapped model returns a regular dictionary.</p></div>
+<p class="snippet-result"><strong>Result</strong> typed_dict_model is ready for the request.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 37741c0a</a>
+</figcaption></figure>
+<h3>Ask for Eevee's data</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#4b5db0e1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 22</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 22" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">pokemon_dict = typed_dict_model.invoke("Give Pokédex details for Eevee.")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">pokemon_dict</span> <span class="o">=</span> <span class="n">typed_dict_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">"Give Pokédex details for Eevee."</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We invoke the dictionary wrapper with the Pokédex question.</p>
+<p class="snippet-result"><strong>Result</strong> pokemon_dict contains the generated keys and values.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 4b5db0e1</a>
+</figcaption></figure>
+<h3>Read values with square brackets</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/5-Structured-Outputs.ipynb#4b5db0e1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 23</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 23" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print("Name:", pokemon_dict["name"])
+print("Evolutions:", pokemon_dict["evolutions"])</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"Name:"</span><span class="p">,</span> <span class="n">pokemon_dict</span><span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Evolutions:"</span><span class="p">,</span> <span class="n">pokemon_dict</span><span class="p">[</span><span class="s2">"evolutions"</span><span class="p">])</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We access name and evolutions by their dictionary keys. This is the main difference in how we use the returned data.</p>
+<p class="snippet-result"><strong>Result</strong> The values print without dot notation.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb · 4b5db0e1</a>
+</figcaption></figure>
 <p>The shape is similar, but the result is a regular dictionary, so we use square brackets instead of dot notation. Start with Pydantic when you want clear field descriptions, nested models, and validation. Use <code>TypedDict</code> when a simple typed dictionary is enough.</p>
 <p>Structured output does not make a model's facts automatically correct. It gives the answer a predictable shape. We still need good instructions and, when facts matter, trustworthy data and validation.</p>
 <p>The complete examples are in <a href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb</a>.</p>
-
-</section><section class="reading"><h2>Messages give a conversation structure</h2>
+<hr/>
+<h2 class="snippet-section">Messages give a conversation structure</h2>
 <p>A message is just <strong>text plus a label saying who said it</strong>.</p>
-<pre><code class="language-python">HumanMessage("How do I create a REST API?")
-# label: human, text: "How do I create a REST API?"
-</code></pre>
+<h3>Inspect a human message</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 24</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 24" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># A HumanMessage carries both the text and the "human" label.
+human_question = HumanMessage("How do I create a vegan chicken sandwich?")
+print("Label:", human_question.type)
+print("Text:", human_question.content)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># A HumanMessage carries both the text and the "human" label.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">human_question</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"How do I create a vegan chicken sandwich?"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Label:"</span><span class="p">,</span> <span class="n">human_question</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"Text:"</span><span class="p">,</span> <span class="n">human_question</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">HumanMessage holds the question text and the human role. Its type property shows the label; content shows the text.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># A HumanMessage carries both the text and the "human" label.</p></div>
+<p class="snippet-result"><strong>Result</strong> We can see both parts of the message explicitly.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · message-feature-3</a>
+</figcaption></figure>
 <p>Why bother with the label? So the model can tell which text is a rule and which text is a question.</p>
 <p><strong>Without labels</strong>, we send one string:</p>
-<pre><code class="language-python">groq_model.invoke("Be concise. Always show code. How do I create a REST API?")
-</code></pre>
-<p>The model sees one blob of text. It cannot reliably separate our instruction from the user’s actual question.</p>
+<h3>Send everything as one string</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#8803651c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 25</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 25" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Without labels, the model receives one blob of instructions and question text.
+plain_text_response = groq_model.invoke(
+    "You are a mad street chef. How do I create a vegan chicken sandwich?",
+    max_tokens=200,  # limit the response length
+)
+print(plain_text_response.text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Without labels, the model receives one blob of instructions and question text.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">plain_text_response</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"You are a mad street chef. How do I create a vegan chicken sandwich?"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>  <span class="c1"># limit the response length</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6"><span class="nb">print</span><span class="p">(</span><span class="n">plain_text_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The instruction and question share a single string. The model may infer their meaning, but our application has not marked a separate system instruction and user question.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Without labels, the model receives one blob of instructions and question text.</p><p class="snippet-comment"># limit the response length</p></div>
+<p class="snippet-result"><strong>Result</strong> plain_text_response holds the answer to the combined prompt.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · 8803651c</a>
+</figcaption></figure>
+<p>The model receives one string and may infer which part is an instruction. Separate message roles make that distinction explicit.</p>
 <p><strong>With labels</strong>, we give the model the structure:</p>
-<pre><code class="language-python">groq_model.invoke([
-    SystemMessage("Be concise. Always show code."),  # rules
-    HumanMessage("How do I create a REST API?"),     # question
-])
-</code></pre>
+<h3>Separate the rule from the question</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#c85f112c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 26</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 26" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># With labels, rules and the user's question are separate messages.
+message_response = groq_model.invoke(
+    [
+        SystemMessage("You are a mad street chef."),  # application rules
+        HumanMessage("How do I create a vegan chicken sandwich?"),  # user question
+    ],
+    max_tokens=200,  # limit the response length
+)
+print(message_response.text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># With labels, rules and the user's question are separate messages.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">message_response</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="4">        <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a mad street chef."</span><span class="p">),</span>  <span class="c1"># application rules</span>
+</span><span class="code-explorer__line" data-line="5">        <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"How do I create a vegan chicken sandwich?"</span><span class="p">),</span>  <span class="c1"># user question</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="p">],</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>  <span class="c1"># limit the response length</span>
+</span><span class="code-explorer__line" data-line="8"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="9"><span class="nb">print</span><span class="p">(</span><span class="n">message_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">SystemMessage carries the chef instruction, while HumanMessage carries the question. We pass the list to invoke and print the response text.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># With labels, rules and the user's question are separate messages.</p><p class="snippet-comment"># application rules</p><p class="snippet-comment"># user question</p><p class="snippet-comment"># limit the response length</p></div>
+<p class="snippet-result"><strong>Result</strong> The model receives an explicit role for each message.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · c85f112c</a>
+</figcaption></figure>
 <p>Now the model can treat the system message as “this is how I should behave” and the human message as “this is what the user wants.”</p>
 <p>Think of a new employee. The <strong>system message</strong> is the manager’s day-one rule: “Be polite and keep replies short.” The <strong>human message</strong> is a customer’s question. The employee follows the manager’s rules for every customer without making the customer repeat them.</p>
 <p>Messages also let us carry a chat history forward by adding an <code>AIMessage</code> for an earlier reply:</p>
-<pre><code class="language-python">conversation = [
-    SystemMessage("Be concise."),
-    HumanMessage("What is Python?"),
-    AIMessage("A programming language."),  # earlier model reply
-    HumanMessage("Who created it?"),        # “it” means Python
-]
-</code></pre>
-<p>Without the earlier messages, the model would not know what “it” means. Labels do not guarantee perfect behaviour, but they give the application and model a clear, reliable conversation structure.</p>
-
+<h3>Include an earlier reply</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#e255e7e0">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 27</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 27" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+# An AIMessage can carry an earlier reply into the next model call.
+conversation_with_history = [
+    SystemMessage("You are a mad street chef."),
+    HumanMessage("How do I create a vegan chicken sandwich?"),
+    AIMessage(
+        "First, you'll need to find a vegan chicken. And fry it "
+    ),  # earlier model reply
+    # note we are assuming this is the model's response to the previous question.
+    HumanMessage("can I create a bread from it?"),
+]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="c1"># An AIMessage can carry an earlier reply into the next model call.</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">conversation_with_history</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a mad street chef."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"How do I create a vegan chicken sandwich?"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">AIMessage</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="s2">"First, you'll need to find a vegan chicken. And fry it "</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="p">),</span>  <span class="c1"># earlier model reply</span>
+</span><span class="code-explorer__line" data-line="9">    <span class="c1"># note we are assuming this is the model's response to the previous question.</span>
+</span><span class="code-explorer__line" data-line="10">    <span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"can I create a bread from it?"</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="11"><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The list contains instructions, the first question, an illustrative AI reply, and a follow-up. The notebook supplies that earlier reply itself; it was not generated by the preceding call.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># An AIMessage can carry an earlier reply into the next model call.</p><p class="snippet-comment"># earlier model reply</p><p class="snippet-comment"># note we are assuming this is the model's response to the previous question.</p></div>
+<p class="snippet-result"><strong>Result</strong> conversation_with_history contains context for the follow-up.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · e255e7e0</a>
+</figcaption></figure>
+<h3>Ask with the supplied history</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#e255e7e0">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 28</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 28" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">history_response = groq_model.invoke(conversation_with_history, max_tokens=200)
+print(history_response.text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">history_response</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">conversation_with_history</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">history_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We resend the conversation list. The model can use the earlier messages to interpret the follow-up.</p>
+<p class="snippet-result"><strong>Result</strong> The response uses the history that our application provided.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb · e255e7e0</a>
+</figcaption></figure>
+<p>Without earlier context, a follow-up like this can become ambiguous. Labels do not guarantee perfect behaviour, but they give the application and model a clear, reliable conversation structure.</p>
+<hr/>
 <p>For the streaming, batching, and messages examples, use <a href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb</a>.</p>
-</section><section class="reading"><h2>Check your understanding</h2>
+<h2 class="snippet-section">Check your understanding</h2>
 <ol>
 <li>When would streaming improve a user’s experience?</li>
 <li>Why is batching unsuitable for a conversation where each answer affects the next question?</li>
 <li>What does structured output give an application that free-form text does not?</li>
 <li>Why do message labels matter when an application gives the model rules and a question?</li>
 </ol>
-</section><section class="reading"><h2>Next lesson</h2>
+<h2 class="snippet-section">Next lesson</h2>
 <p>We will make conversation memory explicit: manual history and checkpointers.</p>
-</section></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 05</p><a href="lesson-4.html">← Lesson 4</a><a href="lesson-6.html">Lesson 6 →</a></footer></body></html>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 05</p><a href="lesson-4.html">← Lesson 4</a><a href="lesson-6.html">Lesson 6 →</a></footer><script defer="True" src="lesson-code-explorer.js"></script></body></html>

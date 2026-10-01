@@ -1,0 +1,28 @@
+/* Sequential code snippets, each followed by a visible explanation. */
+.document .snippet-section{margin:4rem 0 1.3rem;padding-top:2.5rem;border-top:1px solid var(--line);font-size:clamp(1.9rem,4vw,3rem);line-height:1.12}
+.document h3{margin:2.6rem 0 .9rem;font-size:clamp(1.25rem,2.5vw,1.65rem);line-height:1.3}
+.snippet-card{margin:0 0 2.4rem;border:1px solid #2c3b4d;border-radius:12px;box-shadow:0 14px 35px #0003;background:#0d1117}
+.snippet-card .code-explorer__toolbar{height:3.2rem;padding:0 1.25rem;background:#131c28}
+.snippet-card .code-explorer__title{color:#c5d3e6}
+.snippet-card .code-explorer__lines{margin:0;padding:1.15rem 0;border:0;background:#0d1117;font:400 .84rem/1.8 "Consolas","DM Mono",monospace;overflow-x:auto}
+.snippet-card .code-explorer__lines>code{display:block;font:inherit}
+.snippet-card .code-explorer__line{padding:0 1.25rem 0 3.8rem;min-height:1.8em}
+.snippet-card .code-explorer__line::before{width:2.55rem;color:#778aa1;font-size:.76rem}
+.snippet-card .code-explorer__line .nn,.snippet-card .code-explorer__line .nc{color:#4ec9b0}
+.snippet-card .code-explorer__line .kc{color:#569cd6}
+.snippet-explanation{padding:1.5rem 1.65rem;background:linear-gradient(120deg,#f7fafc,#eef3f8);color:#24364a;font:400 1rem/1.75 var(--sans)}
+.snippet-explanation p{margin:0;color:#24364a}
+.snippet-explanation .snippet-label{margin-bottom:.6rem;font:700 .7rem/1.5 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#2763a0}
+.snippet-explanation .snippet-prose{max-width:70ch;font-size:1rem;line-height:1.8}
+.snippet-explanation code{background:#dfe8f1;color:#123f6a;border-radius:3px;overflow-wrap:anywhere}
+.document .snippet-table{overflow-x:auto;margin:1.5rem 0}
+.document .snippet-table table{margin:0}
+.snippet-source-comments{margin:1rem 0;padding:.8rem 1rem;border-left:3px solid #82a9d0;background:#e7eef5;border-radius:0 5px 5px 0}
+.snippet-source-comments>span{display:block;margin-bottom:.4rem;font:600 .65rem var(--sans);color:#546b82;text-transform:uppercase;letter-spacing:.08em}
+.snippet-explanation .snippet-comment{font:.77rem/1.65 "Consolas","DM Mono",monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#415c77}
+.snippet-explanation .snippet-result{margin-top:1.1rem;padding-top:1rem;border-top:1px solid #d6e1ec;font-size:.94rem}
+.snippet-result strong{display:inline-block;margin-right:.6rem;color:#123f6a}
+.snippet-explanation .snippet-source{display:block;margin-top:.9rem;color:#52718e;font:.67rem/1.7 var(--mono);text-decoration:none;overflow-wrap:anywhere}
+.snippet-explanation .snippet-source:hover{color:#154d85;text-decoration:underline}
+.snippet-card button:focus-visible{outline:3px solid #63dfff;outline-offset:3px}
+@media(max-width:620px){.snippet-explanation{padding:1.15rem}.snippet-card .code-explorer__lines{font-size:.76rem}.snippet-card .code-explorer__line{padding-left:3.15rem}.snippet-card .code-explorer__line::before{width:2rem}}

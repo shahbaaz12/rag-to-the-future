@@ -2,6 +2,8 @@
 
 **Reference:** [Part1/lesson1_final.md](Part1/lesson1_final.md). Treat that edited lesson as the primary example whenever you prepare a future lesson draft.
 
+**Code presentation:** Always follow [CODE_SNIPPET_RULES.md](CODE_SNIPPET_RULES.md): small sequential snippets with a clear explanation directly below each one, using the exact notebook source and comments.
+
 ## Voice
 
 - Write as a developer speaking directly to another developer: warm, practical, and curious.

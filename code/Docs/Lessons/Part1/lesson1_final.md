@@ -113,11 +113,20 @@ It is important to keep the limit in view: fluent output is not proof of truth. 
 
 A chat model is an LLM designed for conversational use cases. Instead of only supplying one string of text, an application usually sends a sequence of messages with different roles. Depending on the provider and model, it can also accept images or other media alongside text.
 
+### Read the message roles
+
+<!-- snippet: code/Docs/Lessons/Part1/lesson1_final.md#supplement -->
 ```text
 System message: sets the assistant's behaviour or rules
 User message: asks for help
 Assistant message: records a previous model response
 ```
+
+**What happens here**
+
+The label tells us which text is the instruction, which is the user's request, and which is the assistant's answer. This is a conceptual example rather than executable code.
+
+**Result:** The conversation has explicit roles.
 
 Chat models may support features such as text and image input, tool calling, structured output, streaming, and conversation history. Support varies by model and provider, so a feature should always be checked in the provider documentation.
 

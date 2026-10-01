@@ -1,74 +1,322 @@
-<!doctype html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 3: Use LangChain to switch providers, inspect responses, and control model settings." /><title>Lesson 3 · One Interface, Many Models · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-2.html">← Lesson 2</a><a href="#lesson">Lesson</a><a href="lesson-4.html">Lesson 4 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 03</p><h1 id="page-title">One Interface, Many Models</h1><p class="lede">Use LangChain to switch providers, inspect responses, and control model settings.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document"><blockquote><strong>Review draft</strong>  This lesson introduces LangChain as a practical convenience layer. The learner will connect to different chat models with the same broad pattern, then learn how temperature and output limits affect a response.</blockquote>
-<section class="reading"><h2>A note from me</h2>
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 3: Use LangChain to switch providers, inspect responses, and control model settings." name="description"/><title>Lesson 3 · One Interface, Many Models · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-2.html">← Lesson 2</a><a href="#lesson">Lesson</a><a href="lesson-4.html">Lesson 4 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 03</p><h1 id="page-title">One Interface, Many Models</h1><p class="lede">Use LangChain to switch providers, inspect responses, and control model settings.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<p><strong>Review draft</strong></p>
+<p>This lesson introduces LangChain as a practical convenience layer. The learner will connect to different chat models with the same broad pattern, then learn how temperature and output limits affect a response.</p>
+</blockquote>
+<h2 class="snippet-section">A note from me</h2>
 <p>In the previous lesson, we made direct calls to providers. That is useful because it shows what is actually happening. But applications rarely stay with one provider, one model, or one calling style forever.</p>
 <p>This lesson introduces a tool that makes that movement easier. It does not make every provider identical, and it does not remove the need to understand the model you chose. It gives us a cleaner place to start.</p>
-</section>
-<section class="reading"><h2>What you will be able to do</h2>
+<h2 class="snippet-section">What you will be able to do</h2>
 <p>By the end of this lesson, you can:</p>
-<ul><li>explain what LangChain gives an application developer;</li><li>create a chat model with <code>init_chat_model</code>;</li><li>invoke Groq and Gemini models through the same broad interface;</li><li>choose a useful temperature for a task; and</li><li>control how much output a model may generate.</li></ul>
-</section>
-<hr />
-<section class="reading"><h2>So, what is LangChain?</h2>
+<ul>
+<li>explain what LangChain gives an application developer;</li>
+<li>create a chat model with <code>init_chat_model</code>;</li>
+<li>invoke Groq and Gemini models through the same broad interface;</li>
+<li>choose a useful temperature for a task; and</li>
+<li>control how much output a model may generate.</li>
+</ul>
+<hr/>
+<h2 class="snippet-section">So, what is LangChain?</h2>
 <p>LangChain is a convenient set of tools for connecting to LLMs and building applications around them. One of its most useful ideas is a provider-agnostic interface: you can use a similar piece of application code with different model providers.</p>
 <p>That does not mean every provider supports the same models, parameters, tools, or response fields. It means LangChain gives us a common starting point for the things that are shared.</p>
-<pre><code class="language-text">Your application → LangChain → provider integration → model provider → model</code></pre>
-</section>
-<hr />
-<section class="reading"><h2>Connect with a model using LangChain</h2>
+<h3>Follow the request path</h3>
+<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson3_final.md#supplement">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">Your application → LangChain → provider integration → model provider → model</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">Your application → LangChain → provider integration → model provider → model
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Our application uses LangChain's interface, which delegates to a provider integration. The provider hosts and runs the chosen model.</p>
+<p class="snippet-result"><strong>Result</strong> The common interface sits between our code and the provider.</p>
+<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson3_final.md">lesson3_final.md · supplement</a>
+</figcaption></figure>
+<hr/>
+<h2 class="snippet-section">Connect with a model using LangChain</h2>
 <p>Open <a href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb</a>. The important line is <code>init_chat_model</code>:</p>
-<pre><code class="language-python">from langchain.chat_models import init_chat_model
-
+<h3>Import the building blocks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#5a374f7e">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These imports make the model constructor and the helpers used below available. We only need to run this setup once in the notebook session.</p>
+<p class="snippet-result"><strong>Result</strong> The imported names are ready for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · 5a374f7e</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#5a374f7e">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load provider API keys from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load provider API keys from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>load_dotenv()</code> reads the local .env file so the provider integration can find its API key. Keep the key in that file rather than putting it into the lesson code.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load provider API keys from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The API settings are available in this Python process.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · 5a374f7e</a>
+</figcaption></figure>
+<h3>Create a Groq model</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#2366c03c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Create a Groq chat model. LangChain reads GROQ_API_KEY from .env.
 groq_model = init_chat_model(
-    &quot;openai/gpt-oss-120b&quot;,
-    model_provider=&quot;groq&quot;,
-)
-
-groq_response = groq_model.invoke(&quot;How many permutations are there for a deck of 52 cards?&quot;)
-print(groq_response.text)</code></pre>
+    "openai/gpt-oss-120b",
+    model_provider="groq",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Create a Groq chat model. LangChain reads GROQ_API_KEY from .env.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">groq_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We choose the hosted model and the Groq integration. LangChain reads the key loaded during setup.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Create a Groq chat model. LangChain reads GROQ_API_KEY from .env.</p></div>
+<p class="snippet-result"><strong>Result</strong> groq_model is ready to use.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · 2366c03c</a>
+</figcaption></figure>
+<h3>Ask the question</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#2366c03c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Invoke the model and keep the full AIMessage response.
+groq_response = groq_model.invoke(
+    "How many permutations are there for a deck of 52 cards?"
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Invoke the model and keep the full AIMessage response.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">groq_response</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"How many permutations are there for a deck of 52 cards?"</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><code>invoke</code> sends the question and waits for a complete reply. We store that reply in groq_response.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Invoke the model and keep the full AIMessage response.</p></div>
+<p class="snippet-result"><strong>Result</strong> groq_response is an AIMessage, with text and metadata.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · 2366c03c</a>
+</figcaption></figure>
 <p>In this example, we name a model, tell LangChain which provider integration to use, and call <code>invoke</code>. The result is an AI message object, not only a string. It can include the generated text as well as useful metadata such as the model name and token usage.</p>
-<pre><code class="language-python">print(groq_response.response_metadata.get(&quot;model_name&quot;))
-print(groq_response.usage_metadata)</code></pre>
+<h3>Read text and metadata</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#2366c03c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print(groq_response.text)
+print("Model name:", groq_response.response_metadata.get("model_name"))
+print("Token usage:", groq_response.usage_metadata)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="n">groq_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Model name:"</span><span class="p">,</span> <span class="n">groq_response</span><span class="o">.</span><span class="n">response_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model_name"</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Token usage:"</span><span class="p">,</span> <span class="n">groq_response</span><span class="o">.</span><span class="n">usage_metadata</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The first print shows the answer. The other two show the reported model name and token usage; <code>.get</code> handles a missing metadata key without an indexing error.</p>
+<p class="snippet-result"><strong>Result</strong> We can inspect both the answer and information about the call.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · 2366c03c</a>
+</figcaption></figure>
 <p>The direct provider SDK is still useful when you need a provider-specific feature. LangChain is useful when the common interface helps you write and maintain the application more easily.</p>
-</section>
-<hr />
-<section class="reading"><h2>Invoke different models</h2>
+<hr/>
+<h2 class="snippet-section">Invoke different models</h2>
 <p>Changing a model is now much simpler at the point where the model is created:</p>
-<pre><code class="language-python">groq_model = init_chat_model(
-    &quot;openai/gpt-oss-120b&quot;,
-    model_provider=&quot;groq&quot;,
-)
-
+<h3>Create the Gemini model</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#c4e34a7a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Create a Gemini chat model. LangChain reads GEMINI_API_KEY from .env.
 gemini_model = init_chat_model(
-    &quot;gemini-3.1-flash-lite-preview&quot;,
-    model_provider=&quot;google_genai&quot;,
-)
-
-print(groq_model.invoke(&quot;Explain RAG in one sentence.&quot;).text)
-print(gemini_model.invoke(&quot;Explain RAG in one sentence.&quot;).text)</code></pre>
+    "gemini-3.1-flash-lite-preview",  # same code, just the model name changes.
+    model_provider="google_genai",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Create a Gemini chat model. LangChain reads GEMINI_API_KEY from .env.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">gemini_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"gemini-3.1-flash-lite-preview"</span><span class="p">,</span>  <span class="c1"># same code, just the model name changes.</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"google_genai"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We change the model identifier and provider integration. The invoke pattern stays familiar. The inline comment is copied from the notebook; both provider and identifier are different here.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Create a Gemini chat model. LangChain reads GEMINI_API_KEY from .env.</p><p class="snippet-comment"># same code, just the model name changes.</p></div>
+<p class="snippet-result"><strong>Result</strong> gemini_model is ready. GEMINI_API_KEY must be available.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · c4e34a7a</a>
+</figcaption></figure>
+<h3>Ask Gemini a question</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#c4e34a7a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">gemini_response = gemini_model.invoke("What happens to Humpty Dumpty?")</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">gemini_response</span> <span class="o">=</span> <span class="n">gemini_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="s2">"What happens to Humpty Dumpty?"</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We send the nursery-rhyme question through the same invoke method.</p>
+<p class="snippet-result"><strong>Result</strong> gemini_response holds the model's reply.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · c4e34a7a</a>
+</figcaption></figure>
+<h3>Inspect Gemini's reply</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#c4e34a7a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print(gemini_response.text)
+print("Model name:", gemini_response.response_metadata.get("model_name"))
+print("Model provider:", gemini_response.response_metadata.get("model_provider"))
+print("Token usage:", gemini_response.usage_metadata)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="n">gemini_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Model name:"</span><span class="p">,</span> <span class="n">gemini_response</span><span class="o">.</span><span class="n">response_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model_name"</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Model provider:"</span><span class="p">,</span> <span class="n">gemini_response</span><span class="o">.</span><span class="n">response_metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"model_provider"</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"Token usage:"</span><span class="p">,</span> <span class="n">gemini_response</span><span class="o">.</span><span class="n">usage_metadata</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We read the text, reported model and provider, and token usage using the same response properties.</p>
+<p class="snippet-result"><strong>Result</strong> We can compare how the providers report their results.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · c4e34a7a</a>
+</figcaption></figure>
 <p>The calling pattern stays familiar. That is the win. But changing the model is still an engineering decision: responses can differ in quality, speed, price, safety settings, available context, and supported features. Use the shared interface to experiment; use evaluation to decide what belongs in the application.</p>
-</section>
-<hr />
-<section class="reading"><h2>Temperature: how much variation should we allow?</h2>
+<hr/>
+<h2 class="snippet-section">Temperature: how much variation should we allow?</h2>
 <p>Temperature is a parameter that controls the randomness of a language model’s output. It influences how predictable or how varied the responses are.</p>
 <p>Lower values make the model more likely to choose the most probable next tokens. Higher values let it explore less likely choices more often. It is not a “truth” dial and it cannot fix a weak prompt or missing context.</p>
-<div style="overflow-x:auto"><table><thead><tr><th>Task</th><th>A sensible starting temperature</th><th>Why</th></tr></thead><tbody><tr><td>Factual answers, maths, code, extraction</td><td>0.0–0.3</td><td>Favour consistency and predictable formatting.</td></tr><tr><td>General questions and explanations</td><td>0.5–0.7</td><td>Balance clarity with natural variation.</td></tr><tr><td>Creative writing, stories, and jokes</td><td>0.9–1.2</td><td>Allow more diverse phrasing and ideas.</td></tr><tr><td>Wild brainstorming</td><td>1.5+</td><td>Encourage surprising directions; expect less consistency.</td></tr></tbody></table></div>
+<div aria-label="Lesson comparison table" class="snippet-table" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Task</th>
+<th style="text-align:right">A sensible starting temperature</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual answers, maths, code, extraction</td>
+<td style="text-align:right">0.0–0.3</td>
+<td>Favour consistency and predictable formatting.</td>
+</tr>
+<tr>
+<td>General questions and explanations</td>
+<td style="text-align:right">0.5–0.7</td>
+<td>Balance clarity with natural variation.</td>
+</tr>
+<tr>
+<td>Creative writing, stories, and jokes</td>
+<td style="text-align:right">0.9–1.2</td>
+<td>Allow more diverse phrasing and ideas.</td>
+</tr>
+<tr>
+<td>Wild brainstorming</td>
+<td style="text-align:right">1.5+</td>
+<td>Encourage surprising directions; expect less consistency.</td>
+</tr>
+</tbody>
+</table></div>
 <p>For example:</p>
-<pre><code class="language-python">model = init_chat_model(
-    &quot;openai/gpt-oss-120b&quot;,
-    model_provider=&quot;groq&quot;,
-    temperature=0.2,
-)</code></pre>
+<h3>Keep the comparison prompt fixed</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#be396d66">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Use the same prompt to compare low and high temperature settings.
+prompt = "Write a one-sentence opening line for a story about a goldfish."
+groq_model_name = "openai/gpt-oss-120b"</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Use the same prompt to compare low and high temperature settings.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">prompt</span> <span class="o">=</span> <span class="s2">"Write a one-sentence opening line for a story about a goldfish."</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">groq_model_name</span> <span class="o">=</span> <span class="s2">"openai/gpt-oss-120b"</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We use one goldfish prompt and one model name. That gives us a shared starting point for comparing temperature settings.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Use the same prompt to compare low and high temperature settings.</p></div>
+<p class="snippet-result"><strong>Result</strong> Both calls below will receive the same prompt.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · be396d66</a>
+</figcaption></figure>
+<h3>Create the lower-temperature model</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#be396d66">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">low_temperature_model = init_chat_model(
+    groq_model_name,
+    model_provider="groq",
+    temperature=0.0,
+    max_tokens=300,
+    reasoning_effort="low",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">low_temperature_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">groq_model_name</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We configure the first model with temperature 0.0, an output limit of 300 tokens, and low reasoning effort. Lower temperature favours more consistent token choices.</p>
+<p class="snippet-result"><strong>Result</strong> low_temperature_model is ready for the shared prompt.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · be396d66</a>
+</figcaption></figure>
+<h3>Create the higher-temperature model</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#be396d66">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">high_temperature_model = init_chat_model(
+    groq_model_name,
+    model_provider="groq",
+    temperature=2.0,
+    max_tokens=300,
+    reasoning_effort="low",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">high_temperature_model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">groq_model_name</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">temperature</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We configure the same hosted model with temperature 2.0. The output limit and reasoning setting stay the same so we can compare the effect of temperature.</p>
+<p class="snippet-result"><strong>Result</strong> high_temperature_model is ready for the same prompt.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · be396d66</a>
+</figcaption></figure>
+<h3>Compare their answers</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/2-Using-LangChain.ipynb#be396d66">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print("Temperature 0.0:", low_temperature_model.invoke(prompt).text)
+print("Temperature 2.0:", high_temperature_model.invoke(prompt).text)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"Temperature 0.0:"</span><span class="p">,</span> <span class="n">low_temperature_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Temperature 2.0:"</span><span class="p">,</span> <span class="n">high_temperature_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We invoke each object with the shared prompt and print the answers beside their temperature labels. These are two separate API calls.</p>
+<p class="snippet-result"><strong>Result</strong> We can compare the generated openings. Temperature is not a guarantee of quality or correctness.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb · be396d66</a>
+</figcaption></figure>
 <p>Start with the task, not with a fashionable number. If you need reliable structured output, start low. If you need ten different campaign ideas, raise it and review the results.</p>
-</section>
-<hr />
-<section class="reading"><h2>Max tokens: how much may the model say?</h2>
+<hr/>
+<h2 class="snippet-section">Max tokens: how much may the model say?</h2>
 <p>Models generate output in tokens. <code>max_tokens</code> or a provider-specific equivalent limits the amount of output the model may produce in one response.</p>
 <p>This matters for three practical reasons:</p>
-<ul><li><strong>Cost:</strong> more generated tokens usually cost more.</li><li><strong>Speed:</strong> longer answers generally take longer to generate.</li><li><strong>Control:</strong> a clear limit helps stop a short task from producing an essay.</li></ul>
+<ul>
+<li><strong>Cost:</strong> more generated tokens usually cost more.</li>
+<li><strong>Speed:</strong> longer answers generally take longer to generate.</li>
+<li><strong>Control:</strong> a clear limit helps stop a short task from producing an essay.</li>
+</ul>
 <p>Choose a limit that suits the result you need. A single classification label needs very little output. A detailed report or a long code explanation needs more. If the response is cut off, raise the limit or ask the model to produce a smaller, more focused answer.</p>
 <p>The exact parameter name and accepted range can vary by provider, so check the integration documentation for the model you use.</p>
-</section>
-<section class="reading"><h2>Next lesson</h2>
+<h2 class="snippet-section">Next lesson</h2>
 <p>We will move beyond a single request and response: messages, prompt structure, and the context an application gives to a model.</p>
-</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 03</p><a href="lesson-2.html">← Lesson 2</a></footer></body></html>
+</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 03</p><a href="lesson-2.html">← Lesson 2</a></footer><script defer="True" src="lesson-code-explorer.js"></script></body></html>
