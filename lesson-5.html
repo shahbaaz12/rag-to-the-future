@@ -1,123 +1,136 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 5: stream, batch, structure, and manage conversational model responses." />
-    <title>Lesson 5 · More Than One Answer · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="lesson-5.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
-      <nav aria-label="Lesson navigation"><a href="lesson-4.html">← Lesson 4</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="lesson-6.html">Lesson 6 →</a></nav>
-    </header>
+<!DOCTYPE html>
 
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 05</p>
-          <p class="chapter-number">RESPONSE CONTROL / CONVERSATION TRACE</p>
-          <h1 id="page-title">More than<br /><em>one answer.</em></h1>
-          <p class="lede">A model can answer in pieces, answer many independent requests, return useful data, and participate in a conversation. Your application decides how each response arrives and what context returns with it.</p>
-          <div class="hero-actions"><a class="button primary" href="#lesson">Inspect the trace <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div>
-        </div>
-        <aside class="signal-panel" aria-label="Lesson capability overview">
-          <p class="panel-label">RESPONSE MODES ONLINE</p>
-          <div class="signal-path" aria-hidden="true"><b>INPUT</b><i></i><b>MODEL</b><i></i><b>CHUNKS</b><i></i><b>STATE</b></div>
-          <dl><div><dt>STREAM</dt><dd>partial text</dd></div><div><dt>BATCH</dt><dd>independent work</dd></div><div><dt>MEMORY</dt><dd>chosen context</dd></div></dl>
-          <p class="panel-note">The model has no permanent personal memory between calls. A conversation only continues when the application sends or restores the context it needs.</p>
-        </aside>
-      </section>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 5: Streaming, batching, structured output, and labelled messages." name="description"/><title>Lesson 5 · More Than One Answer · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-4.html">← Lesson 4</a><a href="#lesson">Lesson</a><a href="lesson-6.html">Lesson 6 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 05</p><h1 id="page-title">More Than One Answer</h1><p class="lede">Streaming, batching, structured output, and labelled messages.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson">
+<blockquote>
+<p><strong>Review draft</strong></p>
+<p>A model can return text in several useful ways, return structured data instead of prose, and take part in a conversation. This lesson explains those features and gives each one a clear purpose.</p>
+</blockquote>
+<section class="reading"><h2>A note from me</h2>
+<p>Up to now, our model call has looked very simple: send one input, receive one answer, print it. That is useful, but it is only the beginning.</p>
+<p>What if we want the answer to appear word by word? What if we have a hundred unrelated requests? What if our Python code needs a list or an object instead of a paragraph? And how does a model distinguish a rule from a question?</p>
+<p>Let’s add those pieces one at a time.</p>
+</section><section class="reading"><h2>What you will be able to do</h2>
+<ul>
+<li>stream a response as it is generated;</li>
+<li>batch independent requests;</li>
+<li>ask for validated structured output;</li>
+<li>use system, human, and AI messages;</li>
+<li>explain how labelled messages shape a conversation.</li>
+</ul>
 
-      <aside id="optional-story" class="story" aria-labelledby="story-title">
-        <div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console keeps talking.</h2></div>
-        <p>The repair console replies before its sentence is complete. Then it recalls a name from the previous exchange and begins compressing old records into a short log. The professor stops the display: “It did not remember. We chose what to carry forward.”</p>
-        <a href="#lesson">Skip to the technical lesson →</a>
-      </aside>
-
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title">
-        <header class="lesson-heading"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">A model call can return more than a finished paragraph.</h2><p>Until now, the shape has been simple: send one input, wait, then print one answer. The same model connection can serve more responsive interfaces, background processing, predictable application data, and conversations that remain manageable as they grow.</p></header>
-
-        <section class="concept" aria-labelledby="modes-title">
-          <div class="section-label"><span>01</span><p>RESPONSE MODES</p></div>
-          <div class="content"><h3 id="modes-title">Streaming and batching solve different timing problems.</h3><div class="mode-grid"><section><p class="card-label">STREAMING</p><h4>Receive an answer while it is generated.</h4><p>Normally <code>invoke</code> waits for the complete response. With streaming, the application receives small chunks so a person can start reading a longer answer sooner.</p><pre><code>for chunk in groq_model.stream(
-    "Explain API-key safety in three sentences."
-):
-    print(chunk.text, end="", flush=True)</code></pre></section><section><p class="card-label">BATCHING</p><h4>Run independent requests together.</h4><p>Batching is useful for a list of records, prompts, or tests whose answers do not depend on one another.</p><pre><code>batch_responses = groq_model.batch([
+</section><section class="reading"><h2>What else can we do with a model call?</h2>
+<h3>Streaming</h3>
+<p>Normally, <code>invoke</code> waits until the complete response is ready. Streaming lets our application receive small chunks while the model is still generating.</p>
+<pre><code class="language-python">for chunk in groq_model.stream("Explain API-key safety in three sentences."):
+    print(chunk.text, end="", flush=True)
+</code></pre>
+<p>It makes a long answer feel more responsive because the user can start reading it sooner. The model is still generating the same kind of response; streaming only changes how our application receives it.</p>
+<h3>Batching</h3>
+<p>Batching is for requests that do not depend on one another.</p>
+<pre><code class="language-python">batch_responses = groq_model.batch([
     "Define an LLM in one sentence.",
     "Give one use for a low temperature setting.",
-])</code></pre></section></div><p>Streaming changes how the response reaches your application; it does not change what kind of response the model generates. Batching is not conversation memory and is unsuitable when each answer affects the next request.</p></div>
-        </section>
+])
+</code></pre>
+<p>It is useful when processing a list of records, prompts, or tests. It is not conversation memory, and it does not make dependent tasks safe to run at the same time.</p>
 
-        <section class="concept" aria-labelledby="structured-title">
-          <div class="section-label"><span>02</span><p>STRUCTURED OUTPUT</p></div>
-          <div class="content"><h3 id="structured-title">Ask for data when your code needs data.</h3><p>Natural-language prose is easy to read but awkward to place reliably in a database or user interface. A schema gives the application named fields and validation before later code uses the result.</p><pre><code>class LessonRecommendation(BaseModel):
-    lesson_number: int
-    topic: str
-    reason: str
-    preparation: list[str]
+</section><section class="reading"><h2>Structured output: ask for data, not just prose</h2>
+<p>Models are good at writing paragraphs. Applications often need a predictable shape instead: fields we can put in a UI, store in a database, or pass to another function. <strong>Structured output</strong> tells the model and LangChain what shape our response needs.</p>
+<p>Let’s use a Pokédex. A normal prompt might return a nice paragraph about Pikachu. That is pleasant for a person to read, but our code cannot safely rely on the order of facts inside it. We want a name, type, level, and evolutions in named places.</p>
+<h3>Pydantic: a validated Python object</h3>
+<p>A Pydantic model describes the expected fields. <code>Field(description=...)</code> is useful because it explains each field to the model as well as to the reader of our code.</p>
+<pre><code class="language-python">from pydantic import BaseModel, Field
 
-structured_groq_model = groq_model.with_structured_output(
-    LessonRecommendation
+
+class Pokemon(BaseModel):
+    name: str = Field(description="The Pokémon's name.")
+    type: str = Field(description="Its main Pokémon type.")
+    level: int = Field(description="A sensible level for this example.")
+    evolutions: list[str] = Field(description="Its possible evolution names.")
+</code></pre>
+<p>Now we wrap the normal model. The call still looks like <code>invoke</code>, but it returns a <code>Pokemon</code> object instead of a free-form <code>AIMessage</code>.</p>
+<pre><code class="language-python">pokemon_model = groq_model.with_structured_output(Pokemon)
+
+pokemon = pokemon_model.invoke("Give Pokédex details for Pikachu.")
+print(pokemon.name)
+print(pokemon.evolutions)
+</code></pre>
+<p>We use dot notation because <code>pokemon</code> is a Pydantic object. Pydantic also checks that the returned fields can fit the types we asked for, such as a number for <code>level</code> and a list for <code>evolutions</code>.</p>
+<h3>A nested output: a Pokédex list</h3>
+<p>One Pokémon is a flat object. A Pokédex needs a list of those objects. We can reuse the <code>Pokemon</code> model inside another Pydantic model.</p>
+<pre><code class="language-python">class PokemonList(BaseModel):
+    pokemons: list[Pokemon] = Field(
+        description="The Pokémon included in this Pokédex result."
+    )
+
+
+pokedex_model = groq_model.with_structured_output(PokemonList)
+pokedex = pokedex_model.invoke(
+    "Create a short Pokédex for three of Ash's Kanto Pokémon."
 )
-recommendation = structured_groq_model.invoke(
-    "Recommend the next lesson for a learner."
-)
-print(recommendation.topic)</code></pre><p>The result is a <code>LessonRecommendation</code> object. Your code can use <code>recommendation.lesson_number</code> or loop over <code>recommendation.preparation</code>. This gives a predictable shape, not automatic factual correctness: facts still need good instructions, trusted data, and appropriate validation.</p><p class="reference">Worked example: <a href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs-and-Middleware.ipynb">Structured outputs and middleware notebook</a></p></div>
-        </section>
 
-        <section class="concept" aria-labelledby="messages-title">
-          <div class="section-label"><span>03</span><p>MESSAGES</p></div>
-          <div class="content"><h3 id="messages-title">A message is text plus a label.</h3><p>A message is just <strong>text plus a label saying who said it</strong>.</p><pre><code>HumanMessage("How do I create a REST API?")
-# label: human, text: "How do I create a REST API?"</code></pre><p>Why bother with a label? It lets the model tell which text is a rule and which text is a question.</p><div class="roles" role="list"><div role="listitem"><b>System message</b><p>Application rules: how the model should behave.</p></div><div role="listitem"><b>Human message</b><p>The user’s question or request.</p></div><div role="listitem"><b>AI message</b><p>An earlier model reply carried into the next turn.</p></div></div><h4>Without labels: one blob</h4><pre><code>groq_model.invoke(
-    "Be concise. Always show code. How do I create a REST API?"
-)</code></pre><p>The model sees one blob of text. It cannot reliably separate our instruction from the user’s actual question.</p><h4>With labels: rules and question stay separate</h4><pre><code>groq_model.invoke([
+for pokemon in pokedex.pokemons:
+    print(pokemon.name, "-", pokemon.type)
+</code></pre>
+<p><code>PokemonList</code> is the outer box. Its <code>pokemons</code> field is a list, and every item in that list must have the <code>Pokemon</code> shape. This is called a nested structured output. It is useful whenever one response contains a collection of repeated items: products in an order, people in a team, or search results.</p>
+<h3>TypedDict: the lighter option</h3>
+<p><code>TypedDict</code> describes the same kind of keys and value types using Python's typing tools. It is useful when we only need a normal dictionary and do not need Pydantic's object features or runtime validation.</p>
+<pre><code class="language-python">from typing_extensions import TypedDict
+
+
+class PokemonDict(TypedDict):
+    name: str
+    type: str
+    level: int
+    evolutions: list[str]
+
+
+typed_dict_model = groq_model.with_structured_output(PokemonDict)
+pokemon_dict = typed_dict_model.invoke("Give Pokédex details for Eevee.")
+
+print(pokemon_dict["name"])
+print(pokemon_dict["evolutions"])
+</code></pre>
+<p>The shape is similar, but the result is a regular dictionary, so we use square brackets instead of dot notation. Start with Pydantic when you want clear field descriptions, nested models, and validation. Use <code>TypedDict</code> when a simple typed dictionary is enough.</p>
+<p>Structured output does not make a model's facts automatically correct. It gives the answer a predictable shape. We still need good instructions and, when facts matter, trustworthy data and validation.</p>
+<p>The complete examples are in <a href="code/Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb">5-Structured-Outputs.ipynb</a>.</p>
+
+</section><section class="reading"><h2>Messages give a conversation structure</h2>
+<p>A message is just <strong>text plus a label saying who said it</strong>.</p>
+<pre><code class="language-python">HumanMessage("How do I create a REST API?")
+# label: human, text: "How do I create a REST API?"
+</code></pre>
+<p>Why bother with the label? So the model can tell which text is a rule and which text is a question.</p>
+<p><strong>Without labels</strong>, we send one string:</p>
+<pre><code class="language-python">groq_model.invoke("Be concise. Always show code. How do I create a REST API?")
+</code></pre>
+<p>The model sees one blob of text. It cannot reliably separate our instruction from the user’s actual question.</p>
+<p><strong>With labels</strong>, we give the model the structure:</p>
+<pre><code class="language-python">groq_model.invoke([
     SystemMessage("Be concise. Always show code."),  # rules
     HumanMessage("How do I create a REST API?"),     # question
-])</code></pre><p>Now the model can treat the system message as “this is how I should behave” and the human message as “this is what the user wants.”</p><p><strong>Real-life example:</strong> a system message is the manager’s day-one rule: “Be polite and keep replies short.” A human message is a customer’s question. The employee follows the manager’s rules for every customer without the customer having to repeat them.</p><h4>Messages also carry history</h4><pre><code>conversation = [
+])
+</code></pre>
+<p>Now the model can treat the system message as “this is how I should behave” and the human message as “this is what the user wants.”</p>
+<p>Think of a new employee. The <strong>system message</strong> is the manager’s day-one rule: “Be polite and keep replies short.” The <strong>human message</strong> is a customer’s question. The employee follows the manager’s rules for every customer without making the customer repeat them.</p>
+<p>Messages also let us carry a chat history forward by adding an <code>AIMessage</code> for an earlier reply:</p>
+<pre><code class="language-python">conversation = [
     SystemMessage("Be concise."),
     HumanMessage("What is Python?"),
-    AIMessage("A programming language."),   # earlier model reply
+    AIMessage("A programming language."),  # earlier model reply
     HumanMessage("Who created it?"),        # “it” means Python
-]</code></pre><p>Without the earlier messages, the model would not know what “it” means. Labels do not guarantee perfect behaviour, but they give the application and model a clear conversation structure.</p></div>
-        </section>
-
-        <section class="concept" aria-labelledby="memory-title">
-          <div class="section-label"><span>04</span><p>HISTORY &amp; MEMORY</p></div>
-          <div class="content"><h3 id="memory-title">History is the record; memory is the selection rule.</h3><p><strong>History</strong> is the collection of earlier messages. <strong>Memory</strong> is the method your application uses to decide what information from that history should be available on the next turn. For a small demo, a Python list is enough:</p><pre><code>conversation = [
-    SystemMessage("You are a concise assistant for a Python course."),
-    HumanMessage("My name is Ada. I am learning about LLMs."),
 ]
+</code></pre>
+<p>Without the earlier messages, the model would not know what “it” means. Labels do not guarantee perfect behaviour, but they give the application and model a clear, reliable conversation structure.</p>
 
-first_response = groq_model.invoke(conversation)
-conversation.append(first_response)
-conversation.append(HumanMessage(
-    "What is my name and what am I learning?"
-))
-
-second_response = groq_model.invoke(conversation)</code></pre><p>The model knows Ada only because the application sends the earlier messages again. As history grows, input tokens, cost, latency, and eventually context limits grow too. The application needs a rule for what to keep.</p></div>
-        </section>
-
-        <section class="middleware" aria-labelledby="middleware-title">
-          <div class="section-label"><span>05</span><p>MIDDLEWARE</p></div>
-          <div class="content"><h3 id="middleware-title">Summarise old context; keep recent context in full.</h3><p>Middleware is code that runs around a model or agent operation. <code>SummarizationMiddleware</code> can watch conversation length, replace older messages with a summary after a threshold, and retain a small number of recent messages alongside it.</p><pre><code>SummarizationMiddleware(
-    model="groq:openai/gpt-oss-120b",
-    trigger=("messages", 10),
-    keep=("messages", 4),
-)</code></pre><div class="summary-rule" aria-label="Summarisation flow"><div><b>Older messages</b><small>compress after 10</small></div><i aria-hidden="true">→</i><div><b>Summary</b><small>important context</small></div><i aria-hidden="true">→</i><div><b>Recent messages</b><small>keep 4 in full</small></div></div><p><code>trigger</code> says when summarisation happens; <code>keep</code> says how many newest messages remain in full. A checkpointer, identified by a thread ID, stores conversation state between calls. Summaries save tokens but can lose or distort details, so decide carefully which facts must stay in full history.</p><p class="reference">Worked examples: <a href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">Messages, streaming, batching, and memory notebook</a></p></div>
-        </section>
-
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Make a conversation useful without making it endless.</h2><p><strong>Task:</strong> Build a tiny course assistant that streams its first short reply, stores one human message and one AI reply, and answers a follow-up using that history. Then write down the memory rule you would use after ten turns.</p><ol><li>Use <code>stream</code> to display a response as chunks arrive.</li><li>Add the completed response and a follow-up question to a message list.</li><li>Explain why batching would not be appropriate for the dependent follow-up.</li><li>Define what older information you would summarise and what must remain in full.</li></ol><p class="outcome"><strong>Learning record:</strong> The application can choose a response mode, use structured messages, and make an explicit plan for a growing conversation.</p></section>
-      </article>
-
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 06</p><h2 id="next-title">A model can reply. Next, let it <em>request a tool.</em></h2><p>Tool calling gives a model a way to request actions, while the application keeps control of every execution.</p><a class="button primary" href="lesson-6.html">Continue to lesson 6 <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 05</p><a href="lesson-4.html">← Previous lesson</a></footer>
-  </body>
-</html>
+<p>For the streaming, batching, and messages examples, use <a href="code/Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb">4-Messages-Streaming-Batching-and-Memory.ipynb</a>.</p>
+</section><section class="reading"><h2>Check your understanding</h2>
+<ol>
+<li>When would streaming improve a user’s experience?</li>
+<li>Why is batching unsuitable for a conversation where each answer affects the next question?</li>
+<li>What does structured output give an application that free-form text does not?</li>
+<li>Why do message labels matter when an application gives the model rules and a question?</li>
+</ol>
+</section><section class="reading"><h2>Next lesson</h2>
+<p>We will make conversation memory explicit: manual history and checkpointers.</p>
+</section></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 05</p><a href="lesson-4.html">← Lesson 4</a><a href="lesson-6.html">Lesson 6 →</a></footer></body></html>

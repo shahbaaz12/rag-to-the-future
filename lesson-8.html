@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Lesson 8: create agents from a model, instructions, and approved tools." />
+    <title>Lesson 8 · Agents Choose Tools · RAG to the Future</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-8.css" />
+  </head>
+  <body>
+    <div class="site-noise" aria-hidden="true"></div>
+    <header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-7.html">← Lesson 7</a><a href="#lesson">Lesson</a><a href="#exercise">Check understanding</a><a href="part-one.html">Part I map</a></nav></header>
+    <main>
+      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 08</p><p class="chapter-number">TOOL LOOPS / AGENT FRAMEWORKS</p><h1 id="page-title">Models that <em>choose</em> tools.</h1><p class="lede">An agent combines a model, instructions, and an approved tool set so a framework can manage the standard tool-execution loop.</p><div class="hero-actions"><a class="button primary" href="#lesson">Meet the agent <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Agent composition"><p class="panel-label">AGENT COMPONENTS</p><p class="agent-equation"><b>MODEL</b><i>+</i><b>RULES</b><i>+</i><b>TOOLS</b><i>=</i><strong>AGENT</strong></p><dl><div><dt>CHOICE</dt><dd>model</dd></div><div><dt>EXECUTION</dt><dd>framework</dd></div><div><dt>CONTROL</dt><dd>application</dd></div></dl><p class="panel-note">An agent can only use tools supplied to it, under the permissions and checks the application builds.</p></aside></section>
+      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console learns its approved routes.</h2></div><p>The workshop console receives a question about parts and prices. It studies the labelled switches, chooses two of them, and returns with a trace of each stop. The professor smiles: “It can choose a route. We still built every road.”</p><a href="#lesson">Skip to the technical lesson →</a></aside>
+      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">An agent manages a familiar loop.</h2><p>Lesson 7 made the execution loop visible. Agent frameworks save you from writing that standard loop for every application, while you stay responsible for tool definitions, access, permissions, error handling, and what users may ask it to do.</p></header>
+        <section class="reading" aria-labelledby="agent-title"><p class="number">01 · THE PARTS</p><h3 id="agent-title">Model + instructions + allowed tools = agent.</h3><p>The model reads the user request and decides whether a tool can help. The framework runs an approved tool, adds its result to the conversation, and asks the model for a final answer. An agent is not a magical employee: it can only use the tools you provide.</p></section>
+        <section class="reading" aria-labelledby="one-tool-title"><p class="number">02 · ONE TOOL</p><h3 id="one-tool-title">Create an inventory agent.</h3><p>The local inventory service below could stand in for a database or approved service in a real project.</p><div class="code-card"><pre><code>@tool
+def check_stock_service(item: str) -&gt; str:
+    """Return the remaining stock quantity for an inventory item."""
+    stock_by_item = {"headphone": 6, "keyboard": 11, "laptop": 12}
+    quantity = stock_by_item.get(item.lower())
+    if quantity is None:
+        return f"{item} is not present in the stock database."
+    return f"{item} has {quantity} units left in stock."
+
+basic_inventory_agent = create_agent(
+    model=inventory_model,
+    tools=[check_stock_service],
+)</code></pre></div><p>When someone asks, “How many laptops do we have?”, the agent can decide that <code>check_stock_service</code> is relevant. The framework handles the request, function call, tool result, and final response.</p></section>
+        <section class="reading" aria-labelledby="many-tools-title"><p class="number">03 · MULTIPLE TOOLS</p><h3 id="many-tools-title">Give the agent a bounded choice.</h3><div class="code-card"><pre><code>shopping_agent = create_agent(
+    model=inventory_model,
+    tools=[check_stock_service, get_price_service],
+)</code></pre></div><p>A question such as “Do we have laptops in stock, and what is the price?” can require two tools. The model chooses which supplied tool to call and in what order. It cannot call a tool absent from the approved list.</p><div class="code-card"><pre><code>for agent_message in multi_tool_result["messages"]:
+    print(f"{type(agent_message).__name__}: {agent_message.content}")</code></pre></div><p>Inspecting messages during a run reveals the user request, AI tool calls, tool results, and final response. It is a useful learning and debugging aid, rather than treating the agent as a black box.</p></section>
+        <section class="loop-panel" aria-labelledby="compare-title"><p class="eyebrow">AGENT VERSUS TOOL LOOP</p><h3 id="compare-title">The underlying sequence stays the same.</h3><figure class="flow"><div><b>User request</b><small>asks for help</small></div><i aria-hidden="true">→</i><div><b>Model</b><small>requests a tool</small></div><i aria-hidden="true">→</i><div><b>Allowed tool</b><small>returns a result</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>returns to the user</small></div><figcaption>Lesson 7 wrote each step directly. With <code>create_agent</code>, LangChain manages the standard loop.</figcaption></figure><p>You still control the important boundary: tool definitions, data access, permissions, error handling, and the actions a user is allowed to request.</p><p>Start with <a href="code/Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb">8-Agents.ipynb</a> for the one-tool and multi-tool inventory examples.</p></section>
+        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CHECK YOUR UNDERSTANDING</p><h2 id="exercise-title">Trace the agent’s authority.</h2><ol><li>What three things make up the basic agent in this lesson?</li><li>Can an agent call a tool that was not supplied in its <code>tools</code> list?</li><li>Why is a tool docstring useful to an agent?</li><li>What does <code>create_agent</code> manage for us, and what do we still control?</li></ol><p class="outcome"><strong>Learning record:</strong> an agent can select among approved tools, while the application still sets the boundaries for execution.</p></section>
+      </article>
+      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">PART I COMPLETE</p><h2 id="next-title">The routes are <em>mapped.</em></h2><p>Return to the Part I map to review every repair and choose where to continue.</p><a class="button primary" href="part-one.html">Return to Part I map <span>→</span></a></section>
+    </main>
+    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 08</p><a href="lesson-7.html">← Previous lesson</a><a href="part-one.html">Part I map</a></footer>
+  </body>
+</html>

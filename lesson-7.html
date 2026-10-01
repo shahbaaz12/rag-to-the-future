@@ -3,43 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 7: create agents from a model, instructions, and approved tools." />
-    <title>Lesson 7 · Agents Choose Tools · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta name="description" content="Lesson 7: give a model approved tools while keeping application control over execution." />
+    <title>Lesson 7 · Keep the Control · RAG to the Future</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-7.css" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="lesson-7.css" />
   </head>
   <body>
     <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-6.html">← Lesson 6</a><a href="#lesson">Lesson</a><a href="#exercise">Check understanding</a><a href="part-one.html">Part I map</a></nav></header>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
+      <nav aria-label="Lesson navigation"><a href="lesson-6.html">← Lesson 6</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="lesson-8.html">Lesson 8 →</a></nav>
+    </header>
     <main>
-      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 07</p><p class="chapter-number">TOOL LOOPS / AGENT FRAMEWORKS</p><h1 id="page-title">Models that <em>choose</em> tools.</h1><p class="lede">An agent combines a model, instructions, and an approved tool set so a framework can manage the standard tool-execution loop.</p><div class="hero-actions"><a class="button primary" href="#lesson">Meet the agent <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Agent composition"><p class="panel-label">AGENT COMPONENTS</p><p class="agent-equation"><b>MODEL</b><i>+</i><b>RULES</b><i>+</i><b>TOOLS</b><i>=</i><strong>AGENT</strong></p><dl><div><dt>CHOICE</dt><dd>model</dd></div><div><dt>EXECUTION</dt><dd>framework</dd></div><div><dt>CONTROL</dt><dd>application</dd></div></dl><p class="panel-note">An agent can only use tools supplied to it, under the permissions and checks the application builds.</p></aside></section>
-      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console learns its approved routes.</h2></div><p>The workshop console receives a question about parts and prices. It studies the labelled switches, chooses two of them, and returns with a trace of each stop. The professor smiles: “It can choose a route. We still built every road.”</p><a href="#lesson">Skip to the technical lesson →</a></aside>
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">An agent manages a familiar loop.</h2><p>Lesson 6 made the execution loop visible. Agent frameworks save you from writing that standard loop for every application, while you stay responsible for tool definitions, access, permissions, error handling, and what users may ask it to do.</p></header>
-        <section class="reading" aria-labelledby="agent-title"><p class="number">01 · THE PARTS</p><h3 id="agent-title">Model + instructions + allowed tools = agent.</h3><p>The model reads the user request and decides whether a tool can help. The framework runs an approved tool, adds its result to the conversation, and asks the model for a final answer. An agent is not a magical employee: it can only use the tools you provide.</p></section>
-        <section class="reading" aria-labelledby="one-tool-title"><p class="number">02 · ONE TOOL</p><h3 id="one-tool-title">Create an inventory agent.</h3><p>The local inventory service below could stand in for a database or approved service in a real project.</p><div class="code-card"><pre><code>@tool
-def check_stock_service(item: str) -&gt; str:
-    """Return the remaining stock quantity for an inventory item."""
-    stock_by_item = {"headphone": 6, "keyboard": 11, "laptop": 12}
-    quantity = stock_by_item.get(item.lower())
-    if quantity is None:
-        return f"{item} is not present in the stock database."
-    return f"{item} has {quantity} units left in stock."
+      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 07</p><p class="chapter-number">EXECUTION CONTROL / APPROVED ACTIONS</p><h1 id="page-title">Give the model <em>tools.</em> Keep control.</h1><p class="lede">A model may request a function. Your application decides whether that request is recognised, valid, permitted, and safe to run.</p><div class="hero-actions"><a class="button primary" href="#lesson">Inspect the loop <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Tool loop overview"><p class="panel-label">EXECUTION AUTHORITY</p><div class="route" aria-hidden="true"><b>USER</b><i></i><b>MODEL</b><i></i><b>APP</b><i></i><b>TOOL</b></div><dl><div><dt>MODEL</dt><dd>requests</dd></div><div><dt>APPLICATION</dt><dd>validates</dd></div><div><dt>TOOL</dt><dd>returns data</dd></div></dl><p class="panel-note">Tool calls are structured suggestions, not automatic permissions to run code or access data.</p></aside></section>
+      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console reaches for a switch.</h2></div><p>The navigation system proposes opening a sealed maintenance panel. The professor puts a hand over the switch: “A good suggestion still needs an operator.” The request is recorded; the panel stays closed until the application checks it.</p><a href="#lesson">Skip to the technical lesson →</a></aside>
+      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">A tool is a function your application makes available.</h2><p>Tools let a model request information or an action from outside the conversation. The model can propose a useful function and arguments; the software around it remains responsible for execution.</p></header>
+        <section class="reading" aria-labelledby="tool-title"><p class="number">01 · DEFINE A TOOL</p><h3 id="tool-title">Start with a small local lookup.</h3><p>A tool has a clear name, description, inputs, and output. In a real application it might query a database, read approved documents, check an order, or take an action the user authorised. This local example keeps the focus on the flow.</p><div class="code-card"><pre><code>@tool
+def get_course_module(module_number: int) -&gt; str:
+    """Return the topic for a course module number from 1 through 7."""
+    modules = {
+        5: "streaming, batching, structured output, and messages",
+        6: "conversation memory and checkpointers",
+        7: "tools and tool-execution loops",
+    }
+    return modules.get(module_number, "That module number is not available.")</code></pre></div><p>The docstring matters: it helps the model understand when the tool is useful and what its input means.</p></section>
+        <section class="reading" aria-labelledby="request-title"><p class="number">02 · REQUEST, THEN EXECUTE</p><h3 id="request-title">Bind only permitted tools to the model.</h3><div class="code-card"><pre><code>tool_enabled_model = groq_model.bind_tools([get_course_module])
+model_message = tool_enabled_model.invoke(messages)</code></pre></div><p>The response may contain <code>tool_calls</code>: structured data describing a requested function and proposed arguments. That does not prove the function ran. Your application must match the request to an allow-list before it executes anything.</p><div class="code-card"><pre><code>for tool_call in model_message.tool_calls:
+    requested_tool = tools_by_name.get(tool_call["name"])
+    if requested_tool is None:
+        tool_result = "This tool is not available."
+    else:
+        tool_result = requested_tool.invoke(tool_call["args"])
 
-basic_inventory_agent = create_agent(
-    model=inventory_model,
-    tools=[check_stock_service],
-)</code></pre></div><p>When someone asks, “How many laptops do we have?”, the agent can decide that <code>check_stock_service</code> is relevant. The framework handles the request, function call, tool result, and final response.</p></section>
-        <section class="reading" aria-labelledby="many-tools-title"><p class="number">03 · MULTIPLE TOOLS</p><h3 id="many-tools-title">Give the agent a bounded choice.</h3><div class="code-card"><pre><code>shopping_agent = create_agent(
-    model=inventory_model,
-    tools=[check_stock_service, get_price_service],
-)</code></pre></div><p>A question such as “Do we have laptops in stock, and what is the price?” can require two tools. The model chooses which supplied tool to call and in what order. It cannot call a tool absent from the approved list.</p><div class="code-card"><pre><code>for agent_message in multi_tool_result["messages"]:
-    print(f"{type(agent_message).__name__}: {agent_message.content}")</code></pre></div><p>Inspecting messages during a run reveals the user request, AI tool calls, tool results, and final response. It is a useful learning and debugging aid, rather than treating the agent as a black box.</p></section>
-        <section class="loop-panel" aria-labelledby="compare-title"><p class="eyebrow">AGENT VERSUS TOOL LOOP</p><h3 id="compare-title">The underlying sequence stays the same.</h3><figure class="flow"><div><b>User request</b><small>asks for help</small></div><i aria-hidden="true">→</i><div><b>Model</b><small>requests a tool</small></div><i aria-hidden="true">→</i><div><b>Allowed tool</b><small>returns a result</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>returns to the user</small></div><figcaption>Lesson 6 wrote each step directly. With <code>create_agent</code>, LangChain manages the standard loop.</figcaption></figure><p>You still control the important boundary: tool definitions, data access, permissions, error handling, and the actions a user is allowed to request.</p><p>Start with <a href="code/Part%20I%20Understanding%20the%20Basics/7-Agents.ipynb">7-Agents.ipynb</a> for the one-tool and multi-tool inventory examples.</p></section>
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CHECK YOUR UNDERSTANDING</p><h2 id="exercise-title">Trace the agent’s authority.</h2><ol><li>What three things make up the basic agent in this lesson?</li><li>Can an agent call a tool that was not supplied in its <code>tools</code> list?</li><li>Why is a tool docstring useful to an agent?</li><li>What does <code>create_agent</code> manage for us, and what do we still control?</li></ol><p class="outcome"><strong>Learning record:</strong> an agent can select among approved tools, while the application still sets the boundaries for execution.</p></section>
+    messages.append(
+        ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"])
+    )</code></pre></div></section>
+        <section class="loop-panel" aria-labelledby="loop-title"><p class="eyebrow">THE TOOL-EXECUTION LOOP</p><h3 id="loop-title">Send the result back for a normal answer.</h3><figure class="flow"><div><b>User request</b><small>asks a question</small></div><i aria-hidden="true">→</i><div><b>Model request</b><small>proposes a tool</small></div><i aria-hidden="true">→</i><div><b>Application</b><small>validates and runs it</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>uses the tool result</small></div><figcaption>The application sends the model request and tool result back to the model so it can answer the user.</figcaption></figure><p>The model never automatically calls the function. It hands your application structured information about a function that could help; your application controls whether, how, and with which data that function runs.</p></section>
+        <section class="reading" aria-labelledby="control-title"><p class="number">03 · KEEP CONTROL</p><h3 id="control-title">Treat a tool call like untrusted input.</h3><p>Before executing a real tool, the application should decide whether the requested tool is allowed, whether its arguments are valid, whether the user has permission, how it handles a slow or failed external service, and what it logs for investigation. Models reason about tools; applications own permissions and execution.</p><p>Work through the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb">7-Tools-and-Tool-Loops.ipynb</a>.</p></section>
+        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Build one inspected tool loop.</h2><p>Define the course-module tool, bind it to a configured chat model, and ask a question that needs module 6. Print or inspect the model’s requested tool call. Execute only a request found in your allow-list, append a <code>ToolMessage</code>, then call the model again for the final answer.</p><ul><li>Check an unknown tool name returns a clear unavailable result.</li><li>Keep the tool’s input constrained to the expected argument.</li><li>Write down which step makes the actual execution decision.</li></ul><p class="outcome"><strong>Learning record:</strong> the model can request a tool, while the application retains control of the tool-execution loop.</p></section>
       </article>
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">PART I COMPLETE</p><h2 id="next-title">The routes are <em>mapped.</em></h2><p>Return to the Part I map to review every repair and choose where to continue.</p><a class="button primary" href="part-one.html">Return to Part I map <span>→</span></a></section>
+      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 08</p><h2 id="next-title">Turn the loop into an <em>agent.</em></h2><p>Next, let a framework manage the standard loop while you continue to define approved tools, data access, permissions, and rules.</p><a class="button primary" href="lesson-8.html">Continue to lesson 8 <span>→</span></a></section>
     </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 07</p><a href="lesson-6.html">← Previous lesson</a><a href="part-one.html">Part I map</a></footer>
+    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 07</p><a href="lesson-6.html">← Previous lesson</a><a href="lesson-8.html">Next lesson →</a></footer>
   </body>
 </html>

@@ -1,64 +1,102 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 4: inspect AI message responses, understand tokens, and create reusable LangChain prompts." />
-    <title>Lesson 4 · Read the Response, Shape the Prompt · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="lesson-4.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-3.html">← Lesson 3</a><a href="#lesson">Lesson</a><a href="#exercise">Check understanding</a><a href="lesson-5.html">Lesson 5 →</a></nav></header>
-    <main>
-      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 04</p><p class="chapter-number">RESPONSE TRACE / PROMPT ARCHIVE</p><h1 id="page-title">Read the response.<br /><em>Shape the prompt.</em></h1><p class="lede">A model call is more than printed text. Inspect the response, notice token use, and give repeated instructions a dependable structure.</p><div class="hero-actions"><a class="button primary" href="#lesson">Open the trace <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Lesson capability overview"><p class="panel-label">CAPABILITY EARNED</p><div class="route" aria-hidden="true"><b>TEXT</b><i></i><b>MODEL</b><i></i><b>TOKENS</b><i></i><b>PROMPT</b></div><dl><div><dt>RESPONSE</dt><dd>metadata</dd></div><div><dt>CONTEXT</dt><dd>tokens</dd></div><div><dt>INPUT</dt><dd>template</dd></div></dl><p class="panel-note">The visible answer matters, but the model name, usage data, and prompt contract help an application remain understandable as it grows.</p></aside></section>
-      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console leaves a trace.</h2></div><p>The answer fades from the screen, but the professor opens the log beneath it: route, model, signal length, and the instruction that shaped the reply. “A good repair leaves evidence,” she says, sliding a reusable prompt card into the archive.</p></aside>
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title">
-        <header class="section-intro"><p class="eyebrow">TECHNICAL EXPLANATION</p><h2 id="lesson-title">The answer is only one part of the response.</h2><p>An application needs more than <code>print(response.text)</code>. It needs to know which model answered, how much text went in and out, and how to give a model consistent instructions as the application grows.</p></header>
-        <section class="concept-grid" aria-label="Lesson objectives"><div><p class="number">01</p><h3>Inspect a response</h3><p>Read generated text, model metadata, and token usage.</p></div><div><p class="number">02</p><h3>Understand tokens</h3><p>Explain why models use tokens and why their counts affect an application.</p></div><div><p class="number">03</p><h3>Shape prompts</h3><p>Use static, dynamic, and reusable template-based prompts deliberately.</p></div></section>
-        <section class="reading"><h3>Understand the response</h3><p>A LangChain call returns an AI message object. Its text is what we usually show a user, but it is not the only useful part.</p><div class="code-card"><pre><code>response = groq_model.invoke("Explain what an API key is in one sentence.")
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 4: Inspect tokens and metadata, then build prompts that remain clear and reusable." /><title>Lesson 4 · Read the Response, Shape the Prompt · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-3.html">← Lesson 3</a><a href="#lesson">Lesson</a><a href="lesson-5.html">Lesson 5 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 04</p><h1 id="page-title">Read the Response, Shape the Prompt</h1><p class="lede">Inspect tokens and metadata, then build prompts that remain clear and reusable.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document"><blockquote><strong>Review draft</strong>  This lesson moves past printing model text. We inspect the whole response, understand why tokens matter, and make prompts reusable without turning them into a fragile collection of f-strings.</blockquote>
+<section class="reading"><h2>A note from me</h2>
+<p>We made a model call. It answered. Nice. But an application needs more than <code>print(response.text)</code>.</p>
+<p>We need to know which model answered, how much text went in and came out, and how to give the model a consistent instruction as our application grows. This is where the response object and prompts start doing real work for us.</p>
+</section>
+<section class="reading"><h2>What you will be able to do</h2>
+<ul><li>inspect generated text, model metadata, and token usage;</li><li>explain why models use tokens instead of plain strings;</li><li>distinguish a static prompt from a dynamic prompt; and</li><li>use a <code>PromptTemplate</code> to reuse and validate prompt variables.</li></ul>
+</section>
+<hr />
+<section class="reading"><h2>Understand the response</h2>
+<p>A call through LangChain returns an AI message object. The text is the part we usually show a user, but it is not the only useful part.</p>
+<pre><code class="language-python">response = groq_model.invoke(&quot;Explain what an API key is in one sentence.&quot;)
 
 print(response.text)
-# Optional fields may differ by provider, so read them defensively.
-print(response.response_metadata.get("model_name"))
-print(response.usage_metadata)</code></pre></div><p>Metadata can reveal which model actually responded. Usage metadata can report input, output, and total tokens. Providers do not all report exactly the same fields, so use <code>.get(...)</code> or a fallback for optional data. See the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb</a>.</p></section>
-        <section class="reading"><h3>Tokens: what are they?</h3><p>Before a model can work with text, it breaks that text into tokens: small pieces that can be a word, part of a word, punctuation, a space, or a line break. This Python string:</p><div class="code-card"><pre><code>I love building AI apps!</code></pre></div><p>might be seen more like:</p><div class="token-strip" aria-label="Illustrative token split"><span>“I”</span><span>“ love”</span><span>“ building”</span><span>“ AI”</span><span>“ apps”</span><span>“!”</span></div><p>This is only an illustration; exact splits change by model. A word is not always one token. Long words may become several tokens, and a space often belongs to the token after it.</p><h4>Why tokens instead of words or strings?</h4><p>Models need a fixed set of pieces they can turn into numbers and work with consistently. Whole strings have endlessly many possible sentences, names, URLs, spelling mistakes, and made-up words. Whole words would require the model to know every word in every language. Tokens are the middle ground: small enough to split new words and large enough to avoid processing every character alone.</p></section>
-        <section class="switch-panel" aria-labelledby="token-impact-title"><p class="eyebrow">CONTEXT BUDGET</p><h3 id="token-impact-title">Why should an application developer care?</h3><p>Every request has two sides.</p><figure class="diagram"><div>Your instructions + user input + context</div><i aria-hidden="true">→</i><div>input tokens</div><i aria-hidden="true">→</i><div>model answer</div><i aria-hidden="true">→</i><div>output tokens</div><figcaption>You are normally charged for both incoming and outgoing tokens.</figcaption></figure><p>More tokens usually mean more time and more pressure on the model’s context limit. You do not need to count every token by hand. You do need to notice when a prompt, conversation history, or retrieved document gets large. Usage is one of the first signals that an application needs better context management.</p></section>
-        <section class="reading"><h3>What does the model name mean?</h3><p>Consider this setup:</p><div class="code-card"><pre><code>groq_model = init_chat_model(
-    "openai/gpt-oss-120b",
-    model_provider="groq",
-)</code></pre></div><div class="table-wrap"><table><caption>Three names, three jobs</caption><thead><tr><th scope="col">Name</th><th scope="col">Meaning</th></tr></thead><tbody><tr><th scope="row"><code>groq_model</code></th><td>Our Python variable name; it tells a reader that this object talks to Groq.</td></tr><tr><th scope="row"><code>model_provider="groq"</code></th><td>The LangChain integration that sends the request. Groq hosts the API endpoint.</td></tr><tr><th scope="row"><code>"openai/gpt-oss-120b"</code></th><td>The exact model identifier requested from Groq, distinguishing it from other models it may offer.</td></tr></tbody></table></div><p>The provider is the restaurant serving the request; the model identifier is the particular item selected. Provider, model family, and variant affect what an application can do.</p><h4>What does <code>120b</code> mean?</h4><p>The <code>b</code> means billion. In <code>gpt-oss-120b</code>, it is a rounded label for roughly 120 billion parameters: learned numbers adjusted during training to capture patterns. It distinguishes the model from smaller variants such as <code>gpt-oss-20b</code>. More parameters can mean more capacity, but do not automatically predict a better answer for every task.</p><p>This model uses a mixture-of-experts design, so not all parameters are used for every generated token. When called through Groq, the laptop does not download or load those parameters; Groq hosts the model and performs the computation. Record the model name from response metadata while testing: a specific prompt, model, and provider is evidence you can investigate.</p></section>
-        <section class="reading"><h3>What is a prompt?</h3><p>A prompt is everything supplied to guide a response: instructions, a question, examples, formatting requirements, and context. In chat, it can be spread across system, user, and previous assistant messages.</p><div class="compare"><div><p class="number">STATIC</p><h4>Fixed instruction</h4><pre><code>static_prompt = "Explain RAG in one sentence."</code></pre></div><div><p class="number">DYNAMIC</p><h4>Runtime values</h4><pre><code>question = "What is the difference between an LLM and a chat model?"
-dynamic_prompt = f"Answer this question for a beginner developer: {question}"</code></pre></div></div><p>Dynamic prompts personalise an answer, insert a user question, or supply retrieved information. They can also become a fragile collection of string-building code.</p></section>
-        <section class="reading"><h3>Use a prompt template</h3><p>A normal string or f-string is often best for a one-off prompt. <code>PromptTemplate</code> helps when the same prompt appears in several places or needs a clearer contract for its values.</p><div class="code-card"><pre><code>from langchain_core.prompts import PromptTemplate
+print(response.response_metadata.get(&quot;model_name&quot;))
+print(response.usage_metadata)</code></pre>
+<p>The metadata can tell us which model actually responded. Usage metadata can report input, output, and total tokens. Providers do not all report exactly the same fields, so use <code>.get(...)</code> or a fallback when reading optional metadata.</p>
+<p>Follow the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb</a>.</p>
+</section>
+<hr />
+<section class="reading"><h2>Tokens: what are they?</h2>
+<p>Before a model can work with text, it breaks that text into <strong>tokens</strong>. A token is a small piece of text. It can be a whole word, part of a word, punctuation, a space, or even a line break.</p>
+<p>For example, the sentence below is one Python string to us:</p>
+<pre><code class="language-text">I love building AI apps!</code></pre>
+<p>The model may see it more like this:</p>
+<pre><code class="language-text">&quot;I&quot; | &quot; love&quot; | &quot; building&quot; | &quot; AI&quot; | &quot; apps&quot; | &quot;!&quot;</code></pre>
+<p>That is only an illustration. The exact token split changes from one model to another. The important point is that <strong>a word is not always one token</strong>. Long words may become several tokens, and a space often belongs to the token after it.</p>
+<h3>Why do models use tokens instead of words or strings?</h3>
+<p>Models need a fixed set of small pieces that they can turn into numbers and work with consistently. Whole strings are too open-ended: there are endlessly many possible sentences, names, URLs, spelling mistakes, and made-up words. Whole words are also awkward because a model would need to know every word in every language before it could read a sentence.</p>
+<p>Tokens are the practical middle ground. They are small enough to handle a new or unusual word by splitting it into pieces, but large enough that the model does not have to process every character one at a time. That is why we write strings in Python, while the model internally reads and generates tokens.</p>
+<h3>Why should an application developer care?</h3>
+<p>Every request has two sides:</p>
+<pre><code class="language-text">your instructions + user input + context  →  input tokens
+model answer                             →  output tokens</code></pre>
+<p>You are normally charged for <strong>both</strong> incoming and outgoing tokens: the input you give the model and the output you receive from it. More tokens also usually mean more time and more pressure on the model’s context limit.</p>
+<p>You do not need to count every token by hand. You do need to notice when a prompt, conversation history, or retrieved document is getting large. Token usage is one of the first signals that an application needs better context management.</p>
+</section>
+<section class="reading"><h2>What does the model name mean?</h2>
+<p>Look again at the model setup we use in this course:</p>
+<pre><code class="language-python">groq_model = init_chat_model(
+    &quot;openai/gpt-oss-120b&quot;,
+    model_provider=&quot;groq&quot;,
+)</code></pre>
+<p>There are three different names here, and they mean different things:</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>What it means</th></tr></thead><tbody><tr><td><code>groq_model</code></td><td>Our Python variable name. We chose it so a reader knows this object talks to Groq. You could call it <code>model</code>, but the more specific name is easier to follow.</td></tr><tr><td><code>model_provider=&quot;groq&quot;</code></td><td>The provider integration LangChain uses to send the request. Groq hosts the API endpoint we call.</td></tr><tr><td><code>&quot;openai/gpt-oss-120b&quot;</code></td><td>The exact model identifier we ask Groq to run. It distinguishes this model from the other models Groq may offer.</td></tr></tbody></table></div>
+<p>The identifier is like ordering a specific item from a menu. <code>Groq</code> is the restaurant serving it; <code>openai/gpt-oss-120b</code> is the item we selected. The provider, the model family, and the particular model variant all affect what the application can do.</p>
+<h3>What does <code>120b</code> mean?</h3>
+<p>The <code>b</code> means <strong>billion</strong>. In <code>gpt-oss-120b</code>, <code>120b</code> is the rounded size label for a model with roughly 120 billion <strong>parameters</strong>. Parameters are the learned numbers inside a model: during training, the model adjusts them to capture patterns in language, code, and other data.</p>
+<p>It is included in the name to distinguish this model from smaller variants, such as <code>gpt-oss-20b</code>. It gives developers a quick hint about the model family and scale when choosing a model to host or compare. A larger parameter count can mean more capacity to represent learned patterns, but it does <strong>not</strong> automatically mean a better answer for every task.</p>
+<p>There is one extra detail here: this model uses a mixture-of-experts design. Its name is a rounded total-size label; not all of those parameters are used for every token it generates. That is why parameter count is useful context, not a direct prediction of speed, cost, or quality.</p>
+<p>When we call this model through Groq, our laptop is not downloading or loading 120 billion parameters. Groq hosts the model and performs the computation. We only send the request and receive the response through the API.</p>
+<p>Two models can give different answers to the same prompt because they may differ in training, speed, context size, tool support, safety behaviour, and price.</p>
+<p>Record the name returned in the response metadata when you test an application. “The model gave a strange answer” is difficult to investigate; “this prompt behaved differently on this model through this provider” is useful information.</p>
+</section>
+<hr />
+<section class="reading"><h2>What is a prompt?</h2>
+<p>A prompt is everything we provide to guide a model’s response: instructions, a question, examples, formatting requirements, and any context we include. In a chat application, the prompt can be spread across system, user, and previous assistant messages.</p>
+<p>A <strong>static prompt</strong> stays fixed:</p>
+<pre><code class="language-python">static_prompt = &quot;Explain RAG in one sentence.&quot;</code></pre>
+<p>A <strong>dynamic prompt</strong> adds values known only while the application is running:</p>
+<pre><code class="language-python">question = &quot;What is the difference between an LLM and a chat model?&quot;
+dynamic_prompt = f&quot;Answer this question for a beginner developer: {question}&quot;</code></pre>
+<p>Dynamic prompts are how an application personalises an answer, inserts a user question, or supplies retrieved information. They are also where string-building gets messy surprisingly quickly.</p>
+</section>
+<hr />
+<section class="reading"><h2>Use a prompt template</h2>
+<p>You can absolutely build a prompt with a normal Python string or an f-string. For a one-off prompt, that is often the simplest thing to do. <code>PromptTemplate</code> becomes useful when the same prompt appears in several places or needs a clearer contract for its values.</p>
+<pre><code class="language-python">from langchain_core.prompts import PromptTemplate
 
 explanation_template = PromptTemplate.from_template(
-    "Explain {topic} to a {audience} in no more than {sentence_count} sentences."
+    &quot;Explain {topic} to a {audience} in no more than {sentence_count} sentences.&quot;
 )
 
-formatted_prompt = explanation_template.invoke({
-    "topic": "tokens",
-    "audience": "beginner Python developer",
-    "sentence_count": 2,
-})</code></pre></div><p>The template gives validation and reuse. If <code>audience</code> or <code>sentence_count</code> is missing, it raises an error before a model call. A template can also live outside a Python file, making it easier to review, test, and change.</p><div class="code-card"><pre><code>from pathlib import Path
+formatted_prompt = explanation_template.invoke(
+    {
+        &quot;topic&quot;: &quot;tokens&quot;,
+        &quot;audience&quot;: &quot;beginner Python developer&quot;,
+        &quot;sentence_count&quot;: 2,
+    }
+)</code></pre>
+<p>It is not magic prompt engineering. It is useful validation and reuse. If we forget <code>audience</code> or <code>sentence_count</code>, the template raises an error before we make a model call. With a plain f-string, we may not notice the missing value until later, or we may accidentally build a different prompt in another file.</p>
+<p>The template can also live outside the Python file. In the notebook, we save the template as JSON and load it again:</p>
+<pre><code class="language-python">from pathlib import Path
 from langchain_core.load import dumps, loads
 
-template_path = Path("prompts/explanation_template.json")
+template_path = Path(&quot;prompts/explanation_template.json&quot;)
 template_path.parent.mkdir(exist_ok=True)
-template_path.write_text(dumps(explanation_template, pretty=True), encoding="utf-8")
+template_path.write_text(dumps(explanation_template, pretty=True), encoding=&quot;utf-8&quot;)
 
 loaded_template = loads(
-    template_path.read_text(encoding="utf-8"),
-    valid_namespaces=["langchain_core"],
-)</code></pre></div></section>
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CHECK YOUR UNDERSTANDING · STANDS ON ITS OWN</p><h2 id="exercise-title">Trace the reply, then make the prompt reusable.</h2><ol><li>What can response metadata tell you that <code>response.text</code> cannot?</li><li>Why might a long conversation become expensive or fail?</li><li>When is a dynamic prompt more useful than a static prompt?</li><li>What problem does <code>PromptTemplate</code> solve?</li></ol><p class="outcome"><strong>Learning record:</strong> You can inspect the response around an answer, reason about token use, and create a reusable prompt with an explicit input contract.</p></section>
-      </article>
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 05</p><h2 id="next-title">Give the model a <em>conversation.</em></h2><p>Next, work with chat messages, streaming, batches, and what “memory” means in an application.</p><a class="button primary" href="lesson-5.html">Continue to lesson 5 <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 04</p><a href="lesson-5.html">Lesson 5: chat messages →</a></footer>
-  </body>
-</html>
+    template_path.read_text(encoding=&quot;utf-8&quot;),
+    valid_namespaces=[&quot;langchain_core&quot;],
+)</code></pre>
+<p>That gives us a reusable prompt file that another part of the application can load. Later, it also gives us a clean place to review, test, or change prompt wording without mixing it into every Python function.</p>
+</section>
+<section class="reading"><h2>Check your understanding</h2>
+<ol><li>What can you learn from response metadata that you cannot learn from <code>response.text</code> alone?</li><li>Why might a long conversation become expensive or fail?</li><li>When is a dynamic prompt more useful than a static prompt?</li><li>What problem does <code>PromptTemplate</code> solve?</li></ol>
+</section>
+<section class="reading"><h2>Next lesson</h2>
+<p>We will work with chat messages, stream responses as they arrive, batch independent requests, and see what “memory” really means in an application.</p>
+</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 04</p><a href="lesson-3.html">← Lesson 3</a></footer></body></html>

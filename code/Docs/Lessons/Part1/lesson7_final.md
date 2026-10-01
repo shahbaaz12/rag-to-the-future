@@ -1,110 +1,102 @@
-# Lesson 7 — Agents: Models That Can Choose Tools
+# Lesson 7 — Give the Model Tools, Keep the Control
 
 > **Review draft**
 >
-> This lesson turns the tool loop from Lesson 6 into an agent. An agent combines a model, instructions, and an approved tool set so it can decide which tool might help answer a request.
+> This lesson introduces tool calling and the execution loop around it. The key idea is that the model may request a tool, but the application decides whether and how that tool runs.
 
 ## A note from me
 
-In Lesson 6, we wrote the tool-execution loop ourselves. The model asked for a function, our code ran it, and then we sent the result back for a final answer.
+A model can write a very convincing answer about the current weather, your order status, or a course module. That does not mean it has actually checked any of them.
 
-That is exactly the right way to understand the flow. But writing that loop again for every application becomes repetitive. An agent framework can manage the loop for us while we focus on defining useful tools and setting the rules around them.
+Tools let the model request information or an action from the outside world. The important word is *request*. The model does not get to run random code on its own. Our application stays in charge.
 
 ## What you will be able to do
 
-- explain what an agent adds to a chat model;
-- create an agent with one tool;
-- create an agent with several approved tools; and
-- inspect the messages produced during an agent run.
+- define a small LangChain tool;
+- let a model request that tool;
+- execute only recognised tool calls; and
+- explain the tool-execution loop.
 
 ---
 
-## What is an agent?
+## What is a tool?
 
-An agent is a small system made from three main parts:
+A tool is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorised.
 
-```text
-model + instructions + allowed tools = agent
-```
-
-The model reads the user request and decides whether a tool can help. The agent framework runs the approved tool, adds its result to the conversation, and asks the model to produce the final answer.
-
-An agent is not a magical employee that can do anything. It can only use the tools we give it, with the permissions and checks we build around those tools.
-
----
-
-## A basic agent with one tool
-
-Let’s use a small inventory service. The tool is only a Python function here, but in a real project it could call a service, query a database, or read an approved repository.
+For the first example, we use a tiny local lookup. It keeps the focus on the flow rather than adding another API key.
 
 ```python
 @tool
-def check_stock_service(item: str) -> str:
-    """Return the remaining stock quantity for an inventory item."""
-    stock_by_item = {"headphone": 6, "keyboard": 11, "laptop": 12}
-    quantity = stock_by_item.get(item.lower())
-    if quantity is None:
-        return f"{item} is not present in the stock database."
-    return f"{item} has {quantity} units left in stock."
+def get_course_module(module_number: int) -> str:
+    """Return the topic for a course module number from 1 through 7."""
+    modules = {
+        5: "streaming, batching, structured output, and messages",
+        6: "conversation memory and checkpointers",
+        7: "tools and tool-execution loops",
+    }
+    return modules.get(module_number, "That module number is not available.")
 ```
 
-Then we create the agent:
-
-```python
-basic_inventory_agent = create_agent(
-    model=inventory_model,
-    tools=[check_stock_service],
-)
-```
-
-When a user asks, “How many laptops do we have?”, the agent can decide that `check_stock_service` is relevant. The framework handles the tool request, function call, tool result, and final answer.
+The docstring matters. It helps the model understand when the tool is useful and what its input means.
 
 ---
 
-## Give an agent multiple tools
+## The model requests; the application executes
 
-One tool answers one type of question. Real users often ask questions that need more than one source of information.
-
-```python
-shopping_agent = create_agent(
-    model=inventory_model,
-    tools=[check_stock_service, get_price_service],
-)
-```
-
-Now a question such as “Do we have laptops in stock, and what is the price?” can require two tools. The model chooses which one to call and in what order; the framework only lets it choose from the tools we supplied.
-
-You can inspect the returned messages to see the flow:
+First, bind the permitted tools to the model:
 
 ```python
-for agent_message in multi_tool_result["messages"]:
-    print(f"{type(agent_message).__name__}: {agent_message.content}")
+tool_enabled_model = groq_model.bind_tools([get_course_module])
+model_message = tool_enabled_model.invoke(messages)
 ```
 
-This is useful while learning and debugging. It lets you see the user request, AI tool calls, tool results, and final response rather than treating the agent as a black box.
+The response may contain `tool_calls`. That is structured data describing the function the model wants to use and the arguments it proposes. It is not proof that the tool ran.
 
----
+Our application then finds the requested tool in its allow-list, executes it, and returns a `ToolMessage` with the result.
 
-## Agent versus tool loop
+```python
+for tool_call in model_message.tool_calls:
+    requested_tool = tools_by_name.get(tool_call["name"])
+    if requested_tool is None:
+        tool_result = "This tool is not available."
+    else:
+        tool_result = requested_tool.invoke(tool_call["args"])
 
-The underlying idea has not changed:
+    messages.append(
+        ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"])
+    )
+```
+
+Finally, send the model’s request and the tool result back to the model so it can give the user a normal answer.
 
 ```text
-user request → model requests a tool → application runs an allowed tool
-             → tool result returns to the model → final answer
+user request → model requests a tool → application validates and runs it
+             → application sends result → model writes final answer
 ```
 
-In Lesson 6, we wrote each step ourselves. With `create_agent`, LangChain manages the standard loop. We still own the parts that matter most: the tool definitions, data access, permissions, error handling, and what the user is allowed to ask the system to do.
+That is a tool-execution loop.
 
-Start with [7-Agents.ipynb](../../../Part%20I%20Understanding%20the%20Basics/7-Agents.ipynb). It contains both the one-tool and multi-tool inventory examples.
+Notice what the model did here. It handed our application structured information saying that a particular function could help answer the user’s question. It did **not** automatically call the function.
 
-## Check your understanding
+Our application receives that request, checks whether the function is allowed, runs it with the proposed arguments, and returns the result to the model. That separation is deliberate: the model can suggest a tool, but the software we write controls what actually happens.
 
-1. What three things make up the basic agent in this lesson?
-2. Can an agent call a tool that was not supplied in its `tools` list?
-3. Why is a tool docstring useful to an agent?
-4. What does `create_agent` manage for us, and what do we still control?
+---
+
+## Why the application must stay in control
+
+The tool call is a suggestion from a model. Treat it like any other untrusted input. Before an application executes a real tool, it should decide:
+
+- Is this tool on the allow-list?
+- Are the arguments valid?
+- Is this user allowed to perform this action?
+- What happens if the external service is slow or fails?
+- What should we log so we can investigate a mistake?
+
+We will add stronger patterns around this later. For now, keep the core idea: models reason about tools; applications own the permissions and execution.
+
+Work through the complete example in [7-Tools-and-Tool-Loops.ipynb](../../../Part%20I%20Understanding%20the%20Basics/7-Tools-and-Tool-Loops.ipynb).
+
 
 ## Next lesson
 
-We will make the agent more useful by connecting it to information that is relevant, current, and approved for the task.
+We will let a framework manage this same loop as an agent, while we continue to control its tools and boundaries.

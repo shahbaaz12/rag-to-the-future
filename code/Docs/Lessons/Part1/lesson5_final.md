@@ -2,13 +2,13 @@
 
 > **Review draft**
 >
-> A model can return text in several useful ways, return structured data instead of prose, and take part in a conversation. This lesson explains those features and shows how an application keeps long conversation history manageable.
+> A model can return text in several useful ways, return structured data instead of prose, and take part in a conversation. This lesson explains those features and gives each one a clear purpose.
 
 ## A note from me
 
 Up to now, our model call has looked very simple: send one input, receive one answer, print it. That is useful, but it is only the beginning.
 
-What if we want the answer to appear word by word? What if we have a hundred unrelated requests? What if our Python code needs a list or an object instead of a paragraph? And what happens when a conversation becomes too long to send again and again?
+What if we want the answer to appear word by word? What if we have a hundred unrelated requests? What if our Python code needs a list or an object instead of a paragraph? And how does a model distinguish a rule from a question?
 
 Let’s add those pieces one at a time.
 
@@ -18,8 +18,7 @@ Let’s add those pieces one at a time.
 - batch independent requests;
 - ask for validated structured output;
 - use system, human, and AI messages;
-- distinguish history from memory; and
-- use summarisation middleware to control a growing conversation.
+- explain how labelled messages shape a conversation.
 
 ---
 
@@ -53,32 +52,86 @@ It is useful when processing a list of records, prompts, or tests. It is not con
 
 ## Structured output: ask for data, not just prose
 
-Models are very good at writing natural language. Applications often need something more precise: a Python object, a list of items, fields we can place in a database, or data we can show in a UI.
+Models are good at writing paragraphs. Applications often need a predictable shape instead: fields we can put in a UI, store in a database, or pass to another function. **Structured output** tells the model and LangChain what shape our response needs.
 
-For example, imagine we ask a model what lesson a learner should take next. A paragraph is readable, but it is awkward for code that needs a lesson number, topic, reason, and preparation steps. We can describe that exact structure with a Pydantic model:
+Let’s use a Pokédex. A normal prompt might return a nice paragraph about Pikachu. That is pleasant for a person to read, but our code cannot safely rely on the order of facts inside it. We want a name, type, level, and evolutions in named places.
 
-```python
-class LessonRecommendation(BaseModel):
-    lesson_number: int
-    topic: str
-    reason: str
-    preparation: list[str]
-```
+### Pydantic: a validated Python object
 
-Then we ask LangChain for that structure:
+A Pydantic model describes the expected fields. `Field(description=...)` is useful because it explains each field to the model as well as to the reader of our code.
 
 ```python
-structured_groq_model = groq_model.with_structured_output(LessonRecommendation)
-recommendation = structured_groq_model.invoke("Recommend the next lesson for a learner.")
+from pydantic import BaseModel, Field
 
-print(recommendation.topic)
+
+class Pokemon(BaseModel):
+    name: str = Field(description="The Pokémon's name.")
+    type: str = Field(description="Its main Pokémon type.")
+    level: int = Field(description="A sensible level for this example.")
+    evolutions: list[str] = Field(description="Its possible evolution names.")
 ```
 
-The result is a `LessonRecommendation` object, so our code can use `recommendation.lesson_number` or loop over `recommendation.preparation`. The schema also validates the result before it reaches the rest of our application.
+Now we wrap the normal model. The call still looks like `invoke`, but it returns a `Pokemon` object instead of a free-form `AIMessage`.
 
-Structured output does not make a model’s facts automatically correct. It gives the response a predictable shape. We still need good instructions and, when facts matter, trustworthy data and validation.
+```python
+pokemon_model = groq_model.with_structured_output(Pokemon)
 
-The full structured-output example is in [5-Structured-Outputs-and-Middleware.ipynb](../../../Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs-and-Middleware.ipynb).
+pokemon = pokemon_model.invoke("Give Pokédex details for Pikachu.")
+print(pokemon.name)
+print(pokemon.evolutions)
+```
+
+We use dot notation because `pokemon` is a Pydantic object. Pydantic also checks that the returned fields can fit the types we asked for, such as a number for `level` and a list for `evolutions`.
+
+### A nested output: a Pokédex list
+
+One Pokémon is a flat object. A Pokédex needs a list of those objects. We can reuse the `Pokemon` model inside another Pydantic model.
+
+```python
+class PokemonList(BaseModel):
+    pokemons: list[Pokemon] = Field(
+        description="The Pokémon included in this Pokédex result."
+    )
+
+
+pokedex_model = groq_model.with_structured_output(PokemonList)
+pokedex = pokedex_model.invoke(
+    "Create a short Pokédex for three of Ash's Kanto Pokémon."
+)
+
+for pokemon in pokedex.pokemons:
+    print(pokemon.name, "-", pokemon.type)
+```
+
+`PokemonList` is the outer box. Its `pokemons` field is a list, and every item in that list must have the `Pokemon` shape. This is called a nested structured output. It is useful whenever one response contains a collection of repeated items: products in an order, people in a team, or search results.
+
+### TypedDict: the lighter option
+
+`TypedDict` describes the same kind of keys and value types using Python's typing tools. It is useful when we only need a normal dictionary and do not need Pydantic's object features or runtime validation.
+
+```python
+from typing_extensions import TypedDict
+
+
+class PokemonDict(TypedDict):
+    name: str
+    type: str
+    level: int
+    evolutions: list[str]
+
+
+typed_dict_model = groq_model.with_structured_output(PokemonDict)
+pokemon_dict = typed_dict_model.invoke("Give Pokédex details for Eevee.")
+
+print(pokemon_dict["name"])
+print(pokemon_dict["evolutions"])
+```
+
+The shape is similar, but the result is a regular dictionary, so we use square brackets instead of dot notation. Start with Pydantic when you want clear field descriptions, nested models, and validation. Use `TypedDict` when a simple typed dictionary is enough.
+
+Structured output does not make a model's facts automatically correct. It gives the answer a predictable shape. We still need good instructions and, when facts matter, trustworthy data and validation.
+
+The complete examples are in [5-Structured-Outputs.ipynb](../../../Part%20I%20Understanding%20the%20Basics/5-Structured-Outputs.ipynb).
 
 ---
 
@@ -129,59 +182,15 @@ Without the earlier messages, the model would not know what “it” means. Labe
 
 ---
 
-## History and memory
-
-**History** is the collection of earlier messages in a conversation. **Memory** is the method our application uses to decide what information from that history should be available on the next turn.
-
-For a small demo, a Python list is enough:
-
-```python
-conversation = [
-    SystemMessage("You are a concise assistant for a Python course."),
-    HumanMessage("My name is Ada. I am learning about LLMs."),
-]
-
-first_response = groq_model.invoke(conversation)
-conversation.append(first_response)
-conversation.append(HumanMessage("What is my name and what am I learning?"))
-
-second_response = groq_model.invoke(conversation)
-```
-
-The model remembers Ada only because the application sends the earlier messages again. The model does not hold a permanent personal memory between API calls.
-
-This history grows with every turn. More history means more input tokens, more cost, more latency, and eventually a context limit. We need a rule for what to keep.
-
----
-
-## Summarisation and middleware
-
-One useful rule is: keep the recent messages in full, and replace older messages with a summary. The summary should preserve the important context while using fewer tokens.
-
-**Middleware** is code that runs around a model or agent operation. In the supplied LangChain example, `SummarizationMiddleware` watches the conversation length, creates a summary after a chosen threshold, and keeps only a recent set of messages alongside that summary.
-
-```python
-SummarizationMiddleware(
-    model="groq:openai/gpt-oss-120b",
-    trigger=("messages", 10),
-    keep=("messages", 4),
-)
-```
-
-Here, `trigger` says when summarisation should happen, and `keep` says how many of the newest messages stay in full. A checkpointer, identified by a thread ID, stores the conversation between calls. We will meet agents properly in Lesson 7; for now, focus on the history-management idea.
-
-Summaries are useful but imperfect. A summary can lose a detail or distort a decision, so choose carefully what needs to stay in full history and what can be compressed.
-
-For the streaming, batching, messages, and short-term-memory examples, use [4-Messages-Streaming-Batching-and-Memory.ipynb](../../../Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb).
+For the streaming, batching, and messages examples, use [4-Messages-Streaming-Batching-and-Memory.ipynb](../../../Part%20I%20Understanding%20the%20Basics/4-Messages-Streaming-Batching-and-Memory.ipynb).
 
 ## Check your understanding
 
 1. When would streaming improve a user’s experience?
 2. Why is batching unsuitable for a conversation where each answer affects the next question?
 3. What does structured output give an application that free-form text does not?
-4. What is the difference between message history and memory?
-5. Why might an application summarise old conversation messages?
+4. Why do message labels matter when an application gives the model rules and a question?
 
 ## Next lesson
 
-We will let a model request a tool, then see why the application must control every tool execution.
+We will make conversation memory explicit: manual history and checkpointers.

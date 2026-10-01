@@ -1,135 +1,93 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 2: connect a LangChain chat application to a provider and learn what changes when you switch models." />
-    <title>Lesson 2 · Route a First Signal · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="lesson-2.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
-      <nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="part-one.html">Part I map</a></nav>
-    </header>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 2: Create the local project, keep keys safe, and make the first direct Groq and Gemini calls." /><title>Lesson 2 · Set Up, Then Make the Call · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="lesson-3.html">Lesson 3 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p><h1 id="page-title">Set Up, Then Make the Call</h1><p class="lede">Create the local project, keep keys safe, and make the first direct Groq and Gemini calls.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document"><blockquote><strong>Review draft</strong>  This lesson gets the learner’s local project ready and makes the first real calls to hosted LLMs. The goal is a working environment, not a perfect production setup.</blockquote>
+<section class="reading"><h2>A note before we start</h2>
+<p>We will build the exact code that is present in the GitHub repository. Before we get into prompts, models, or frameworks, we need a small project that can run Python, keep secrets out of source code, and install the libraries we need.</p>
+<p>Do not overthink the setup. Create the folder, run the commands, make one request, and move on. We will improve the application as the course gives us a reason to do so.</p>
+</section>
+<section class="reading"><h2>What you will be able to do</h2>
+<p>By the end of this lesson, you can:</p>
+<ul><li>create a Python project with <code>uv</code>;</li><li>install the dependencies used in the first notebooks;</li><li>run a quick check that confirms the project works;</li><li>create and store a Groq or Gemini API key safely; and</li><li>explain how the first direct model calls work.</li></ul>
+</section>
+<hr />
+<section class="reading"><h2>Set up the project</h2>
+<p>Create a new folder wherever you prefer, then open it in a terminal, VS Code, or another IDE.</p>
+<pre><code class="language-powershell">uv init .</code></pre>
+<p>This creates the basic Python project files, including a <code>pyproject.toml</code> file. <code>uv</code> will manage the virtual environment for you, so you do not need to activate it manually for this course. Run programs through <code>uv run</code> and it will use the project environment.</p>
+<p>If you do not yet have Python or <code>uv</code>, install them first. I used Python 3.11.9 and <code>uv</code> 0.11.3 while preparing these examples, but nearby versions should work too.</p>
+<h3>Add the first dependencies</h3>
+<p>Create a <code>requirements.txt</code> file and add the packages below:</p>
+<pre><code class="language-text">openai
+langchain
+langchain-community
+langchain-openai
+langchain-groq
+python-dotenv
+langchain-google-genai
+langgraph
+langsmith
+langchain-tavily
+jupyter</code></pre>
+<p>Then install them:</p>
+<pre><code class="language-powershell">uv add -r requirements.txt</code></pre>
+<p>Some of these packages belong to later lessons. Installing them now saves us from stopping every time a notebook introduces a new capability. For the first two notebooks, the important packages are <code>openai</code>, <code>python-dotenv</code>, <code>langchain</code>, <code>langchain-groq</code>, and <code>langchain-google-genai</code>.</p>
+<h3>Check that it works</h3>
+<p>Create a file called <code>hi.py</code>:</p>
+<pre><code class="language-python">import langchain
 
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div>
-          <p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p>
-          <p class="chapter-number">DESTINATION CONTROLS / FIRST SIGNAL</p>
-          <h1 id="page-title">Route a <em>first</em> chat model.</h1>
-          <p class="lede">Connect one small Python program to a hosted model, inspect the reply, and learn why changing a provider is a configuration decision with real trade-offs.</p>
-          <a class="button primary" href="#lesson">Begin the repair <span>↓</span></a>
-        </div>
-        <aside class="signal-panel" aria-label="Lesson capability overview">
-          <p class="panel-label">CAPABILITY EARNED</p>
-          <div class="route" aria-hidden="true"><b>YOU</b><i></i><b>APP</b><i></i><b>MODEL</b><i></i><b>REPLY</b></div>
-          <dl><div><dt>INPUT</dt><dd>one message</dd></div><div><dt>CONTEXT</dt><dd>none yet</dd></div><div><dt>OUTPUT</dt><dd>AI message</dd></div></dl>
-          <p class="panel-note">A provider receives your request and returns a model response. Your application still owns the prompt, credentials, error handling, and what it does with that response.</p>
-        </aside>
-      </section>
+print(&quot;Everything is working fine&quot;)
+print(langchain.__version__)</code></pre>
+<p>Run it with:</p>
+<pre><code class="language-powershell">uv run hi.py</code></pre>
+<p>If you see the message and a version number, we are good. If it fails, fix the environment here before going further. Debugging one small import error is much easier than debugging it inside a larger AI application later.</p>
+</section>
+<hr />
+<section class="reading"><h2>Organise the first part</h2>
+<p>Create a folder named:</p>
+<pre><code class="language-text">Part I Understanding the Basics</code></pre>
+<p>This is where we will work through the notebooks in the repository. Start with <a href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb</a>.</p>
+</section>
+<hr />
+<section class="reading"><h2>Get a model key</h2>
+<p>An API key identifies your application to a model provider. Under the hood, your code makes an authenticated HTTP request to that provider’s API. The key tells the provider who is making the request and lets it apply the correct account permissions and limits.</p>
+<p>For these first examples, create a key from <strong>Groq</strong>. You can also create a key from <strong>Gemini</strong> and run the Gemini example in the notebook. Both are useful for learning because they offer ways to get started without committing to a paid OpenAI or Anthropic account.</p>
+<p>Create a file named <code>.env</code> in the project root and keep the key there:</p>
+<pre><code class="language-text">GROQ_API_KEY=your_key_here
+GROQ_API_BASE_URL=https://api.groq.com/openai/v1
+GEMINI_API_KEY=your_key_here</code></pre>
+<p>Never commit <code>.env</code> to Git. Add it to <code>.gitignore</code> before you push anything.</p>
+<p>OpenAI and Anthropic are excellent providers, but their APIs commonly require payment or billing setup. They are not required for these lessons. We are here to learn the application pattern first.</p>
+</section>
+<hr />
+<section class="reading"><h2>Your first direct LLM call</h2>
+<p>We have many proprietary providers, including OpenAI and Anthropic. In the first notebook, I demonstrate Groq and Gemini instead.</p>
+<p>The Groq example uses the OpenAI Python SDK:</p>
+<pre><code class="language-python">groq_client = OpenAI(
+    api_key=os.getenv(&quot;GROQ_API_KEY&quot;),
+    base_url=os.getenv(&quot;GROQ_API_BASE_URL&quot;, &quot;https://api.groq.com/openai/v1&quot;),
+)
 
-      <aside class="story" aria-labelledby="story-title">
-        <div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console has a voice, but no route.</h2></div>
-        <p>A blue pulse reaches the workshop console. It answers a simple question with confidence, then offers three incompatible destinations. The professor points at the response trace: “A reply is a signal, not a decision. First, learn how it got here.”</p>
-      </aside>
+groq_response = groq_client.responses.create(
+    model=&quot;openai/gpt-oss-120b&quot;,
+    instructions=&quot;You are a ghost of a sarcastic developer.&quot;,
+    input=&quot;Suggest one excuse for being late to office.&quot;,
+)
 
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title">
-        <header class="section-intro"><p class="eyebrow">TECHNICAL EXPLANATION</p><h2 id="lesson-title">One request, one response.</h2><p>Your first application can be deliberately small: send a message, wait for a response, then print its text. It has no memory, tools, private documents, or guarantee that the answer is true.</p></header>
-
-        <section class="concept-grid" aria-label="Request and response explanation">
-          <div><p class="number">01</p><h3>Your application</h3><p>Collects the user’s question, selects a configured chat model, and decides how to display or validate the result.</p></div>
-          <div><p class="number">02</p><h3>Provider service</h3><p>Authenticates the request with an API key, runs the selected hosted model, and applies its own availability and rate limits.</p></div>
-          <div><p class="number">03</p><h3>Returned message</h3><p>Usually includes generated content and may include metadata such as usage or finish details. Treat metadata as provider-specific.</p></div>
-        </section>
-
-        <section class="reading"><h3>Prepare a small project</h3><p>Use a virtual environment and keep secrets out of source control. The packages below are enough for this lesson; add integrations only when you use them.</p>
-          <div class="code-card"><p class="code-task">Task: initialise a Python project and install LangChain with the Groq and Google integrations.</p><pre><code>uv init first-chat-model
-cd first-chat-model
-uv add langchain langchain-groq langchain-google-genai python-dotenv</code></pre></div>
-          <p>Create a <code>.env</code> file beside your script. Get a Groq key from the <a href="https://console.groq.com/docs/quickstart" target="_blank" rel="noreferrer">Groq quickstart</a>, or a Gemini API key from the <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noreferrer">Gemini API key guide</a>. Choose an available chat-capable model from that provider’s current model list; provider model identifiers change over time.</p>
-          <div class="code-card"><p class="code-task">Task: store one provider key and its current model identifier outside the program source.</p><pre><code># .env — do not commit this file
-GROQ_API_KEY=your_key_here
-GROQ_MODEL=provider-current-chat-model
-
-# Or use Google instead
-GOOGLE_API_KEY=your_key_here
-GOOGLE_MODEL=provider-current-chat-model</code></pre></div>
-        </section>
-
-        <section class="reading"><h3>Make the first call with ChatGroq</h3><p>LangChain gives chat integrations a similar <code>invoke()</code> entry point. It does not make all providers or models equivalent.</p>
-          <div class="code-card"><p class="code-task">Task: ask the configured Groq model to explain HTTP and print the returned message.</p><pre><code>import os
-from dotenv import load_dotenv
-from langchain_groq import ChatGroq
-
-load_dotenv()
-
-model = ChatGroq(model=os.environ["GROQ_MODEL"])
-response = model.invoke("Explain HTTP to a beginner in three sentences.")
-print(response.content)</code></pre></div>
-          <p>For options, supported features, and current setup details, read the official <a href="https://docs.langchain.com/oss/python/integrations/chat/groq" target="_blank" rel="noreferrer">LangChain ChatGroq integration guide</a>.</p>
-        </section>
-
-        <section class="reading"><h3>Switch to ChatGoogleGenerativeAI</h3><p>The application task and call shape stay the same. You replace the provider integration and configuration, then test the result against the same request.</p>
-          <div class="code-card"><p class="code-task">Task: run the same HTTP explanation through the configured Google Gemini model.</p><pre><code>import os
-from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-load_dotenv()
-
-model = ChatGoogleGenerativeAI(model=os.environ["GOOGLE_MODEL"])
-response = model.invoke("Explain HTTP to a beginner in three sentences.")
-print(response.content)</code></pre></div>
-          <p>Check the official <a href="https://docs.langchain.com/oss/python/integrations/chat/google_generative_ai" target="_blank" rel="noreferrer">LangChain Google Generative AI integration guide</a> for the options supported by the current integration.</p>
-        </section>
-
-        <section class="switch-panel" aria-labelledby="switch-title"><p class="eyebrow">THE SWITCHING RULE</p><h3 id="switch-title">Keep the application task stable; replace the model boundary.</h3><p>In a real app, place construction of the configured model in one small function. The feature code can keep using <code>model.invoke(message)</code>.</p>
-          <div class="code-card"><p class="code-task">Task: select Groq or Google from one environment variable without changing the caller.</p><pre><code>import os
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_groq import ChatGroq
-
-def create_chat_model():
-    provider = os.environ["CHAT_PROVIDER"]
-    if provider == "groq":
-        return ChatGroq(model=os.environ["GROQ_MODEL"])
-    if provider == "google":
-        return ChatGoogleGenerativeAI(model=os.environ["GOOGLE_MODEL"])
-    raise ValueError("CHAT_PROVIDER must be 'groq' or 'google'")
-
-reply = create_chat_model().invoke("Explain HTTP to a beginner in three sentences.")
-print(reply.content)</code></pre></div>
-        </section>
-
-        <section class="reading"><h3>The issue: a common call is not a common contract</h3><p>Changing the constructor is often straightforward. Choosing a provider still changes the system you are operating.</p>
-          <div class="tradeoffs" role="region" aria-label="Provider switching differences"><div><h4>Identifiers</h4><p>Each provider names models differently. Use its current catalog; do not infer a model name from another provider.</p></div><div><h4>Features</h4><p>Context size, multimodal input, tools, structured output, streaming, and option names can differ by model.</p></div><div><h4>Credentials</h4><p>Keys, project setup, regional access, and account requirements are provider-specific.</p></div><div><h4>Limits &amp; cost</h4><p>Rate limits, quotas, latency, and billing change over time. Check official current terms before a production choice.</p></div><div><h4>Output</h4><p>Even with the same prompt, models may vary in quality, style, refusal behavior, metadata, and response shape.</p></div></div>
-        </section>
-
-        <section class="reading"><h3>Optional comparison: ChatOpenAI</h3><p>OpenAI is another hosted proprietary-provider option. It uses the same lesson structure, but it normally requires a funded account for API use. It is not required for this lesson, and this page does not make pricing claims.</p>
-          <div class="code-card"><p class="code-task">Task: compare the same task with a current OpenAI chat model if you already have an API account.</p><pre><code># Install first: uv add langchain-openai
-import os
-from langchain_openai import ChatOpenAI
-
-model = ChatOpenAI(model=os.environ["OPENAI_MODEL"])
-response = model.invoke("Explain HTTP to a beginner in three sentences.")
-print(response.content)</code></pre></div>
-          <p>Use the official <a href="https://docs.langchain.com/oss/python/integrations/chat/openai" target="_blank" rel="noreferrer">LangChain ChatOpenAI integration guide</a> to verify current setup and supported capabilities.</p>
-        </section>
-
-        <section class="comparison" aria-labelledby="terms-title"><p class="eyebrow">TERMS TO KEEP SEPARATE</p><h3 id="terms-title">Deployment and licensing answer different questions.</h3>
-          <div class="table-wrap"><table><caption>Useful distinctions when choosing a model</caption><thead><tr><th scope="col">Term</th><th scope="col">What it describes</th><th scope="col">What it does not guarantee</th></tr></thead><tbody><tr><th scope="row">Hosted</th><td>A provider operates the model service for you.</td><td>That the model is proprietary, low-cost, or available everywhere.</td></tr><tr><th scope="row">Self-hosted</th><td>You or your organisation operate inference infrastructure.</td><td>That weights may be redistributed or changed.</td></tr><tr><th scope="row">Proprietary</th><td>The weights or significant rights remain controlled by a provider.</td><td>That the model can only be hosted by that provider in every arrangement.</td></tr><tr><th scope="row">Open-weight</th><td>Weights are available under stated terms.</td><td>An open-source licence, unrestricted use, or no operating cost.</td></tr><tr><th scope="row">Open-source</th><td>Code and/or model components are released under an open-source licence.</td><td>That every related dataset, weight, or service term is also open.</td></tr></tbody></table></div>
-        </section>
-
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Build a provider comparison trace.</h2><p><strong>Task:</strong> Configure either Groq or Google, run the same three-sentence HTTP request twice, and save a short note: which provider and model you used, whether both calls succeeded, what differed in the text, and any metadata you can safely inspect. Then switch the environment variable and repeat. Do not compare only prose quality; record any setup, limit, or capability difference you encounter.</p><ol><li>Choose one provider and complete its key setup.</li><li>Use the switching function with a current model identifier copied from that provider’s model list.</li><li>Test one simple prompt twice, then test the other provider.</li><li>Explain why your observed result is evidence for this task, not a universal model ranking.</li></ol><p class="outcome"><strong>Learning record:</strong> The application can route one message through a chosen provider, while the choice remains visible and testable.</p></section>
-      </article>
-
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 03</p><h2 id="next-title">A reply arrives. Now learn what <em>fits inside it.</em></h2><p>Next, inspect tokens, context windows, and the practical questions that make a model choice defensible.</p><a class="button primary" href="part-one.html#repairs">Return to Part I repairs <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Previous lesson</a></footer>
-  </body>
-</html>
+print(groq_response.output_text)</code></pre>
+<p>Groq is compatible with the OpenAI API format, so we can comfortably use OpenAI-style APIs to call Groq-hosted models. Gemini has its own SDK and call shape. The important part is the same in both cases:</p>
+<pre><code class="language-text">load API key → create client → choose model → send input → inspect response</code></pre>
+<p>The provider hosts and runs the model. Your application decides what to send, receives the response, and decides what to do with it.</p>
+</section>
+<hr />
+<section class="reading"><h2>When changing the model becomes a problem</h2>
+<p>Say you built your application around one provider’s API. Then its price changes, its privacy policy no longer meets your company’s standards, or another provider becomes a better fit. Switching can become a real undertaking.</p>
+<p>The notebook can demonstrate a small change in only a few lines. In a real application, models may be woven into prompts, output parsing, evaluation, security reviews, deployment configuration, and user-facing behaviour. The change can easily turn into a multi-sprint development cycle.</p>
+<p>Yes, we will learn better ways to organise code. But let’s be honest: many projects accumulate shortcuts before anyone gets around to the architecture book. The useful lesson here is simple: know which parts of your code are provider-specific, and keep an eye on them from the beginning.</p>
+</section>
+<hr />
+<section class="reading"><h2>A quick note on open-source models</h2>
+<p>While we are here: you can download an open-source model, host it yourself, and make calls without paying a hosted-model provider for each request.</p>
+<p>Free is doing a lot of work in that sentence. You still pay for machines, electricity, deployment, monitoring, and your own time. Self-hosting is valuable and we will come back to it, but do not divert into it yet. First, learn to make a reliable hosted-model call and understand the application around it.</p>
+</section>
+<section class="reading"><h2>Next lesson</h2>
+<p>We will use LangChain to give multiple model providers a more consistent interface, then see what still changes when we switch models.</p>
+</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Lesson 1</a></footer></body></html>

@@ -1,66 +1,74 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Lesson 3: use LangChain's common chat-model interface while making deliberate model and generation choices." />
-    <title>Lesson 3 · One Interface, Many Models · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="lesson-3.css" />
-  </head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
-      <nav aria-label="Lesson navigation"><a href="lesson-2.html">← Lesson 2</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="lesson-4.html">Lesson 4 →</a></nav>
-    </header>
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 03</p><p class="chapter-number">ROUTING RELAY / MODEL BAY</p><h1 id="page-title">One interface.<br /><em>Many models.</em></h1><p class="lede">Use LangChain as a common starting point for hosted chat models, then choose variation and output length to suit the work in front of you.</p><div class="hero-actions"><a class="button primary" href="#lesson">Inspect the relay <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div>
-        <aside class="signal-panel" aria-label="Lesson capability overview"><p class="panel-label">CAPABILITY EARNED</p><div class="route" aria-hidden="true"><b>APP</b><i></i><b>CHAIN</b><i></i><b>PROVIDER</b><i></i><b>MODEL</b></div><dl><div><dt>INTERFACE</dt><dd>invoke()</dd></div><div><dt>VARIATION</dt><dd>temperature</dd></div><div><dt>OUTPUT</dt><dd>token limit</dd></div></dl><p class="panel-note">A shared calling pattern makes experiments easier. It does not make models, costs, safety settings, or supported features the same.</p></aside>
-      </section>
-      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The relay accepts more than one signal.</h2></div><p>At the console, the professor plugs a new route into the same relay. The voice changes slightly, its pace changes too, but the controls stay familiar. “The relay saves work,” she says. “It does not decide which signal we should trust.”</p></aside>
-      <article id="lesson" class="lesson" aria-labelledby="lesson-title">
-        <header class="section-intro"><p class="eyebrow">TECHNICAL EXPLANATION</p><h2 id="lesson-title">A useful common starting point.</h2><p>Direct provider calls reveal what happens at the boundary. Applications also change: providers, models, and calling styles rarely stay fixed. LangChain provides a cleaner place to begin that movement without hiding the choices behind it.</p></header>
-        <section class="concept-grid" aria-label="Lesson objectives"><div><p class="number">01</p><h3>Use LangChain</h3><p>Explain the provider-agnostic interface it offers an application developer.</p></div><div><p class="number">02</p><h3>Create &amp; invoke</h3><p>Create a chat model with <code>init_chat_model</code> and call it with <code>invoke()</code>.</p></div><div><p class="number">03</p><h3>Control generation</h3><p>Choose an appropriate temperature and output limit for a task.</p></div></section>
-        <section class="reading"><h3>So, what is LangChain?</h3><p>LangChain is a convenient set of tools for connecting to LLMs and building applications around them. Its provider-agnostic interface lets similar application code work with different model providers. It does not mean providers share every model, parameter, tool, or response field; it gives a common starting point for what they do share.</p><figure class="diagram"><div>Your application</div><i aria-hidden="true">→</i><div>LangChain</div><i aria-hidden="true">→</i><div>Provider integration</div><i aria-hidden="true">→</i><div>Model provider</div><i aria-hidden="true">→</i><div>Model</div><figcaption>The application still makes the engineering decisions around the common interface.</figcaption></figure></section>
-        <section class="reading"><h3>Connect with a model using LangChain</h3><p>In <a href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb</a>, the important line is <code>init_chat_model</code>.</p><div class="code-card"><p class="code-task">Create the model, name its provider integration, and invoke it.</p><pre><code>from langchain.chat_models import init_chat_model
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Lesson 3: Use LangChain to switch providers, inspect responses, and control model settings." /><title>Lesson 3 · One Interface, Many Models · RAG to the Future</title><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" /><link rel="icon" href="assets/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="lesson-final.css" /></head><body><div class="site-noise" aria-hidden="true"></div><header class="topbar"><a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a><nav aria-label="Lesson navigation"><a href="lesson-2.html">← Lesson 2</a><a href="#lesson">Lesson</a><a href="lesson-4.html">Lesson 4 →</a><a href="part-one.html">Part I map</a></nav></header><main><section class="hero" aria-labelledby="page-title"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 03</p><h1 id="page-title">One Interface, Many Models</h1><p class="lede">Use LangChain to switch providers, inspect responses, and control model settings.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article id="lesson" class="document"><blockquote><strong>Review draft</strong>  This lesson introduces LangChain as a practical convenience layer. The learner will connect to different chat models with the same broad pattern, then learn how temperature and output limits affect a response.</blockquote>
+<section class="reading"><h2>A note from me</h2>
+<p>In the previous lesson, we made direct calls to providers. That is useful because it shows what is actually happening. But applications rarely stay with one provider, one model, or one calling style forever.</p>
+<p>This lesson introduces a tool that makes that movement easier. It does not make every provider identical, and it does not remove the need to understand the model you chose. It gives us a cleaner place to start.</p>
+</section>
+<section class="reading"><h2>What you will be able to do</h2>
+<p>By the end of this lesson, you can:</p>
+<ul><li>explain what LangChain gives an application developer;</li><li>create a chat model with <code>init_chat_model</code>;</li><li>invoke Groq and Gemini models through the same broad interface;</li><li>choose a useful temperature for a task; and</li><li>control how much output a model may generate.</li></ul>
+</section>
+<hr />
+<section class="reading"><h2>So, what is LangChain?</h2>
+<p>LangChain is a convenient set of tools for connecting to LLMs and building applications around them. One of its most useful ideas is a provider-agnostic interface: you can use a similar piece of application code with different model providers.</p>
+<p>That does not mean every provider supports the same models, parameters, tools, or response fields. It means LangChain gives us a common starting point for the things that are shared.</p>
+<pre><code class="language-text">Your application → LangChain → provider integration → model provider → model</code></pre>
+</section>
+<hr />
+<section class="reading"><h2>Connect with a model using LangChain</h2>
+<p>Open <a href="code/Part%20I%20Understanding%20the%20Basics/2-Using-LangChain.ipynb">2-Using-LangChain.ipynb</a>. The important line is <code>init_chat_model</code>:</p>
+<pre><code class="language-python">from langchain.chat_models import init_chat_model
 
 groq_model = init_chat_model(
-    "openai/gpt-oss-120b",
-    model_provider="groq",
+    &quot;openai/gpt-oss-120b&quot;,
+    model_provider=&quot;groq&quot;,
 )
 
-groq_response = groq_model.invoke(
-    "How many permutations are there for a deck of 52 cards?"
+groq_response = groq_model.invoke(&quot;How many permutations are there for a deck of 52 cards?&quot;)
+print(groq_response.text)</code></pre>
+<p>In this example, we name a model, tell LangChain which provider integration to use, and call <code>invoke</code>. The result is an AI message object, not only a string. It can include the generated text as well as useful metadata such as the model name and token usage.</p>
+<pre><code class="language-python">print(groq_response.response_metadata.get(&quot;model_name&quot;))
+print(groq_response.usage_metadata)</code></pre>
+<p>The direct provider SDK is still useful when you need a provider-specific feature. LangChain is useful when the common interface helps you write and maintain the application more easily.</p>
+</section>
+<hr />
+<section class="reading"><h2>Invoke different models</h2>
+<p>Changing a model is now much simpler at the point where the model is created:</p>
+<pre><code class="language-python">groq_model = init_chat_model(
+    &quot;openai/gpt-oss-120b&quot;,
+    model_provider=&quot;groq&quot;,
 )
-print(groq_response.text)
 
-# The returned AI message can also carry metadata and token usage.
-print(groq_response.response_metadata.get("model_name"))
-print(groq_response.usage_metadata)</code></pre></div><p>The result is an AI message object, not only a string. A direct provider SDK remains useful for provider-specific features. LangChain helps when the common interface makes the application easier to write and maintain.</p></section>
-        <section class="reading"><h3>Invoke different models</h3><p>Changing a model is simpler where the model is created. The calling pattern stays familiar, but the choice is still engineering: quality, speed, price, safety settings, context, and supported features can differ. Use the shared interface to experiment; use evaluation to decide what belongs in an application.</p><div class="code-card"><pre><code>groq_model = init_chat_model(
-    "openai/gpt-oss-120b", model_provider="groq"
-)
 gemini_model = init_chat_model(
-    "gemini-3.1-flash-lite-preview", model_provider="google_genai"
+    &quot;gemini-3.1-flash-lite-preview&quot;,
+    model_provider=&quot;google_genai&quot;,
 )
 
-print(groq_model.invoke("Explain RAG in one sentence.").text)
-print(gemini_model.invoke("Explain RAG in one sentence.").text)</code></pre></div></section>
-        <section class="switch-panel" aria-labelledby="temperature-title"><p class="eyebrow">GENERATION CONTROL</p><h3 id="temperature-title">Temperature: how much variation should we allow?</h3><p>Temperature controls the randomness of a language model’s output. Lower values favour the most probable next tokens; higher values explore less likely choices more often. It is not a truth dial and cannot fix a weak prompt or missing context.</p><div class="table-wrap"><table><caption>Sensible starting temperatures</caption><thead><tr><th scope="col">Task</th><th scope="col">Starting temperature</th><th scope="col">Why</th></tr></thead><tbody><tr><th scope="row">Factual answers, maths, code, extraction</th><td>0.0–0.3</td><td>Favour consistency and predictable formatting.</td></tr><tr><th scope="row">General questions and explanations</th><td>0.5–0.7</td><td>Balance clarity with natural variation.</td></tr><tr><th scope="row">Creative writing, stories, jokes</th><td>0.9–1.2</td><td>Allow diverse phrasing and ideas.</td></tr><tr><th scope="row">Wild brainstorming</th><td>1.5+</td><td>Encourage surprising directions; expect less consistency.</td></tr></tbody></table></div><div class="code-card"><pre><code>model = init_chat_model(
-    "openai/gpt-oss-120b",
-    model_provider="groq",
-    temperature=0.2,  # Start low when reliable structure matters.
-)</code></pre></div><p>Start with the task, not a fashionable number. Raise temperature for several different campaign ideas and review the results.</p></section>
-        <section class="reading"><h3>Max tokens: how much may the model say?</h3><p>Models generate output in tokens. <code>max_tokens</code>, or a provider-specific equivalent, limits how much output one response may produce.</p><div class="tradeoffs" aria-label="Why output limits matter"><div><h4>Cost</h4><p>More generated tokens usually cost more.</p></div><div><h4>Speed</h4><p>Longer answers generally take longer to generate.</p></div><div><h4>Control</h4><p>A clear limit stops a short task from becoming an essay.</p></div></div><p>Choose a limit that fits the result. A classification label needs little output; a detailed report or code explanation needs more. If a response is cut off, raise the limit or ask for a smaller, more focused answer. Parameter names and accepted ranges vary by provider, so check the integration documentation for the model you use.</p></section>
-        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Compare a shared interface.</h2><p>Create Groq and Gemini chat models with <code>init_chat_model</code>. Ask each to explain RAG in one sentence, then record the model identifier, output, any available usage metadata, and one difference you observed. Repeat a suitable task at a low and higher temperature. Choose a max-output limit that makes sense for the task, then explain why it does.</p><p class="outcome"><strong>Learning record:</strong> The application can use one broad model interface while keeping its provider and generation choices visible and testable.</p></section>
-      </article>
-      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 04</p><h2 id="next-title">The reply carries more than <em>its text.</em></h2><p>Next, inspect the response, understand tokens, and shape reusable prompts.</p><a class="button primary" href="lesson-4.html">Continue to lesson 4 <span>→</span></a></section>
-    </main>
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 03</p><a href="lesson-4.html">Lesson 4: read the response →</a></footer>
-  </body>
-</html>
+print(groq_model.invoke(&quot;Explain RAG in one sentence.&quot;).text)
+print(gemini_model.invoke(&quot;Explain RAG in one sentence.&quot;).text)</code></pre>
+<p>The calling pattern stays familiar. That is the win. But changing the model is still an engineering decision: responses can differ in quality, speed, price, safety settings, available context, and supported features. Use the shared interface to experiment; use evaluation to decide what belongs in the application.</p>
+</section>
+<hr />
+<section class="reading"><h2>Temperature: how much variation should we allow?</h2>
+<p>Temperature is a parameter that controls the randomness of a language model’s output. It influences how predictable or how varied the responses are.</p>
+<p>Lower values make the model more likely to choose the most probable next tokens. Higher values let it explore less likely choices more often. It is not a “truth” dial and it cannot fix a weak prompt or missing context.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Task</th><th>A sensible starting temperature</th><th>Why</th></tr></thead><tbody><tr><td>Factual answers, maths, code, extraction</td><td>0.0–0.3</td><td>Favour consistency and predictable formatting.</td></tr><tr><td>General questions and explanations</td><td>0.5–0.7</td><td>Balance clarity with natural variation.</td></tr><tr><td>Creative writing, stories, and jokes</td><td>0.9–1.2</td><td>Allow more diverse phrasing and ideas.</td></tr><tr><td>Wild brainstorming</td><td>1.5+</td><td>Encourage surprising directions; expect less consistency.</td></tr></tbody></table></div>
+<p>For example:</p>
+<pre><code class="language-python">model = init_chat_model(
+    &quot;openai/gpt-oss-120b&quot;,
+    model_provider=&quot;groq&quot;,
+    temperature=0.2,
+)</code></pre>
+<p>Start with the task, not with a fashionable number. If you need reliable structured output, start low. If you need ten different campaign ideas, raise it and review the results.</p>
+</section>
+<hr />
+<section class="reading"><h2>Max tokens: how much may the model say?</h2>
+<p>Models generate output in tokens. <code>max_tokens</code> or a provider-specific equivalent limits the amount of output the model may produce in one response.</p>
+<p>This matters for three practical reasons:</p>
+<ul><li><strong>Cost:</strong> more generated tokens usually cost more.</li><li><strong>Speed:</strong> longer answers generally take longer to generate.</li><li><strong>Control:</strong> a clear limit helps stop a short task from producing an essay.</li></ul>
+<p>Choose a limit that suits the result you need. A single classification label needs very little output. A detailed report or a long code explanation needs more. If the response is cut off, raise the limit or ask the model to produce a smaller, more focused answer.</p>
+<p>The exact parameter name and accepted range can vary by provider, so check the integration documentation for the model you use.</p>
+</section>
+<section class="reading"><h2>Next lesson</h2>
+<p>We will move beyond a single request and response: messages, prompt structure, and the context an application gives to a model.</p>
+</section></article></main><footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 03</p><a href="lesson-2.html">← Lesson 2</a></footer></body></html>
