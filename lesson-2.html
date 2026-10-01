@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 2: Create the local project, keep keys safe, and make the first direct Groq and Gemini calls." name="description"/><title>Lesson 2 · Set Up, Then Make the Call · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="lesson-3.html">Lesson 3 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p><h1 id="page-title">Set Up, Then Make the Call</h1><p class="lede">Create the local project, keep keys safe, and make the first direct Groq and Gemini calls.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 2: Create the local project, keep keys safe, and make the first direct Groq and Gemini calls." name="description"/><title>Lesson 2 · Set Up, Then Make the Call · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-1.html">← Lesson 1</a><a href="#lesson">Lesson</a><a href="lesson-3.html">Lesson 3 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 02</p><h1 id="page-title">Set Up, Then Make the Call</h1><p class="lede">Create the local project, keep keys safe, and make the first direct Groq and Gemini calls.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
 <p><strong>Review draft</strong></p>
 <p>This lesson gets the learner’s local project ready and makes the first real calls to hosted LLMs. The goal is a working environment, not a perfect production setup.</p>
 </blockquote>
@@ -33,7 +33,7 @@
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
 </figcaption></figure>
 <p>This creates the basic Python project files, including a <code>pyproject.toml</code> file. <code>uv</code> will manage the virtual environment for you, so you do not need to activate it manually for this course. Run programs through <code>uv run</code> and it will use the project environment.</p>
-<p>If you do not yet have Python or <code>uv</code>, install them first. I used Python 3.11.9 and <code>uv</code> 0.11.3 while preparing these examples, but nearby versions should work too.</p>
+<p>If you do not yet have Python or <code>uv</code>, install them first. I used Python 3.11.9 and <code>uv</code> 0.11.3 while preparing the earlier examples. The current repository's <code>pyproject.toml</code> requires <strong>Python 3.12 or newer</strong>, so use that version for this project.</p>
 <h3>Add the first dependencies</h3>
 <p>Create a <code>requirements.txt</code> file and add the packages below:</p>
 <h3>List the packages</h3>
@@ -67,7 +67,7 @@ jupyter</code>
 </span><span class="code-explorer__line" data-line="12">jupyter
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">Put these package names into requirements.txt. Some support later lessons; google-genai is needed for the direct Gemini SDK example.</p>
+<p class="snippet-prose">Put these package names into <mark class="lesson-term lesson-term--file" data-term="requirements.txt" id="term-requirements-txt" title="A text file listing the Python packages to install.">requirements.txt</mark>. Some support later lessons; google-genai is needed for the direct Gemini SDK example.</p>
 <p class="snippet-result"><strong>Result</strong> The installer has a list of dependencies to read.</p>
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
 </figcaption></figure>
@@ -89,7 +89,7 @@ jupyter</code>
 <h3>Check that it works</h3>
 <p>Create a file called <code>hi.py</code>:</p>
 <h3>Check the installation</h3>
-<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<figure class="code-explorer snippet-card" data-source="code/hi.py#setup-check">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
 <p class="code-explorer__title">Snippet 04</p>
 <div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
@@ -99,10 +99,10 @@ jupyter</code>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
 <p class="snippet-prose">We import LangChain, then print a simple message and its installed version. This is a small environment check before making any API requests.</p>
 <p class="snippet-result"><strong>Result</strong> If both lines print, the import and script execution worked.</p>
-<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+<a class="snippet-source" href="code/hi.py"><mark class="lesson-term lesson-term--file" data-term="hi.py" id="term-hi-py" title="The small Python script used to check the lesson's environment.">hi.py</mark> · setup-check</a>
 </figcaption></figure>
 <h3>Check the installation</h3>
-<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson2_final.md#supplement">
+<figure class="code-explorer snippet-card" data-source="code/hi.py#setup-check">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
 <p class="code-explorer__title">Snippet 05</p>
 <div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
@@ -114,7 +114,7 @@ print(langchain.__version__)</code>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
 <p class="snippet-prose">We import LangChain, then print a simple message and its installed version. This is a small environment check before making any API requests.</p>
 <p class="snippet-result"><strong>Result</strong> If both lines print, the import and script execution worked.</p>
-<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
+<a class="snippet-source" href="code/hi.py">hi.py · setup-check</a>
 </figcaption></figure>
 <p>Run it with:</p>
 <h3>Run through the project environment</h3>
@@ -166,8 +166,8 @@ GEMINI_API_KEY=your_key_here</code>
 </span><span class="code-explorer__line" data-line="3">GEMINI_API_KEY=your_key_here
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">These are .env entries, not Python statements. Replace the placeholders with your own keys and keep the file out of Git.</p>
-<p class="snippet-result"><strong>Result</strong> The later load_dotenv call can load these settings.</p>
+<p class="snippet-prose">These are <mark class="lesson-term lesson-term--file" data-term=".env" id="term-env" title="A local settings file used here to hold provider API keys.">.env</mark> entries, not Python statements. Replace the placeholders with your own keys and keep the file out of Git.</p>
+<p class="snippet-result"><strong>Result</strong> The later <mark class="lesson-term lesson-term--function" data-term="load_dotenv" id="term-load-dotenv" title="Loads settings from a .env file into the Python process's environment.">load_dotenv</mark> call can load these settings.</p>
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson2_final.md">lesson2_final.md · supplement</a>
 </figcaption></figure>
 <p>Never commit <code>.env</code> to Git. Add it to <code>.gitignore</code> before you push anything.</p>
@@ -186,8 +186,8 @@ GEMINI_API_KEY=your_key_here</code>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
 <p class="snippet-prose"><code>os</code> lets us read the API settings that will be loaded into the environment.</p>
-<p class="snippet-result"><strong>Result</strong> We can read settings with os.getenv.</p>
-<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
+<p class="snippet-result"><strong>Result</strong> We can read settings with <mark class="lesson-term lesson-term--function" data-term="os.getenv" id="term-os-getenv" title="Reads an environment setting, with an optional fallback value.">os.getenv</mark>.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb"><mark class="lesson-term lesson-term--file" data-term="1-Connecting-to-an-LLM.ipynb" id="term-1-connecting-to-an-llm-ipynb" title="The notebook with our first direct Groq and Gemini SDK calls.">1-Connecting-to-an-LLM.ipynb</mark> · b260017c</a>
 </figcaption></figure>
 <h3>Import the SDK and settings loader</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/1-Connecting-to-an-LLM.ipynb#b260017c">
@@ -200,7 +200,7 @@ from openai import OpenAI</code>
 </span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">OpenAI is the SDK client we use for Groq's compatible API. load_dotenv lets us keep the key in a local file.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="OpenAI" id="term-openai" title="The SDK client class used here to call Groq's OpenAI-compatible API.">OpenAI</mark> is the SDK client we use for Groq's compatible API. load_dotenv lets us keep the key in a local file.</p>
 <p class="snippet-result"><strong>Result</strong> The client constructor and settings loader are available.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
 </figcaption></figure>
@@ -261,7 +261,7 @@ groq_response = groq_client.responses.create(
 </span><span class="code-explorer__line" data-line="6"><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><code>responses.create</code> sends the model name, the assistant's instructions, and our question. We keep the entire response in groq_response.</p>
+<p class="snippet-prose"><code><mark class="lesson-term lesson-term--function" data-term="responses.create" id="term-responses-create" title="The SDK method that sends a request through the Responses API.">responses.create</mark></code> sends the model name, the assistant's instructions, and our question. We keep the entire response in groq_response.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Send one prompt and keep the complete response object.</p></div>
 <p class="snippet-result"><strong>Result</strong> The provider returns a response object. The generated excuse can vary.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
@@ -277,7 +277,7 @@ print(groq_response.output_text)</code>
 </span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">groq_response</span><span class="o">.</span><span class="n">output_text</span><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><code>output_text</code> extracts the generated text, so we can read the answer without printing all the response metadata.</p>
+<p class="snippet-prose"><code><mark class="lesson-term lesson-term--concept" data-term="output_text" id="term-output-text" title="The readable generated text exposed by the SDK response used here.">output_text</mark></code> extracts the generated text, so we can read the answer without printing all the response <mark class="lesson-term lesson-term--concept" data-term="metadata" id="term-metadata" title="Information about a response, such as the reported model name or token usage.">metadata</mark>.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Print only the text generated by the model.</p></div>
 <p class="snippet-result"><strong>Result</strong> The model's answer appears in the notebook.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
@@ -297,7 +297,7 @@ print(groq_response.output_text)</code>
 </span><span class="code-explorer__line" data-line="4"><span class="c1">#     print(available_model.id)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">These lines are commented out in the notebook. If you choose to uncomment them, models.list asks the provider for the model IDs available to the account.</p>
+<p class="snippet-prose">These lines are commented out in the notebook. If you choose to uncomment them, <mark class="lesson-term lesson-term--function" data-term="models.list" id="term-models-list" title="Requests the provider's list of model identifiers available to the account.">models.list</mark> asks the provider for the model IDs available to the account.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Optional: inspect the model IDs available to this account.</p><p class="snippet-comment"># available_models = groq_client.models.list()</p><p class="snippet-comment"># for available_model in available_models.data:</p><p class="snippet-comment">#     print(available_model.id)</p></div>
 <p class="snippet-result"><strong>Result</strong> Nothing runs while these lines remain comments.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · b260017c</a>
@@ -328,7 +328,7 @@ gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))</code>
 </span><span class="code-explorer__line" data-line="2"><span class="n">gemini_client</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"GEMINI_API_KEY"</span><span class="p">))</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><code>genai.Client</code> reads the Gemini key from the environment. It is a separate provider client from groq_client.</p>
+<p class="snippet-prose"><code><mark class="lesson-term lesson-term--class" data-term="genai.Client" id="term-genai-client" title="The Google Gen AI SDK client used to make direct Gemini requests.">genai.Client</mark></code> reads the Gemini key from the environment. It is a separate provider client from groq_client.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Create a Gemini client with the key loaded from .env.</p></div>
 <p class="snippet-result"><strong>Result</strong> gemini_client is ready for the request.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/1-Connecting-to-an-LLM.ipynb">1-Connecting-to-an-LLM.ipynb · 8845c25c</a>
@@ -399,4 +399,8 @@ print(gemini_response.output_text)</code>
 <p>Free is doing a lot of work in that sentence. You still pay for machines, electricity, deployment, monitoring, and your own time. Self-hosting is valuable and we will come back to it, but do not divert into it yet. First, learn to make a reliable hosted-model call and understand the application around it.</p>
 <h2 class="snippet-section">Next lesson</h2>
 <p>We will use LangChain to give multiple model providers a more consistent interface, then see what still changes when we switch models.</p>
-</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Lesson 1</a></footer><script defer="True" src="lesson-code-explorer.js"></script></body></html>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-1.html"><span>← Previous · Lesson 1</span><strong>The First Signal</strong></a><a href="lesson-3.html"><span>→ Next · Lesson 3</span><strong>One Interface, Many Models</strong></a></nav></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 02</p><a href="lesson-1.html">← Lesson 1</a></footer><script defer="True" src="lesson-code-explorer.js"></script>
+
+<button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">13</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 2. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>

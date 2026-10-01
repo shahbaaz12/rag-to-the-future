@@ -1,0 +1,31 @@
+/* Colour is a cue; every term also has a readable name and definition. */
+.snippet-explanation .lesson-term{padding:.12em .32em;border-radius:4px;font-weight:600;background:#fff0c9;color:#694100;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.snippet-explanation .lesson-term--function{background:#d8ecff;color:#124e82}
+.snippet-explanation .lesson-term--class{background:#eadfff;color:#5b328c}
+.snippet-explanation .lesson-term--file{background:#d8f2e6;color:#17543d;overflow-wrap:anywhere}
+.lesson-term:target{outline:2px solid #ffb018;outline-offset:3px}
+.glossary-toggle{position:fixed;right:1.2rem;top:45%;z-index:20;display:grid;place-items:center;width:3.4rem;height:3.4rem;border:1px solid #8acaff;border-radius:50%;background:#142d47;color:#eef8ff;box-shadow:0 6px 24px #0006;cursor:pointer}
+.glossary-toggle svg{width:1.45rem;height:1.45rem}
+.glossary-badge{position:absolute;right:-.3rem;top:-.25rem;padding:.15rem .35rem;border-radius:1rem;background:#ffcd72;color:#3c2800;font:700 .65rem/1.3 var(--sans)}
+.glossary-panel{position:fixed;z-index:21;right:5.5rem;top:12vh;width:min(370px,calc(100vw - 2rem));max-height:76vh;overflow:auto;border:1px solid #476781;border-radius:14px;background:#f7fafc;color:#24364a;box-shadow:0 18px 65px #0007;font:400 .92rem/1.6 var(--sans)}
+.glossary-panel[hidden]{display:none}
+.glossary-header{position:sticky;top:0;padding:1.2rem;background:#f7fafc;border-bottom:1px solid #dce5ee;z-index:1}
+.glossary-panel h2{margin:0;font:700 1.25rem/1.4 var(--sans);letter-spacing:0;text-transform:none;color:#183b5e}
+.glossary-panel .glossary-intro{margin:.35rem 2rem .9rem 0;color:#536a80;font-size:.8rem}
+.glossary-close{position:absolute;top:.8rem;right:.8rem;width:2rem;height:2rem;border:0;border-radius:6px;background:#e3ebf3;color:#244767;font-size:1.3rem;cursor:pointer}
+.glossary-panel label{display:block;margin-bottom:.3rem;color:#465f76;font-size:.75rem;font-weight:600}
+.glossary-panel input{width:100%;padding:.65rem .75rem;border:1px solid #adc1d4;border-radius:6px;background:white;color:#24364a;font:inherit}
+.glossary-count{margin:.55rem 0 0;color:#5c7083;font-size:.74rem}
+.glossary-list{margin:0;padding:.2rem 1.2rem 1rem;list-style:none}
+.glossary-list li{padding:1rem 0;border-bottom:1px solid #dce5ee}
+.glossary-list p{margin:.35rem 0;color:#344b61;font-size:.87rem}
+.glossary-name{display:inline-block;padding:.12rem .35rem;border-radius:4px;font-family:var(--mono);font-size:.88rem;background:#fff0c9;color:#694100;overflow-wrap:anywhere}
+.glossary-name--function{background:#d8ecff;color:#124e82}.glossary-name--class{background:#eadfff;color:#5b328c}.glossary-name--file{background:#d8f2e6;color:#17543d}
+.glossary-list a{color:#27608f;font-size:.72rem;text-decoration:none}.glossary-list a:hover{text-decoration:underline;color:#123f6a}
+.glossary-toggle:focus-visible,.glossary-panel button:focus-visible,.glossary-panel a:focus-visible,.glossary-panel input:focus-visible{outline:3px solid #ffb018;outline-offset:3px}
+.lesson-pagination{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:4rem;padding-top:2rem;border-top:1px solid var(--line)}
+.lesson-pagination a{display:flex;flex-direction:column;gap:.4rem;padding:1.2rem;border:1px solid #35516a;border-radius:10px;background:#0d1b2a;color:#e7f3ff;text-decoration:none;min-width:0}
+.lesson-pagination a:hover{border-color:#63dfff;background:#142b41}.lesson-pagination a:last-child{text-align:right}
+.lesson-pagination span{font:500 .68rem var(--mono);text-transform:uppercase;letter-spacing:.09em;color:#91b1cb}
+.lesson-pagination strong{font-size:1.05rem;line-height:1.45}
+@media(max-width:650px){.glossary-toggle{top:auto;bottom:1.2rem;right:1rem;width:3rem;height:3rem}.glossary-panel{right:1rem;top:auto;bottom:5.1rem;max-height:calc(100dvh - 7rem)}.lesson-pagination{grid-template-columns:1fr}.lesson-pagination a:last-child{text-align:left}footer{padding-bottom:5.5rem}}

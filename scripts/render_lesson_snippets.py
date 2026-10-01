@@ -14,7 +14,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import mistune
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
@@ -22,6 +22,10 @@ from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
 ROOT = Path(__file__).resolve().parents[1]
 DRAFTS = ROOT / "code/Docs/Lessons/Part1"
 NOTEBOOKS = ROOT / "code/Part I Understanding the Basics"
+TERMS = json.loads((ROOT / "lesson-terms.json").read_text(encoding="utf-8"))
+ENCOUNTERED = {}
+TERM_LOOKUP = {alias.lower(): entry for entry in TERMS for alias in [entry["term"], *entry.get("aliases", [])]}
+TERM_PATTERN = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(alias) for alias in sorted(TERM_LOOKUP, key=len, reverse=True)) + r")(?!\w)", re.I)
 FENCE = re.compile(r"```(\w+)\n(.*?)\n```", re.S)
 NOTE = re.compile(r"<!-- snippet: (.*?) -->\n```(\w+)\n(.*?)\n```\n\n\*\*What happens here\*\*\n\n(.*?)\n\n\*\*Result:\*\* (.*?)(?=\n\n|\Z)", re.S)
 
@@ -292,6 +296,8 @@ def card(reference, language, code, explanation, result, number):
         entries = json.loads((ROOT / source).read_text(encoding="utf-8"))["cells"]
         actual = "".join(next(entry for entry in entries if entry["id"] == location)["source"])
         assert code in actual, f"Snippet differs from {source}, cell {location}"
+    elif source.endswith(".py"):
+        assert code in (ROOT / source).read_text(encoding="utf-8"), f"Snippet differs from {source}"
     lexer = {"python": PythonLexer, "powershell": PowerShellLexer}.get(language, TextLexer)(stripnl=False, ensurenl=False)
     formatter = HtmlFormatter(nowrap=True)
     lines = "".join(f'<span class="code-explorer__line" data-line="{i}">{highlight(line, lexer, formatter)}</span>' for i, line in enumerate(code.splitlines(), 1))
@@ -313,6 +319,64 @@ def card(reference, language, code, explanation, result, number):
 <p class="snippet-result"><strong>Result</strong> {result_html}</p>
 <a class="snippet-source" href="{quote(source, safe='/')}">{html.escape(Path(source).name)} · {html.escape(location)}</a>
 </figcaption></figure>'''
+
+
+def add_learning_aids(page, article, lesson):
+    """Highlight each term once in course order; carry its definition forward."""
+    for text_node in list(article.select(".snippet-prose, .snippet-result, .snippet-source")):
+        for node in list(text_node.descendants):
+            if not isinstance(node, NavigableString):
+                continue
+            text = str(node)
+            pieces = []
+            cursor = 0
+            for match in TERM_PATTERN.finditer(text):
+                entry = TERM_LOOKUP[match[0].lower()]
+                key = entry["term"]
+                if key in ENCOUNTERED:
+                    continue
+                anchor = "term-" + re.sub(r"[^a-z0-9]+", "-", key.lower()).strip("-")
+                ENCOUNTERED[key] = {**entry, "lesson": lesson, "anchor": anchor}
+                pieces.append(NavigableString(text[cursor:match.start()]))
+                mark = page.new_tag("mark", attrs={"class": f'lesson-term lesson-term--{entry["category"]}', "data-term": key, "id": anchor, "title": entry["definition"]})
+                mark.string = match[0]
+                pieces.append(mark)
+                cursor = match.end()
+            if pieces:
+                pieces.append(NavigableString(text[cursor:]))
+                for piece in pieces:
+                    node.insert_before(piece)
+                node.extract()
+
+    navigation = page.new_tag("nav", attrs={"class": "lesson-pagination", "aria-label": "Continue to another lesson"})
+    for destination, direction in [(lesson - 1, "previous"), (lesson + 1, "next")]:
+        if 1 <= destination <= 8:
+            target = BeautifulSoup((ROOT / f"lesson-{destination}.html").read_text(encoding="utf-8"), "html.parser")
+            title = target.select_one(".hero h1").get_text().strip().rstrip(".")
+            href = f"lesson-{destination}.html"
+            label = f"{'←' if direction == 'previous' else '→'} {direction.title()} · Lesson {destination}"
+        else:
+            title, href = "Explore Part I", "part-one.html"
+            label = "← Course map" if direction == "previous" else "Course map →"
+        link = page.new_tag("a", href=href)
+        label_tag = page.new_tag("span")
+        label_tag.string = label
+        title_tag = page.new_tag("strong")
+        title_tag.string = title
+        link.extend([label_tag, title_tag])
+        navigation.append(link)
+    article.append(navigation)
+
+    # A reused page shell may contain the previous lesson's glossary.
+    for old in page.select(".glossary-toggle, #lesson-glossary, #lesson-terms"):
+        old.decompose()
+    glossary = BeautifulSoup(f'''<button class="glossary-toggle" type="button" data-glossary-toggle aria-label="Open lesson glossary" aria-expanded="false" aria-controls="lesson-glossary" title="Lesson glossary">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"/></svg><span class="glossary-badge" aria-hidden="true">{len(ENCOUNTERED)}</span></button>
+<aside id="lesson-glossary" class="glossary-panel" role="dialog" aria-labelledby="glossary-title" hidden><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button class="glossary-close" type="button" data-glossary-close aria-label="Close glossary">×</button><p class="glossary-intro">Terms introduced through Lesson {lesson}. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input id="glossary-search" type="search" placeholder="e.g. init_chat_model" autocomplete="off"/><p class="glossary-count" data-glossary-count aria-live="polite"></p></div><ul class="glossary-list" data-glossary-list></ul></aside>''', "html.parser")
+    page.body.append(glossary)
+    data = page.new_tag("script", type="application/json", id="lesson-terms")
+    data.string = json.dumps(list(ENCOUNTERED.values()), ensure_ascii=False).replace("<", "\\u003c")
+    page.body.append(data)
 
 
 def render(lesson):
@@ -359,11 +423,16 @@ def render(lesson):
     for table in article.select("table"):
         wrapper = original.new_tag("div", attrs={"class": "snippet-table", "tabindex": "0", "role": "region", "aria-label": "Lesson comparison table"})
         table.wrap(wrapper)
-    for asset in ("lesson-code-explorer.css", "lesson-snippets.css"):
+    add_learning_aids(original, article, lesson)
+    for asset in ("lesson-code-explorer.css", "lesson-snippets.css", "lesson-glossary.css"):
         if not original.find("link", href=asset):
             original.head.append(original.new_tag("link", rel="stylesheet", href=asset))
     if not original.find("script", src="lesson-code-explorer.js"):
         original.body.append(original.new_tag("script", src="lesson-code-explorer.js", defer=True))
+    # Keep glossary initialisation after its data, including on repeated builds.
+    for script in original.find_all("script", src="lesson-glossary.js"):
+        script.decompose()
+    original.body.append(original.new_tag("script", src="lesson-glossary.js", defer=True))
     page_path.write_text(str(original), encoding="utf-8")
     print(f"Lesson {lesson}: {len(cards)} explained snippets")
 

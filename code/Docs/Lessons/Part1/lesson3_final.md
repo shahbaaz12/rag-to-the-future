@@ -90,7 +90,7 @@ groq_model = init_chat_model(
 
 **What happens here**
 
-We choose the hosted model and the Groq integration. LangChain reads the key loaded during setup.
+`init_chat_model` creates the connection to our chosen hosted model through the Groq integration. LangChain reads the key loaded during setup.
 
 **Result:** groq_model is ready to use.
 
@@ -141,14 +141,14 @@ Changing a model is now much simpler at the point where the model is created:
 ```python
 # Create a Gemini chat model. LangChain reads GEMINI_API_KEY from .env.
 gemini_model = init_chat_model(
-    "gemini-3.1-flash-lite-preview",  # same code, just the model name changes.
+    "gemini-3.1-flash-lite-preview",  # Same invoke interface; the model identifier and provider change.
     model_provider="google_genai",
 )
 ```
 
 **What happens here**
 
-We change the model identifier and provider integration. The invoke pattern stays familiar. The inline comment is copied from the notebook; both provider and identifier are different here.
+We change the model identifier and provider integration. The invoke pattern stays familiar.
 
 **Result:** gemini_model is ready. GEMINI_API_KEY must be available.
 

@@ -41,7 +41,7 @@ Run this inside the project folder. uv creates the basic Python project configur
 
 This creates the basic Python project files, including a `pyproject.toml` file. `uv` will manage the virtual environment for you, so you do not need to activate it manually for this course. Run programs through `uv run` and it will use the project environment.
 
-If you do not yet have Python or `uv`, install them first. I used Python 3.11.9 and `uv` 0.11.3 while preparing these examples, but nearby versions should work too.
+If you do not yet have Python or `uv`, install them first. I used Python 3.11.9 and `uv` 0.11.3 while preparing the earlier examples. The current repository's `pyproject.toml` requires **Python 3.12 or newer**, so use that version for this project.
 
 ### Add the first dependencies
 
@@ -94,7 +94,7 @@ Create a file called `hi.py`:
 
 ### Check the installation
 
-<!-- snippet: code/Docs/Lessons/Part1/lesson2_final.md#supplement -->
+<!-- snippet: code/hi.py#setup-check -->
 ```python
 import langchain
 ```
@@ -107,7 +107,7 @@ We import LangChain, then print a simple message and its installed version. This
 
 ### Check the installation
 
-<!-- snippet: code/Docs/Lessons/Part1/lesson2_final.md#supplement -->
+<!-- snippet: code/hi.py#setup-check -->
 ```python
 print("Everything is working fine")
 print(langchain.__version__)

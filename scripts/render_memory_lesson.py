@@ -21,6 +21,7 @@ code_cells = {cell["id"]: "".join(cell["source"]).rstrip("\n") for cell in cells
 groups = [
     ("Set up once", "Run these setup snippets first. All three examples use this same model object.", "memory-imports", [
         ("Import the building blocks", "We import the model constructor and three message types. SystemMessage holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.", "The names we need are available for the next snippets."),
+        ("Load the API key", "load_dotenv reads the local .env file so the Groq integration can find its API key in this notebook session.", "The API settings are available before we create the model."),
         ("Create the model connection", "init_chat_model creates the Groq model object. The model name selects the hosted model, and reasoning_effort sets the requested reasoning level. This prepares the object; invoke will send the actual request.", "We can reuse model for every example below. Make GROQ_API_KEY available before running the notebook."),
     ]),
     ("1. Manual memory", "The simplest memory is a Python list. Our application keeps the messages and sends them again on each turn.", "manual-code", [

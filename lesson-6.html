@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 6: Manual history, summaries, and checkpoints for separate conversations." name="description"/><title>Lesson 6 · Memory Between Turns · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-5.html">← Lesson 5</a><a href="#lesson">Lesson</a><a href="lesson-7.html">Lesson 7 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 06</p><h1 id="page-title">Memory Between Turns</h1><p class="lede">Manual history, summaries, and checkpoints for separate conversations.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 6: Manual history, summaries, and checkpoints for separate conversations." name="description"/><title>Lesson 6 · Memory Between Turns · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-5.html">← Lesson 5</a><a href="#lesson">Lesson</a><a href="lesson-7.html">Lesson 7 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 06</p><h1 id="page-title">Memory Between Turns</h1><p class="lede">Manual history, summaries, and checkpoints for separate conversations.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><blockquote>
 <p><strong>Review draft</strong></p>
 <p>This lesson makes conversation memory explicit. We first carry messages ourselves, then compress old history, and finally let a checkpointer restore the right conversation for each user.</p>
 </blockquote>
@@ -22,21 +22,39 @@
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
 <p class="code-explorer__title">Snippet 01</p>
 <div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">from langchain.chat_models import init_chat_model
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
 from langchain.messages import SystemMessage, HumanMessage, AIMessage</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
-</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">AIMessage</span>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">AIMessage</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
 <p class="snippet-prose">We import the model constructor and three message types. SystemMessage holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.</p>
 <p class="snippet-result"><strong>Result</strong> The names we need are available for the next snippets.</p>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb"><mark class="lesson-term lesson-term--file" data-term="6-Memory.ipynb" id="term-6-memory-ipynb" title="The notebook for manual history, summaries, and checkpointers.">6-Memory.ipynb</mark> · memory-imports</a>
+</figcaption></figure>
+<h3>Load the API key</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Load GROQ_API_KEY from the local .env file.
+load_dotenv()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Load GROQ_API_KEY from the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We use load_dotenv to read the API key from the local .env file, just as we did in the earlier notebooks.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Load GROQ_API_KEY from the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> The Groq integration can find the key when we create the model.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · memory-imports</a>
 </figcaption></figure>
 <h3>Create the model connection</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 02</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">model = init_chat_model(
     "openai/gpt-oss-120b",
     model_provider="groq",
@@ -49,7 +67,7 @@ from langchain.messages import SystemMessage, HumanMessage, AIMessage</code>
 </span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">init_chat_model creates the Groq model object. The model name selects the hosted model, and reasoning_effort sets the requested reasoning level. This prepares the object; invoke will send the actual request.</p>
+<p class="snippet-prose">init_chat_model creates the Groq model object. The model name selects the hosted model, and <mark class="lesson-term lesson-term--concept" data-term="reasoning_effort" id="term-reasoning-effort" title="A supported model setting requesting a level of reasoning effort.">reasoning_effort</mark> sets the requested reasoning level. This prepares the object; invoke will send the actual request.</p>
 <p class="snippet-result"><strong>Result</strong> We can reuse model for every example below. Make GROQ_API_KEY available before running the notebook.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · memory-imports</a>
 </figcaption></figure>
@@ -58,8 +76,8 @@ from langchain.messages import SystemMessage, HumanMessage, AIMessage</code>
 <h3>Start the conversation</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 03</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">messages = [SystemMessage("You are a concise assistant.")]</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"You are a concise assistant."</span><span class="p">)]</span>
 </span></code></pre></div>
@@ -71,8 +89,8 @@ from langchain.messages import SystemMessage, HumanMessage, AIMessage</code>
 <h3>Send the first message and save the reply</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 04</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Turn 1
 messages.append(HumanMessage("My name is Ada. I am learning about LLMs."))
 reply = model.invoke(messages)
@@ -85,7 +103,7 @@ print("AI:", reply.content)</code>
 </span><span class="code-explorer__line" data-line="5"><span class="nb">print</span><span class="p">(</span><span class="s2">"AI:"</span><span class="p">,</span> <span class="n">reply</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">append adds Ada's introduction. invoke sends the current list to the model. We then add the reply as an AIMessage so the next request can include both sides of the exchange.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--function" data-term="append" id="term-append" title="Adds an item to the end of a Python list, such as a new conversation message.">append</mark> adds Ada's introduction. invoke sends the current list to the model. We then add the reply as an AIMessage so the next request can include both sides of the exchange.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Turn 1</p></div>
 <p class="snippet-result"><strong>Result</strong> The list now contains the instruction, Ada's introduction, and the model's reply.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
@@ -93,8 +111,8 @@ print("AI:", reply.content)</code>
 <h3>Ask a follow-up with the same history</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 05</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Turn 2: the model only knows Ada because we resend the whole list.
 messages.append(HumanMessage("What is my name and what am I learning?"))
 reply = model.invoke(messages)
@@ -115,13 +133,13 @@ print("AI:", reply.content)</code>
 <h3>Count what we have stored</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#manual-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 06</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">print("Messages stored:", len(messages))</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="s2">"Messages stored:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">))</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">len(messages) counts message objects, rather than tokens. We have one instruction plus two human messages and two AI replies.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--function" data-term="len" id="term-len" title="Counts the items in a collection; counting messages does not count their tokens.">len</mark>(messages) counts message objects, rather than tokens. We have one instruction plus two human messages and two AI replies.</p>
 <p class="snippet-result"><strong>Result</strong> Messages stored: 5</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · manual-code</a>
 </figcaption></figure>
@@ -130,8 +148,8 @@ print("AI:", reply.content)</code>
 <h3>Prepare a sample history</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 07</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Pretend a long conversation already happened.
 messages = [
     SystemMessage("You are a concise assistant."),
@@ -158,8 +176,8 @@ messages = [
 <h3>Turn the older messages into a summary</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 08</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Step 1: summarise every old message except the system instruction.
 old_text = "\n".join(f"{message.type}: {message.content}" for message in messages[1:])
 summary = model.invoke(
@@ -182,8 +200,8 @@ print("Summary:", summary)</code>
 <h3>Replace the full history</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 09</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Step 2: replace detailed history with a compact summary.
 messages = [
     messages[0],
@@ -206,8 +224,8 @@ print("Messages stored after summary:", len(messages))</code>
 <h3>Ask using the compact context</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#summary-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 10</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Step 3: the model keeps useful context using fewer input tokens.
 messages.append(HumanMessage("What is my name and what do I use?"))
 print("AI:", model.invoke(messages).content)</code>
@@ -226,23 +244,23 @@ print("AI:", model.invoke(messages).content)</code>
 <h3>Import the conversation wrapper and storage</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 11</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.agents</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_agent</span>
 </span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.checkpoint.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemorySaver</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">create_agent builds the conversation wrapper. InMemorySaver supplies a place to store its state inside this Python process.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--function" data-term="create_agent" id="term-create-agent" title="Builds an agent that manages the model-and-tool conversation using supplied tools.">create_agent</mark> builds the conversation wrapper. <mark class="lesson-term lesson-term--class" data-term="InMemorySaver" id="term-inmemorysaver" title="A LangGraph checkpointer that stores state in the current Python process.">InMemorySaver</mark> supplies a place to store its state inside this Python process.</p>
 <p class="snippet-result"><strong>Result</strong> The imports are ready. This storage will disappear when the process ends.</p>
-<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
+<a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · <mark class="lesson-term lesson-term--concept" data-term="checkpointer" id="term-checkpointer" title="Storage that saves and restores conversation state for a thread.">checkpointer</mark>-code</a>
 </figcaption></figure>
 <h3>Create the checkpointer</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 12</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># The checkpointer is the notebook that stores chat history.
 memory = InMemorySaver()</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># The checkpointer is the notebook that stores chat history.</span>
@@ -257,8 +275,8 @@ memory = InMemorySaver()</code>
 <h3>Attach it to the agent</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 13</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">agent = create_agent(
     model,
     tools=[],
@@ -280,15 +298,15 @@ memory = InMemorySaver()</code>
 <h3>Choose a conversation ID</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 14</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 15</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># The same thread ID means the same stored conversation.
 user1_config = {"configurable": {"thread_id": "user1"}}</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># The same thread ID means the same stored conversation.</span>
 </span><span class="code-explorer__line" data-line="2"><span class="n">user1_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"configurable"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"thread_id"</span><span class="p">:</span> <span class="s2">"user1"</span><span class="p">}}</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">thread_id names the conversation whose saved state we want to use. It identifies a thread, rather than authenticating a user. In this example we name the first thread user1.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--concept" data-term="thread_id" id="term-thread-id" title="The conversation identifier a checkpointer uses to select saved state.">thread_id</mark> names the conversation whose saved state we want to use. It identifies a thread, rather than authenticating a user. In this example we name the first thread user1.</p>
 <div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The same thread ID means the same stored conversation.</p></div>
 <p class="snippet-result"><strong>Result</strong> Calls with this configuration will continue the same conversation.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/6-Memory.ipynb">6-Memory.ipynb · checkpointer-code</a>
@@ -296,8 +314,8 @@ user1_config = {"configurable": {"thread_id": "user1"}}</code>
 <h3>Send just the new introduction</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 15</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 16</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Turn 1: send only the new message.
 message1 = HumanMessage("My name is Ada. I am learning about LLMs.")
 response1 = agent.invoke({"messages": [message1]}, user1_config)
@@ -316,8 +334,8 @@ print("AI:", response1["messages"][-1].content)</code>
 <h3>Continue the same thread</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 16</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 17</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># Turn 2: the checkpointer restores user1's history.
 message2 = HumanMessage("What is my name and what am I learning?")
 response2 = agent.invoke({"messages": [message2]}, user1_config)
@@ -336,8 +354,8 @@ print("AI:", response2["messages"][-1].content)</code>
 <h3>Try a different thread</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/6-Memory.ipynb#checkpointer-code">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 17</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 18</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 18" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># A different thread ID starts with empty memory.
 user2_config = {"configurable": {"thread_id": "user2"}}
 message3 = HumanMessage("What is my name?")
@@ -365,4 +383,8 @@ print("AI:", response3["messages"][-1].content)</code>
 </ol>
 <h2 class="snippet-section">Next lesson</h2>
 <p>We will let a model request a tool, then see why the application must control every tool execution.</p>
-</article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 06</p><a href="lesson-5.html">← Lesson 5</a><a href="lesson-7.html">Lesson 7 →</a></footer><script src="lesson-code-explorer.js"></script></body></html>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-5.html"><span>← Previous · Lesson 5</span><strong>More Than One Answer</strong></a><a href="lesson-7.html"><span>→ Next · Lesson 7</span><strong>Give the model tools. Keep control</strong></a></nav></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 06</p><a href="lesson-5.html">← Lesson 5</a><a href="lesson-7.html">Lesson 7 →</a></footer><script src="lesson-code-explorer.js"></script>
+
+<button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">56</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 6. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs one model or agent request and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardised token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serialises a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labelled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives a model response as successive chunks while generation continues.", "lesson": 5, "anchor": "term-stream"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>

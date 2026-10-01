@@ -124,7 +124,7 @@ Assistant message: records a previous model response
 
 **What happens here**
 
-The label tells us which text is the instruction, which is the user's request, and which is the assistant's answer. This is a conceptual example rather than executable code.
+The system message carries the assistant's instructions. The user message carries the request, and the assistant message carries the reply. This is a conceptual example rather than executable code.
 
 **Result:** The conversation has explicit roles.
 

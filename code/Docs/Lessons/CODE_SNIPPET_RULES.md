@@ -24,6 +24,8 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 - Quote exact code lines when explaining important operations. Preserve existing comments verbatim as source comments; keep additional teaching prose clearly separate.
 - End with the expected result or state change when it helps. Label illustrative model responses as examples, not guaranteed outputs.
 - Keep explanations readable without hover, expansion, truncated labels, or side panels. Use normal prose typography for explanations and monospace for code.
+- Highlight newly introduced terms only at their first explanation in course order. Use consistent colours for functions, classes, files, and concepts; never alter the code or source comments to add a highlight.
+- Maintain `lesson-terms.json` with a short, plain definition for each term. The floating glossary carries introduced terms forward, opens from its icon, and closes on an outside click or Escape.
 
 ## Page layout
 
@@ -31,6 +33,7 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 - Show the complete important code line. Allow code to scroll horizontally on narrow screens; wrap explanation text.
 - Preserve accessible contrast, keyboard-accessible copy controls, and a mobile layout without page-wide overflow.
 - Verify snippet text against the source and check the page at desktop and mobile widths before delivery.
+- End every lesson with clear previous/next navigation; use the course map at the beginning and end of Part I.
 
 ## Regenerate the pages
 

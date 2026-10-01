@@ -29,6 +29,7 @@ Run these setup snippets first. All three examples use this same model object.
 
 <!-- snippet: code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports -->
 ```python
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain.messages import SystemMessage, HumanMessage, AIMessage
 ```
@@ -38,6 +39,20 @@ from langchain.messages import SystemMessage, HumanMessage, AIMessage
 We import the model constructor and three message types. SystemMessage holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.
 
 **Result:** The names we need are available for the next snippets.
+
+### Load the API key
+
+<!-- snippet: code/Part I Understanding the Basics/6-Memory.ipynb#memory-imports -->
+```python
+# Load GROQ_API_KEY from the local .env file.
+load_dotenv()
+```
+
+**What happens here**
+
+We use load_dotenv to read the API key from the local .env file, just as we did in the earlier notebooks.
+
+**Result:** The Groq integration can find the key when we create the model.
 
 ### Create the model connection
 
