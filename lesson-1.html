@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Lesson 1: a practical foundation for building an LLM application." />
+    <title>Lesson 1 · The First Signal · RAG to the Future</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="lesson-1.css" />
+  </head>
+  <body>
+    <div class="site-noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
+      <nav aria-label="Lesson navigation">
+        <a href="part-one.html">← Part I map</a>
+        <a href="#lesson">Lesson</a>
+        <a href="#setup">Set up</a>
+        <a href="lesson-2.html">Lesson 2 →</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 01</p>
+          <p class="chapter-number">THE FIRST SIGNAL</p>
+          <h1 id="page-title">Is anybody<br /><em>there?</em></h1>
+          <p class="lede">Start with the smallest useful AI application: a request goes in, a language model responds, and your software decides what happens next.</p>
+          <div class="hero-actions"><a class="button button-primary" href="#lesson">Inspect the signal <span>↓</span></a><a class="button button-quiet" href="#optional-story">Optional story</a></div>
+        </div>
+        <aside class="signal-panel" aria-label="Lesson capability status">
+          <div class="panel-top"><span>NAVIGATION INTELLIGENCE</span><b>VOICE: UNTESTED</b></div>
+          <div class="signal-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <dl class="readout"><div><dt>INPUT</dt><dd>QUESTION</dd></div><div><dt>MODEL</dt><dd>LLM</dd></div><div><dt>OUTPUT</dt><dd>RESPONSE</dd></div></dl>
+          <p>Repair target: trace one request-and-response cycle before adding memory, retrieval, or tools.</p>
+        </aside>
+      </section>
+
+      <aside id="optional-story" class="story" aria-labelledby="story-title">
+        <div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">A voice through the static.</h2></div>
+        <p>The workshop console answers a question with surprising fluency, then confidently names a street that has never existed. The professor points to the wiring: “A voice is useful. It is not a map.”</p>
+        <a href="#lesson">Skip to the technical lesson →</a>
+      </aside>
+
+      <article id="lesson" class="lesson" aria-labelledby="lesson-title">
+        <header class="lesson-heading"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">Build the vocabulary before the stack.</h2><p>AI moves quickly because research, models, tools, and product interfaces all change at once. You do not need to chase every release. Learn the stable request-and-response shape first; later lessons add context, retrieval, validation, and tools around it.</p></header>
+
+        <section class="concept" aria-labelledby="terms-title">
+          <div class="section-label"><span>01</span><p>THE TERMS</p></div>
+          <div class="content"><h3 id="terms-title">AI, ML, deep learning, and LLMs describe nested ideas.</h3><div class="term-stack"><div><b>Artificial intelligence</b><p>The broad goal of making software perform tasks associated with intelligence: perception, reasoning, planning, or language.</p></div><div><b>Machine learning</b><p>A way to build some AI systems by learning patterns from data instead of writing every rule by hand.</p></div><div><b>Deep learning</b><p>A family of machine-learning methods that uses multi-layer neural networks, often effective for images, audio, and language.</p></div><div><b>Large language model (LLM)</b><p>A deep-learning model trained to work with language. Given context, it predicts useful next pieces of text and can produce a response.</p></div></div><p>These labels overlap, but they are not interchangeable. An LLM is one kind of model; an AI application is the software product that uses one or more models.</p></div>
+        </section>
+
+        <section class="concept" aria-labelledby="start-title">
+          <div class="section-label"><span>02</span><p>WHERE TO START</p></div>
+          <div class="content"><h3 id="start-title">Begin with one visible round trip.</h3><p>An LLM app can be understood as a small circuit: a person asks for help, your application prepares the request, a provider runs a model, and your application receives and presents a response.</p><figure class="flow"><div><span>1</span><b>User request</b><small>“Explain HTTP simply.”</small></div><i aria-hidden="true">→</i><div><span>2</span><b>Your app</b><small>instructions, credentials, checks</small></div><i aria-hidden="true">→</i><div><span>3</span><b>LLM</b><small>generates a response</small></div><i aria-hidden="true">→</i><div><span>4</span><b>Your app</b><small>shows or validates it</small></div><figcaption>The model generates text; the application owns the user experience, data access, safety checks, and what happens after the response.</figcaption></figure><p>Starting here keeps failures understandable. If the answer is poor, inspect the request and response. If a request fails, inspect credentials and provider settings. Once this works, adding several new concepts at once is no longer necessary.</p></div>
+        </section>
+
+        <section class="concept" aria-labelledby="models-title">
+          <div class="section-label"><span>03</span><p>TWO USEFUL NAMES</p></div>
+          <div class="content"><h3 id="models-title">An LLM and a chat model are related, but serve different interfaces.</h3><div class="compare"><div><p class="card-label">LLM</p><h4>Language engine</h4><p>An LLM accepts text or tokens as context and produces generated output. It can be used for completion, extraction, classification, summarisation, and more.</p></div><div><p class="card-label">CHAT MODEL</p><h4>Conversation interface</h4><p>A chat model is an LLM exposed through messages with roles such as system, user, and assistant. It is convenient when your app has instructions and a user conversation.</p></div></div><p>Messages do not give a model permanent memory. Each call only knows the context your application sends. A model also does not automatically know your private notes, current database, or whether an answer is true. Those are application responsibilities.</p></div>
+        </section>
+
+        <section id="setup" class="setup" aria-labelledby="setup-title">
+          <div class="section-label"><span>04</span><p>WORKSHOP SETUP</p></div>
+          <div class="content"><h3 id="setup-title">Create a small Python project with <code>uv</code>.</h3><p><a href="https://docs.astral.sh/uv/concepts/projects/init/" target="_blank" rel="noreferrer">uv’s project initialization guide ↗</a> explains the generated project files. From an empty folder, initialise the project and add the libraries needed for the first two lessons:</p><pre><code>uv init rag-study-assistant
+cd rag-study-assistant
+uv add langchain langchain-groq langchain-google-genai python-dotenv</code></pre><p><code>langchain</code> supplies the application framework. The Groq and Google GenAI packages provide their chat-model integrations, while <code>python-dotenv</code> loads local environment variables. Add <code>langchain-community</code> later when a lesson actually uses a community integration. OpenAI and Anthropic integrations can also be added later if you choose those providers; they are not required here, and their API access may involve paid usage.</p>
+            <p><code>uv</code> records dependencies in <code>pyproject.toml</code> and locks them in <code>uv.lock</code>. If a platform specifically asks for a requirements file, export one instead of maintaining two dependency lists:</p><pre><code>uv export --format requirements-txt --output-file requirements.txt</code></pre>
+            <div class="key-grid"><div><h4>Choose a provider</h4><p>Follow the official <a href="https://console.groq.com/docs/quickstart" target="_blank" rel="noreferrer">Groq quickstart ↗</a> or <a href="https://ai.google.dev/gemini-api/docs/api-key" target="_blank" rel="noreferrer">Gemini API key guide ↗</a> to create and manage a key. Availability and account requirements can change; check the provider’s current documentation.</p></div><div><h4>Keep the key local</h4><pre><code># .env — never commit this file
+GROQ_API_KEY=your_key_here
+# or
+GOOGLE_API_KEY=your_key_here
+
+# .gitignore
+.env</code></pre><p>Do not paste keys into code, screenshots, or chat. If a key is exposed, revoke it in the provider console and create a replacement.</p></div></div>
+            <p class="docs">Provider integrations: <a href="https://docs.langchain.com/oss/python/integrations/chat/groq" target="_blank" rel="noreferrer">LangChain ChatGroq docs ↗</a> · <a href="https://docs.langchain.com/oss/python/integrations/chat/google_generative_ai" target="_blank" rel="noreferrer">LangChain ChatGoogleGenerativeAI docs ↗</a></p>
+          </div>
+        </section>
+
+        <section class="exercise" aria-labelledby="exercise-title">
+          <p class="eyebrow">FUTURE CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Task: make one model request.</h2><p>In a new Python file, load a provider key from <code>.env</code>, create either a Groq or Gemini chat model, and send the message: “Explain HTTP to a beginner in three sentences.” Print the returned text. Then run it a second time and note one similarity and one difference.</p><ul><li>Input: one fixed user message and one provider key stored outside source code.</li><li>Expected behaviour: the program either prints a model response or reports a clear request error.</li><li>Check: no key appears in source control, terminal output, or screenshots.</li></ul><p>This exercise deliberately has no conversation history, private documents, tools, or claims of factual verification. Those capabilities arrive after the basic round trip is visible.</p></section>
+
+        <section class="repair-record" aria-labelledby="repair-title"><p class="eyebrow">LEARNING RECORD</p><h2 id="repair-title">The assistant has a starting circuit.</h2><p>You can now place an LLM inside an application, describe the limits of that model connection, and prepare a local project without exposing its credentials.</p><div class="hero-actions"><a class="button button-primary" href="lesson-2.html">Continue to lesson 2 <span>→</span></a><a class="button button-quiet" href="part-one.html">Return to Part I map</a></div></section>
+      </article>
+    </main>
+    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><a href="lesson-2.html">Lesson 2: connect a chat model →</a></footer>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Lesson 6: give a model approved tools while keeping application control over execution." />
+    <title>Lesson 6 · Keep the Control · RAG to the Future</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:ital,wght@0,500;0,600;0,700;1,600;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="lesson-6.css" />
+  </head>
+  <body>
+    <div class="site-noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="RAG to the Future home"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" /></a>
+      <nav aria-label="Lesson navigation"><a href="lesson-5.html">← Lesson 5</a><a href="#lesson">Lesson</a><a href="#exercise">Exercise</a><a href="lesson-7.html">Lesson 7 →</a></nav>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="page-title"><div><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 06</p><p class="chapter-number">EXECUTION CONTROL / APPROVED ACTIONS</p><h1 id="page-title">Give the model <em>tools.</em> Keep control.</h1><p class="lede">A model may request a function. Your application decides whether that request is recognised, valid, permitted, and safe to run.</p><div class="hero-actions"><a class="button primary" href="#lesson">Inspect the loop <span>↓</span></a><a class="button quiet" href="#optional-story">Optional story</a></div></div><aside class="signal-panel" aria-label="Tool loop overview"><p class="panel-label">EXECUTION AUTHORITY</p><div class="route" aria-hidden="true"><b>USER</b><i></i><b>MODEL</b><i></i><b>APP</b><i></i><b>TOOL</b></div><dl><div><dt>MODEL</dt><dd>requests</dd></div><div><dt>APPLICATION</dt><dd>validates</dd></div><div><dt>TOOL</dt><dd>returns data</dd></div></dl><p class="panel-note">Tool calls are structured suggestions, not automatic permissions to run code or access data.</p></aside></section>
+      <aside id="optional-story" class="story" aria-labelledby="story-title"><div><p class="eyebrow">OPTIONAL STORY · SKIP WITHOUT LOSING THE LESSON</p><h2 id="story-title">The console reaches for a switch.</h2></div><p>The navigation system proposes opening a sealed maintenance panel. The professor puts a hand over the switch: “A good suggestion still needs an operator.” The request is recorded; the panel stays closed until the application checks it.</p><a href="#lesson">Skip to the technical lesson →</a></aside>
+      <article id="lesson" class="lesson" aria-labelledby="lesson-title"><header class="section-intro"><p class="eyebrow">TECHNICAL LESSON</p><h2 id="lesson-title">A tool is a function your application makes available.</h2><p>Tools let a model request information or an action from outside the conversation. The model can propose a useful function and arguments; the software around it remains responsible for execution.</p></header>
+        <section class="reading" aria-labelledby="tool-title"><p class="number">01 · DEFINE A TOOL</p><h3 id="tool-title">Start with a small local lookup.</h3><p>A tool has a clear name, description, inputs, and output. In a real application it might query a database, read approved documents, check an order, or take an action the user authorised. This local example keeps the focus on the flow.</p><div class="code-card"><pre><code>@tool
+def get_course_module(module_number: int) -&gt; str:
+    """Return the topic for a course module number from 1 through 6."""
+    modules = {
+        5: "messages, streaming, batching, and memory",
+        6: "tools and tool-execution loops",
+    }
+    return modules.get(module_number, "That module number is not available.")</code></pre></div><p>The docstring matters: it helps the model understand when the tool is useful and what its input means.</p></section>
+        <section class="reading" aria-labelledby="request-title"><p class="number">02 · REQUEST, THEN EXECUTE</p><h3 id="request-title">Bind only permitted tools to the model.</h3><div class="code-card"><pre><code>tool_enabled_model = groq_model.bind_tools([get_course_module])
+model_message = tool_enabled_model.invoke(messages)</code></pre></div><p>The response may contain <code>tool_calls</code>: structured data describing a requested function and proposed arguments. That does not prove the function ran. Your application must match the request to an allow-list before it executes anything.</p><div class="code-card"><pre><code>for tool_call in model_message.tool_calls:
+    requested_tool = tools_by_name.get(tool_call["name"])
+    if requested_tool is None:
+        tool_result = "This tool is not available."
+    else:
+        tool_result = requested_tool.invoke(tool_call["args"])
+
+    messages.append(
+        ToolMessage(content=str(tool_result), tool_call_id=tool_call["id"])
+    )</code></pre></div></section>
+        <section class="loop-panel" aria-labelledby="loop-title"><p class="eyebrow">THE TOOL-EXECUTION LOOP</p><h3 id="loop-title">Send the result back for a normal answer.</h3><figure class="flow"><div><b>User request</b><small>asks a question</small></div><i aria-hidden="true">→</i><div><b>Model request</b><small>proposes a tool</small></div><i aria-hidden="true">→</i><div><b>Application</b><small>validates and runs it</small></div><i aria-hidden="true">→</i><div><b>Final answer</b><small>uses the tool result</small></div><figcaption>The application sends the model request and tool result back to the model so it can answer the user.</figcaption></figure><p>The model never automatically calls the function. It hands your application structured information about a function that could help; your application controls whether, how, and with which data that function runs.</p></section>
+        <section class="reading" aria-labelledby="control-title"><p class="number">03 · KEEP CONTROL</p><h3 id="control-title">Treat a tool call like untrusted input.</h3><p>Before executing a real tool, the application should decide whether the requested tool is allowed, whether its arguments are valid, whether the user has permission, how it handles a slow or failed external service, and what it logs for investigation. Models reason about tools; applications own permissions and execution.</p><p>Work through the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/6-Tools-and-Tool-Loops.ipynb">6-Tools-and-Tool-Loops.ipynb</a>.</p></section>
+        <section id="exercise" class="exercise" aria-labelledby="exercise-title"><p class="eyebrow">CODE EXERCISE · STANDS ON ITS OWN</p><h2 id="exercise-title">Build one inspected tool loop.</h2><p>Define the course-module tool, bind it to a configured chat model, and ask a question that needs module 6. Print or inspect the model’s requested tool call. Execute only a request found in your allow-list, append a <code>ToolMessage</code>, then call the model again for the final answer.</p><ul><li>Check an unknown tool name returns a clear unavailable result.</li><li>Keep the tool’s input constrained to the expected argument.</li><li>Write down which step makes the actual execution decision.</li></ul><p class="outcome"><strong>Learning record:</strong> the model can request a tool, while the application retains control of the tool-execution loop.</p></section>
+      </article>
+      <section class="next-route" aria-labelledby="next-title"><p class="eyebrow">NEXT ROUTE · REPAIR 07</p><h2 id="next-title">Turn the loop into an <em>agent.</em></h2><p>Next, let a framework manage the standard loop while you continue to define approved tools, data access, permissions, and rules.</p><a class="button primary" href="lesson-7.html">Continue to lesson 7 <span>→</span></a></section>
+    </main>
+    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><p>Part I · Out of Time · Lesson 06</p><a href="lesson-5.html">← Previous lesson</a><a href="lesson-7.html">Next lesson →</a></footer>
+  </body>
+</html>
