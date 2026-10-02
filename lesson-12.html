@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="A model requests the lookup; a tool node runs it and returns the result." name="description"/><title>Lesson 12 · Run a tool inside the graph · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-11.html">← Lesson 11</a><a href="#lesson">Lesson</a><a href="lesson-13.html">Lesson 13 →</a><a href="part-two.html">Part II map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART II · CONNECTING THE DOTS · LESSON 04 / COURSE 12</p><h1 id="page-title">Run a tool inside the graph</h1><p class="lede">A model requests the lookup; a tool node runs it and returns the result.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><h2 class="snippet-section">A note from me</h2>
+<p>A model can sound confident about our stock. That does not mean it has checked the stock list.</p>
+<p>We already know what a tool request looks like from Part I. Now we will give each part of that interaction a place in the graph: ask the model, execute the requested lookup, then write an answer using the result.</p>
+<h2 class="snippet-section">What we are building</h2>
+<p>A small inventory assistant with one read-only stock tool. Our data is a local Python dictionary. The point is the flow, so we will not complicate it with a real database yet.</p>
+<p>This graph permits one round of tool calls. If the first reply does not request a tool, we end immediately. Otherwise the tool node runs the calls, and a final model call writes the answer without being given tools again.</p>
+<h2 class="snippet-section">Set up the model and tool</h2>
+<p>Run these setup cells first.</p>
+<h3>Import the model and graph helpers</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.graph import StateGraph, MessagesState, START, END</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span><span class="p">,</span> <span class="n">SystemMessage</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">MessagesState</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">These are familiar LangChain model and message helpers, plus our graph building blocks. MessagesState already defines a messages list with the add_messages reducer, so we do not need to write that same schema again.</p>
+<p class="snippet-result"><strong>Result</strong> The model, message, and graph helpers are available.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb"><mark class="lesson-term lesson-term--file" data-term="4-Using-Tools.ipynb" id="term-4-using-tools-ipynb" title="The notebook for Part II lesson 4: run a tool inside the graph.">4-Using-Tools.ipynb</mark> · p2-4-1-1</a>
+</figcaption></figure>
+<h3>Load the key and create the model</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Keep GROQ_API_KEY in the local .env file.
+load_dotenv()
+model = init_chat_model(
+    "openai/gpt-oss-120b",
+    model_provider="groq",
+    reasoning_effort="low",
+)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Keep GROQ_API_KEY in the local .env file.</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">load_dotenv</span><span class="p">()</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
+</span><span class="code-explorer__line" data-line="7"><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We use the same Groq model as Part I. load_dotenv makes the key available, and init_chat_model prepares our connection. No question has been sent yet.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Keep GROQ_API_KEY in the local .env file.</p></div>
+<p class="snippet-result"><strong>Result</strong> model is ready for the node that will call it.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-1-2</a>
+</figcaption></figure>
+<h3>Import the tool execution helpers</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from langchain_core.tools import tool
+from langgraph.prebuilt import ToolNode, tools_condition</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">tool</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.prebuilt</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolNode</span><span class="p">,</span> <span class="n">tools_condition</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="ToolNode" id="term-toolnode" title="Executes requested calls against the tools supplied to this graph.">ToolNode</mark> runs calls against the tools we supply and creates their ToolMessage results. <mark class="lesson-term lesson-term--function" data-term="tools_condition" id="term-tools-condition" title="Routes to tools when the latest model message contains tool calls.">tools_condition</mark> examines the latest model reply and routes to tools only when that reply contains a tool request.</p>
+<p class="snippet-result"><strong>Result</strong> We can build the same application-controlled flow with less plumbing.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-1-3</a>
+</figcaption></figure>
+<h3>Give the graph a stock lookup</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-4">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">@tool
+def check_stock_service(item: str) -&gt; int:
+    """Return stock for headphone, keyboard, or laptop; use the singular item name."""
+    stock = {"headphone": 6, "keyboard": 11, "laptop": 12}
+    return stock.get(item.lower(), 0)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nd">@tool</span>
+</span><span class="code-explorer__line" data-line="2"><span class="k">def</span><span class="w"> </span><span class="nf">check_stock_service</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="3"><span class="w">    </span><span class="sd">"""Return stock for headphone, keyboard, or laptop; use the singular item name."""</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="n">stock</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"headphone"</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">"keyboard"</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s2">"laptop"</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="k">return</span> <span class="n">stock</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">This is a normal Python lookup exposed through @tool. The description tells the model when it is useful, and item is its input. We use a small local dictionary so we can follow the graph without adding a database or another API.</p>
+<p class="snippet-result"><strong>Result</strong> The stock tool can return a quantity when the application executes it.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-1-4</a>
+</figcaption></figure>
+<h2 class="snippet-section">Separate asking from answering</h2>
+<p>The first node can request a tool; the final node only writes an answer.</p>
+<h3>Bind the allowed tool</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">stock_tools = [check_stock_service]
+tool_model = model.bind_tools(stock_tools)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">stock_tools</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_stock_service</span><span class="p">]</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">tool_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">bind_tools</span><span class="p">(</span><span class="n">stock_tools</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">bind_tools supplies the stock tool's description and arguments to the model. It does not run the function. stock_tools also supplies the actual tool object to the execution node below.</p>
+<p class="snippet-result"><strong>Result</strong> The model knows which lookup it can request.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-2-1</a>
+</figcaption></figure>
+<h3>Ask whether a tool is needed</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def ask_model(state: MessagesState) -&gt; dict:
+    reply = tool_model.invoke([
+        SystemMessage("Use the stock tool for inventory quantities."),
+        *state["messages"],
+    ])
+    return {"messages": [reply]}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">ask_model</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">reply</span> <span class="o">=</span> <span class="n">tool_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span>
+</span><span class="code-explorer__line" data-line="3">        <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"Use the stock tool for inventory quantities."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="4">        <span class="o">*</span><span class="n">state</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="p">])</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">return</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">reply</span><span class="p">]}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The reply may contain tool_calls. We keep the complete message so the requested function name, arguments, and call ID reach the execution node.</p>
+<p class="snippet-result"><strong>Result</strong> The state contains either a normal answer or a tool-call request.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-2-2</a>
+</figcaption></figure>
+<h3>Answer after the lookup</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def answer_from_tool(state: MessagesState) -&gt; dict:
+    reply = model.invoke([
+        SystemMessage("Answer using the stock tool result."),
+        *state["messages"],
+    ])
+    return {"messages": [reply]}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">answer_from_tool</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">MessagesState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">reply</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span>
+</span><span class="code-explorer__line" data-line="3">        <span class="n">SystemMessage</span><span class="p">(</span><span class="s2">"Answer using the stock tool result."</span><span class="p">),</span>
+</span><span class="code-explorer__line" data-line="4">        <span class="o">*</span><span class="n">state</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">],</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="p">])</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">return</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">reply</span><span class="p">]}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Here we use the original model object rather than tool_model. It receives the question, tool-call request, and ToolMessage result, then writes a final answer.</p>
+<p class="snippet-result"><strong>Result</strong> This node closes the single-round tool interaction.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-2-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">Connect the request and result</h2>
+<p>Keep the tool route visible.</p>
+<h3>Register all three nodes</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">builder = StateGraph(MessagesState)
+builder.add_node("ask_model", ask_model)
+builder.add_node("tools", ToolNode(stock_tools))
+builder.add_node("answer", answer_from_tool)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">MessagesState</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"ask_model"</span><span class="p">,</span> <span class="n">ask_model</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"tools"</span><span class="p">,</span> <span class="n">ToolNode</span><span class="p">(</span><span class="n">stock_tools</span><span class="p">))</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"answer"</span><span class="p">,</span> <span class="n">answer_from_tool</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">ToolNode is the framework helper that executes the supplied tools and returns their results as ToolMessage objects. The model itself still does not execute the Python lookup.</p>
+<p class="snippet-result"><strong>Result</strong> Our builder knows the request, tool execution, and final-answer steps.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-3-1</a>
+</figcaption></figure>
+<h3>Route to tools only when requested</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">builder.add_edge(START, "ask_model")
+builder.add_conditional_edges(
+    "ask_model", tools_condition, {"tools": "tools", END: END}
+)
+builder.add_edge("tools", "answer")
+builder.add_edge("answer", END)
+graph = builder.compile()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"ask_model"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="s2">"ask_model"</span><span class="p">,</span> <span class="n">tools_condition</span><span class="p">,</span> <span class="p">{</span><span class="s2">"tools"</span><span class="p">:</span> <span class="s2">"tools"</span><span class="p">,</span> <span class="n">END</span><span class="p">:</span> <span class="n">END</span><span class="p">}</span>
+</span><span class="code-explorer__line" data-line="4"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"tools"</span><span class="p">,</span> <span class="s2">"answer"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"answer"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="7"><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">tools_condition looks at the latest model message. A tool request takes the tools path; a normal answer ends the run. After a lookup we always run answer, which has no bound tools.</p>
+<p class="snippet-result"><strong>Result</strong> The graph can handle a direct answer or one round of lookups.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-3-2</a>
+</figcaption></figure>
+<h3>Ask and inspect the conversation</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">response = graph.invoke({
+    "messages": [HumanMessage("How many laptops are in stock?")]
+})
+for message in response["messages"]:
+    print(message.type, message.text)
+    if getattr(message, "tool_calls", None):
+        print("Requested calls:", message.tool_calls)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">response</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="n">HumanMessage</span><span class="p">(</span><span class="s2">"How many laptops are in stock?"</span><span class="p">)]</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">})</span>
+</span><span class="code-explorer__line" data-line="4"><span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">"messages"</span><span class="p">]:</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="s2">"tool_calls"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="nb">print</span><span class="p">(</span><span class="s2">"Requested calls:"</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">We inspect both text and tool_calls because a tool-request message may have empty text. The stock dictionary holds 12 laptops; when the model uses the lookup correctly, its answer can use that result.</p>
+<p class="snippet-result"><strong>Result</strong> The trace makes the request, tool result, and final response visible.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb · p2-4-3-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">Check your understanding</h2>
+<ol>
+<li>Does bind_tools execute a tool?</li>
+<li>What does ToolNode return?</li>
+<li>Why does the final node use model instead of tool_model?</li>
+<li>What happens if no tool call is requested?</li>
+</ol>
+<h2 class="snippet-section">Where we go next</h2>
+<p>Next we will allow the model to revisit its decision after receiving a tool result.</p>
+<p>Complete notebook: <a href="code/Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb">4-Using-Tools.ipynb</a></p>
+<p>Further reading: <a href="https://docs.langchain.com/oss/python/langgraph/quickstart">LangGraph documentation</a>.</p>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-11.html"><span>← Previous · Lesson 11</span><strong>Put an LLM inside the graph</strong></a><a href="lesson-13.html"><span>→ Next · Lesson 13</span><strong>Let the graph ask again</strong></a></nav></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part II · Connecting the dots · Lesson 04</p><a href="lesson-11.html">← Lesson 11</a><a href="lesson-13.html">Lesson 13 →</a></footer><script src="lesson-code-explorer.js"></script>
+
+<button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">85</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 12. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardised token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serialises a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labelled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives model chunks or graph events progressively as a run proceeds.", "lesson": 5, "anchor": "term-stream"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}, {"term": "7-Tools-and-Tool-Loops.ipynb", "category": "file", "definition": "The notebook showing how the application executes model-requested tools.", "lesson": 7, "anchor": "term-7-tools-and-tool-loops-ipynb"}, {"term": "decorator", "category": "concept", "definition": "An annotation such as @tool that adds behaviour to a function or class.", "lesson": 7, "anchor": "term-decorator"}, {"term": "docstring", "category": "concept", "definition": "Text inside a function or class that describes what it does.", "lesson": 7, "anchor": "term-docstring"}, {"term": "bind_tools", "category": "function", "definition": "Makes tool descriptions available to a model so it can request tool calls.", "lesson": 7, "anchor": "term-bind-tools"}, {"term": "tool_calls", "category": "concept", "definition": "Structured requests from a model specifying tool names and proposed arguments.", "lesson": 7, "anchor": "term-tool-calls"}, {"term": "ToolMessage", "category": "class", "definition": "A message returning a tool's result with the ID of the corresponding tool call.", "lesson": 7, "anchor": "term-toolmessage"}, {"term": "8-Agents.ipynb", "category": "file", "definition": "The notebook for agents with stock and price lookup tools.", "lesson": 8, "anchor": "term-8-agents-ipynb"}, {"term": "check_stock_service", "category": "function", "definition": "Our local inventory tool returning an item's remaining stock.", "lesson": 8, "anchor": "term-check-stock-service"}, {"term": "get_price_service", "category": "function", "definition": "Our local inventory tool returning an item's price in rupees.", "lesson": 8, "anchor": "term-get-price-service"}, {"term": "reducer", "category": "concept", "definition": "The rule for combining an existing state value with a new update.", "aliases": ["reducers"], "lesson": 9, "anchor": "term-reducer"}, {"term": "compile", "category": "function", "definition": "Checks the graph structure and creates a runnable graph.", "lesson": 9, "anchor": "term-compile"}, {"term": "super-step", "category": "concept", "definition": "One execution round; independent nodes in that round can run together.", "aliases": ["super-steps"], "lesson": 9, "anchor": "term-super-step"}, {"term": "Annotated", "category": "class", "definition": "Attaches metadata such as a reducer to a type annotation.", "lesson": 9, "anchor": "term-annotated"}, {"term": "StateGraph", "category": "class", "definition": "Builds a workflow from a state schema, nodes, and edges.", "lesson": 9, "anchor": "term-stategraph"}, {"term": "add_messages", "category": "function", "definition": "Merges message updates, appending new messages and replacing matching IDs.", "lesson": 9, "anchor": "term-add-messages"}, {"term": "1-first-graph.ipynb", "category": "file", "definition": "The notebook for Part II lesson 1: connect the dots: your first graph.", "lesson": 9, "anchor": "term-1-first-graph-ipynb"}, {"term": "add_node", "category": "function", "definition": "Registers a named function as a graph step.", "lesson": 9, "anchor": "term-add-node"}, {"term": "add_edge", "category": "function", "definition": "Connects graph steps, including waiting for multiple predecessor nodes.", "lesson": 9, "anchor": "term-add-edge"}, {"term": "2-working-with-edges.ipynb", "category": "file", "definition": "The notebook for Part II lesson 2: choose the path: working with edges.", "lesson": 10, "anchor": "term-2-working-with-edges-ipynb"}, {"term": "FlowState", "category": "class", "definition": "Our lesson schema carrying a value and a list of flow logs.", "lesson": 10, "anchor": "term-flowstate"}, {"term": "add_conditional_edges", "category": "function", "definition": "Uses a routing function to select the next graph destination.", "lesson": 10, "anchor": "term-add-conditional-edges"}, {"term": "recursion_limit", "category": "concept", "definition": "Limits the number of graph super-steps before a run is stopped.", "lesson": 10, "anchor": "term-recursion-limit"}, {"term": "partial update", "category": "concept", "definition": "A node result containing only the state keys it needs to change.", "aliases": ["partial updates"], "lesson": 10, "anchor": "term-partial-update"}, {"term": "MessagesState", "category": "class", "definition": "A built-in state schema with a messages list and the add_messages reducer.", "lesson": 11, "anchor": "term-messagesstate"}, {"term": "3-Connecting-LLM.ipynb", "category": "file", "definition": "The notebook for Part II lesson 3: put an llm inside the graph.", "lesson": 11, "anchor": "term-3-connecting-llm-ipynb"}, {"term": "4-Using-Tools.ipynb", "category": "file", "definition": "The notebook for Part II lesson 4: run a tool inside the graph.", "lesson": 12, "anchor": "term-4-using-tools-ipynb"}, {"term": "ToolNode", "category": "class", "definition": "Executes requested calls against the tools supplied to this graph.", "lesson": 12, "anchor": "term-toolnode"}, {"term": "tools_condition", "category": "function", "definition": "Routes to tools when the latest model message contains tool calls.", "lesson": 12, "anchor": "term-tools-condition"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>

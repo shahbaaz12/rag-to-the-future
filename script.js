@@ -10,8 +10,8 @@ const parts = {
   two: {
     label: "PART II · 2045 · YOUR CHILDREN'S TOMORROW",
     caption: "The assistant now has tools and agency. Learn to let it plan, check its work, and ask before it acts.",
-    link: "#journeys",
-    linkText: "Preview Part II in the trilogy →",
+    link: "part-two.html",
+    linkText: "Enter the 2045 workshop →",
   },
   three: {
     label: "PART III · ???? · THE LAST DEPARTURE",

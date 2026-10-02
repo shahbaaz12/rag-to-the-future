@@ -1,8 +1,8 @@
 /* Colour is a cue; every term also has a readable name and definition. */
-.snippet-explanation .lesson-term{padding:.12em .32em;border-radius:4px;font-weight:600;background:#fff0c9;color:#694100;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-.snippet-explanation .lesson-term--function{background:#d8ecff;color:#124e82}
-.snippet-explanation .lesson-term--class{background:#eadfff;color:#5b328c}
-.snippet-explanation .lesson-term--file{background:#d8f2e6;color:#17543d;overflow-wrap:anywhere}
+.document .lesson-term{padding:.12em .32em;border-radius:4px;font-weight:600;background:#fff0c9;color:#694100;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.document .lesson-term--function{background:#d8ecff;color:#124e82}
+.document .lesson-term--class{background:#eadfff;color:#5b328c}
+.document .lesson-term--file{background:#d8f2e6;color:#17543d;overflow-wrap:anywhere}
 .lesson-term:target{outline:2px solid #ffb018;outline-offset:3px}
 .glossary-toggle{position:fixed;right:1.2rem;top:45%;z-index:20;display:grid;place-items:center;width:3.4rem;height:3.4rem;border:1px solid #8acaff;border-radius:50%;background:#142d47;color:#eef8ff;box-shadow:0 6px 24px #0006;cursor:pointer}
 .glossary-toggle svg{width:1.45rem;height:1.45rem}

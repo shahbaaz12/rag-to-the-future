@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="State, nodes, edges, and reducers — without an LLM getting in the way." name="description"/><title>Lesson 9 · Connect the dots: your first graph · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-8.html">← Lesson 8</a><a href="#lesson">Lesson</a><a href="lesson-10.html">Lesson 10 →</a><a href="part-two.html">Part II map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART II · CONNECTING THE DOTS · LESSON 01 / COURSE 09</p><h1 id="page-title">Connect the dots: your first graph</h1><p class="lede">State, nodes, edges, and reducers — without an LLM getting in the way.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><h2 class="snippet-section">A note from me</h2>
+<p>We have worked with models, messages, tools, and agents. Now let’s connect those pieces in a way we can control and understand.</p>
+<p>Do not worry about making the model clever in this first lesson. We will use two ordinary Python functions. If we understand how data moves between them, adding an LLM later becomes a much smaller step.</p>
+<h2 class="snippet-section">Understanding agents</h2>
+<p>Generative AI can create content and reason about the input we give it. An agent can also use tools to work towards a task.</p>
+<p>For example, a model can write a LinkedIn post. An agent with the right tool and permission can also publish it. A chatbot can answer from the information in its prompt; an agent can use an approved database tool to check a record before answering.</p>
+<p>The extra capability comes from the software around the model. We still choose the tools and decide what the application is allowed to do.</p>
+<h2 class="snippet-section">LangChain versus LangGraph</h2>
+<p>Think of LangChain as our collection of model connections, messages, prompts, and tool helpers. LangGraph helps us arrange work into a workflow with state and an explicit path between steps. LangChain's create_agent already uses LangGraph underneath; here we build the graph ourselves to understand that control.</p>
+<p>LangGraph can also coordinate several agents, with each agent handling a different part of a task. But let’s get our feet wet with two simple functions first. The same ideas about steps, connections, and shared data still apply.</p>
+<p>A workflow may follow a predefined sequence, choose a branch, run independent work in parallel, or return to an earlier step. A graph with two fixed functions is a workflow; it does not become an autonomous agent just because we drew some arrows.</p>
+<h2 class="snippet-section">The words we need</h2>
+<div aria-label="Lesson comparison table" class="snippet-table" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Word</th>
+<th>In simple terms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node</td>
+<td>One unit of work. Our nodes are Python functions.</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>A connection that controls which node runs next.</td>
+</tr>
+<tr>
+<td>State</td>
+<td>The shared, structured data carried through this graph run.</td>
+</tr>
+<tr>
+<td><mark class="lesson-term lesson-term--concept" data-term="reducer" id="term-reducer" title="The rule for combining an existing state value with a new update.">Reducer</mark></td>
+<td>The rule used to combine a node's update with an existing state value.</td>
+</tr>
+</tbody>
+</table></div>
+<p>State is usually a dictionary-like object with named keys. A node receives the current values declared in its input schema and returns the updates it wants to make. Think of a shared record that evolves as the workflow progresses. We return updates rather than letting every node rewrite one shared mutable dictionary.</p>
+<p>Each state key can have its own reducer. One key might replace its old value; another might collect new entries into a list. Choosing that rule is part of designing the workflow.</p>
+<p>So what does <strong>stateful</strong> mean here? The next node can use data produced by an earlier node in the same run. That does not automatically give our application memory between separate runs. For that, we will attach a checkpointer in the memory lesson. For now, think of state as the working record for this one workflow.</p>
+<h2 class="snippet-section">What happens behind the scenes?</h2>
+<p>First we define the state, nodes, and edges. Then <mark class="lesson-term lesson-term--function" data-term="compile" id="term-compile" title="Checks the graph structure and creates a runnable graph.">compile</mark> checks the graph structure. Finally invoke supplies an initial state and starts the run.</p>
+<p>Execution proceeds in rounds called <strong><mark class="lesson-term lesson-term--concept" data-term="super-step" id="term-super-step" title="One execution round; independent nodes in that round can run together.">super-steps</mark></strong>. Sequential nodes run in separate rounds. Independent nodes can run in the same round, and their updates are combined before the next round begins. We will see that parallel case in the next lesson.</p>
+<h2 class="snippet-section">What we are building</h2>
+<p>Our first path is START → STEP ONE → STEP TWO → END. Each working node adds one completion message. No API key is required. Just follow along and keep an eye on which part describes the graph and which part actually runs it.</p>
+<h2 class="snippet-section">Import the graph building blocks</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#e2ff7b3c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from typing import Annotated
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph.message</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_messages</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="Annotated" id="term-annotated" title="Attaches metadata such as a reducer to a type annotation.">Annotated</mark> associates a type with an update rule. TypedDict describes our state keys. <mark class="lesson-term lesson-term--class" data-term="StateGraph" id="term-stategraph" title="Builds a workflow from a state schema, nodes, and edges.">StateGraph</mark> builds the workflow, START and END mark its boundaries, and <mark class="lesson-term lesson-term--function" data-term="add_messages" id="term-add-messages" title="Merges message updates, appending new messages and replacing matching IDs.">add_messages</mark> merges message updates.</p>
+<p class="snippet-result"><strong>Result</strong> We can define the shared state and the two nodes.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb"><mark class="lesson-term lesson-term--file" data-term="1-first-graph.ipynb" id="term-1-first-graph-ipynb" title="The notebook for Part II lesson 1: connect the dots: your first graph.">1-first-graph.ipynb</mark> · e2ff7b3c</a>
+</figcaption></figure>
+<h2 class="snippet-section">Describe the shared state</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#d24bf8db">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># The class name can be anything: State, GraphState, GS, MyState...
+# It describes what data flows through the graph.
+class State(TypedDict):
+    # Annotated[list, add_messages] means:
+    #   list         -&gt; the type of this field
+    #   add_messages -&gt; append new messages; replace messages with matching IDs
+    # Without add_messages, a node's returned messages would REPLACE the old ones.
+    messages: Annotated[list, add_messages]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># The class name can be anything: State, GraphState, GS, MyState...</span>
+</span><span class="code-explorer__line" data-line="2"><span class="c1"># It describes what data flows through the graph.</span>
+</span><span class="code-explorer__line" data-line="3"><span class="k">class</span><span class="w"> </span><span class="nc">State</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="4">    <span class="c1"># Annotated[list, add_messages] means:</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="c1">#   list         -&gt; the type of this field</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="c1">#   add_messages -&gt; append new messages; replace messages with matching IDs</span>
+</span><span class="code-explorer__line" data-line="7">    <span class="c1"># Without add_messages, a node's returned messages would REPLACE the old ones.</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="n">messages</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="n">add_messages</span><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">State is the schema, not a model and not a running conversation. It says that our graph carries a messages list. add_messages appends new messages and can replace a message with the same ID; without a reducer, a new list would replace the old list.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The class name can be anything: State, GraphState, GS, MyState...</p><p class="snippet-comment"># It describes what data flows through the graph.</p><p class="snippet-comment"># Annotated[list, add_messages] means:</p><p class="snippet-comment">#   list         -&gt; the type of this field</p><p class="snippet-comment">#   add_messages -&gt; append new messages; replace messages with matching IDs</p><p class="snippet-comment"># Without add_messages, a node's returned messages would REPLACE the old ones.</p></div>
+<p class="snippet-result"><strong>Result</strong> We have a state shape and an explicit message-update rule.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · d24bf8db</a>
+</figcaption></figure>
+<h2 class="snippet-section">Define the first node</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#247ed45e">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden=""># Creating some dummy nodes that will perform operations on the messages in the state. In a real application, these would be more complex and meaningful.
+
+
+def Step1(state: State) -&gt; State:  # previous state passed to it.
+    # This step appends a message to the state's messages list.
+    return {
+        "messages": ["Step 1 completed."]
+    }  # new state returned, which will be merged with the previous state. using the reducer add_messages, the new message will be appended to the old list.</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># Creating some dummy nodes that will perform operations on the messages in the state. In a real application, these would be more complex and meaningful.</span>
+</span><span class="code-explorer__line" data-line="2"></span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4"><span class="k">def</span><span class="w"> </span><span class="nf">Step1</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>  <span class="c1"># previous state passed to it.</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="c1"># This step appends a message to the state's messages list.</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">return</span> <span class="p">{</span>
+</span><span class="code-explorer__line" data-line="7">        <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Step 1 completed."</span><span class="p">]</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="p">}</span>  <span class="c1"># new state returned, which will be merged with the previous state. using the reducer add_messages, the new message will be appended to the old list.</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Step1 receives the current state and returns an update for messages. It does not mutate the old list itself. LangGraph applies the returned update through our reducer.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Creating some dummy nodes that will perform operations on the messages in the state. In a real application, these would be more complex and meaningful.</p><p class="snippet-comment"># previous state passed to it.</p><p class="snippet-comment"># This step appends a message to the state's messages list.</p><p class="snippet-comment"># new state returned, which will be merged with the previous state. using the reducer add_messages, the new message will be appended to the old list.</p></div>
+<p class="snippet-result"><strong>Result</strong> The first node can contribute its completion message.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · 247ed45e</a>
+</figcaption></figure>
+<h2 class="snippet-section">Define the second node</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#64b93a6c">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def Step2(state: State) -&gt; State:
+    return {"messages": ["Step 2 completed."]}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">Step2</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Step 2 completed."</span><span class="p">]}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Step2 follows the same pattern. It returns only the new message it wants added. We keep these functions ordinary Python so the graph concepts are easier to see.</p>
+<p class="snippet-result"><strong>Result</strong> The second node can contribute its own message.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · 64b93a6c</a>
+</figcaption></figure>
+<h2 class="snippet-section">Register the nodes</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#5cc03122">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">builder = StateGraph(
+    State
+)  # The StateGraph class is initialized with the State TypedDict, which defines the structure of the state that will be passed through the graph. This allows the graph to manage and update the state as it processes each node.
+
+builder.add_node(
+    "STEP ONE", Step1
+)  # The add_node method is called to add the Step1 function as a node in the graph. The first argument gives the node its name; the second supplies the function it runs.
+builder.add_node(
+    "STEP TWO", Step2
+)  # Register Step2 under the exact name used by the edges.</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">State</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">)</span>  <span class="c1"># The StateGraph class is initialized with the State TypedDict, which defines the structure of the state that will be passed through the graph. This allows the graph to manage and update the state as it processes each node.</span>
+</span><span class="code-explorer__line" data-line="4"></span><span class="code-explorer__line" data-line="5"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="s2">"STEP ONE"</span><span class="p">,</span> <span class="n">Step1</span>
+</span><span class="code-explorer__line" data-line="7"><span class="p">)</span>  <span class="c1"># The add_node method is called to add the Step1 function as a node in the graph. The first argument gives the node its name; the second supplies the function it runs.</span>
+</span><span class="code-explorer__line" data-line="8"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="9">    <span class="s2">"STEP TWO"</span><span class="p">,</span> <span class="n">Step2</span>
+</span><span class="code-explorer__line" data-line="10"><span class="p">)</span>  <span class="c1"># Register Step2 under the exact name used by the edges.</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">StateGraph creates a builder using our schema. <mark class="lesson-term lesson-term--function" data-term="add_node" id="term-add-node" title="Registers a named function as a graph step.">add_node</mark> takes the registered name first and the function second. These registered names must match the names used by our edges; the function can have a different Python name.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The StateGraph class is initialized with the State TypedDict, which defines the structure of the state that will be passed through the graph. This allows the graph to manage and update the state as it processes each node.</p><p class="snippet-comment"># The add_node method is called to add the Step1 function as a node in the graph. The first argument gives the node its name; the second supplies the function it runs.</p><p class="snippet-comment"># Register Step2 under the exact name used by the edges.</p></div>
+<p class="snippet-result"><strong>Result</strong> The builder knows STEP ONE and STEP TWO.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · 5cc03122</a>
+</figcaption></figure>
+<h2 class="snippet-section">Connect the steps</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#3e9ebd35">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">builder.add_edge(
+    START, "STEP ONE"
+)  # The add_edge method is used to define the flow of the graph. Here, an edge is added from the START node to the "STEP ONE" node, indicating that STEP ONE should be executed first.
+builder.add_edge(
+    "STEP ONE", "STEP TWO"
+)  # Another edge is added from "STEP ONE" to "STEP TWO", indicating that STEP TWO should be executed after STEP ONE.
+builder.add_edge(
+    "STEP TWO", END
+)  # Finally, an edge is added from "STEP TWO" to the END node, indicating that the graph processing should end after STEP TWO</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">START</span><span class="p">,</span> <span class="s2">"STEP ONE"</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">)</span>  <span class="c1"># The add_edge method is used to define the flow of the graph. Here, an edge is added from the START node to the "STEP ONE" node, indicating that STEP ONE should be executed first.</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="s2">"STEP ONE"</span><span class="p">,</span> <span class="s2">"STEP TWO"</span>
+</span><span class="code-explorer__line" data-line="6"><span class="p">)</span>  <span class="c1"># Another edge is added from "STEP ONE" to "STEP TWO", indicating that STEP TWO should be executed after STEP ONE.</span>
+</span><span class="code-explorer__line" data-line="7"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="8">    <span class="s2">"STEP TWO"</span><span class="p">,</span> <span class="n">END</span>
+</span><span class="code-explorer__line" data-line="9"><span class="p">)</span>  <span class="c1"># Finally, an edge is added from "STEP TWO" to the END node, indicating that the graph processing should end after STEP TWO</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--function" data-term="add_edge" id="term-add-edge" title="Connects graph steps, including waiting for multiple predecessor nodes.">add_edge</mark> defines the order: START, STEP ONE, STEP TWO, then END. An edge describes what comes next; it does not run the next node while we are assembling the graph.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The add_edge method is used to define the flow of the graph. Here, an edge is added from the START node to the "STEP ONE" node, indicating that STEP ONE should be executed first.</p><p class="snippet-comment"># Another edge is added from "STEP ONE" to "STEP TWO", indicating that STEP TWO should be executed after STEP ONE.</p><p class="snippet-comment"># Finally, an edge is added from "STEP TWO" to the END node, indicating that the graph processing should end after STEP TWO</p></div>
+<p class="snippet-result"><strong>Result</strong> We have a complete sequential path.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · 3e9ebd35</a>
+</figcaption></figure>
+<h2 class="snippet-section">Compile the graph</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#a9716953">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">graph = builder.compile()  # The compile method is called to finalize the graph structure and prepare it for execution. This checks the graph structure and creates the runnable graph; it does not execute our nodes.
+
+graph  # in a Jupyter notebook, this will display the graph structure visually, allowing you to see the nodes and edges that have been defined.</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>  <span class="c1"># The compile method is called to finalize the graph structure and prepare it for execution. This checks the graph structure and creates the runnable graph; it does not execute our nodes.</span>
+</span><span class="code-explorer__line" data-line="2"></span><span class="code-explorer__line" data-line="3"><span class="n">graph</span>  <span class="c1"># in a Jupyter notebook, this will display the graph structure visually, allowing you to see the nodes and edges that have been defined.</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">compile validates the connections and prepares a runnable graph. It does not call either function yet. The last line can display the graph in Jupyter.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The compile method is called to finalize the graph structure and prepare it for execution. This checks the graph structure and creates the runnable graph; it does not execute our nodes.</p><p class="snippet-comment"># in a Jupyter notebook, this will display the graph structure visually, allowing you to see the nodes and edges that have been defined.</p></div>
+<p class="snippet-result"><strong>Result</strong> The graph is ready for input.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · a9716953</a>
+</figcaption></figure>
+<h2 class="snippet-section">Run the first workflow</h2>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/1-first-graph.ipynb#714d585a">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">response = graph.invoke(
+    {"messages": ["Starting Message"]}
+)  # The invoke method is called to execute the graph. with a starting state that contains an initial message. The graph will process each node in the order defined by the edges, updating the state as it goes.
+
+response</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">response</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="p">{</span><span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Starting Message"</span><span class="p">]}</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">)</span>  <span class="c1"># The invoke method is called to execute the graph. with a starting state that contains an initial message. The graph will process each node in the order defined by the edges, updating the state as it goes.</span>
+</span><span class="code-explorer__line" data-line="4"></span><span class="code-explorer__line" data-line="5"><span class="n">response</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">invoke supplies the starting state and executes the connected nodes. The starting message and the two node updates are merged into the messages list. Because these dummy updates are plain strings, add_messages converts them to human messages; later we will return explicit AIMessage objects for model replies.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># The invoke method is called to execute the graph. with a starting state that contains an initial message. The graph will process each node in the order defined by the edges, updating the state as it goes.</p></div>
+<p class="snippet-result"><strong>Result</strong> The result contains Starting Message, Step 1 completed., and Step 2 completed. in that order.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb · 714d585a</a>
+</figcaption></figure>
+<h2 class="snippet-section">Check your understanding</h2>
+<ol>
+<li>What is the difference between a node and an edge?</li>
+<li>Why do we return a new message instead of the whole old list?</li>
+<li>Does compile run our nodes?</li>
+<li>Why must the registered node names match the edge names?</li>
+</ol>
+<h2 class="snippet-section">Where we go next</h2>
+<p>Next we will change the connections: sequential, parallel, conditional, and looping flows.</p>
+<p>Complete notebook: <a href="code/Part%20II%20Connecting%20the%20dots/1-first-graph.ipynb">1-first-graph.ipynb</a></p>
+<p>Further reading: <a href="https://docs.langchain.com/oss/python/langgraph/graph-api">LangGraph documentation</a>.</p>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-8.html"><span>← Previous · Lesson 8</span><strong>Models that choose tools</strong></a><a href="lesson-10.html"><span>→ Next · Lesson 10</span><strong>Choose the path: working with edges</strong></a></nav></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part II · Connecting the dots · Lesson 01</p><a href="lesson-8.html">← Lesson 8</a><a href="lesson-10.html">Lesson 10 →</a></footer><script src="lesson-code-explorer.js"></script>
+
+<button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">75</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 9. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardised token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serialises a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labelled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives model chunks or graph events progressively as a run proceeds.", "lesson": 5, "anchor": "term-stream"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}, {"term": "7-Tools-and-Tool-Loops.ipynb", "category": "file", "definition": "The notebook showing how the application executes model-requested tools.", "lesson": 7, "anchor": "term-7-tools-and-tool-loops-ipynb"}, {"term": "decorator", "category": "concept", "definition": "An annotation such as @tool that adds behaviour to a function or class.", "lesson": 7, "anchor": "term-decorator"}, {"term": "docstring", "category": "concept", "definition": "Text inside a function or class that describes what it does.", "lesson": 7, "anchor": "term-docstring"}, {"term": "bind_tools", "category": "function", "definition": "Makes tool descriptions available to a model so it can request tool calls.", "lesson": 7, "anchor": "term-bind-tools"}, {"term": "tool_calls", "category": "concept", "definition": "Structured requests from a model specifying tool names and proposed arguments.", "lesson": 7, "anchor": "term-tool-calls"}, {"term": "ToolMessage", "category": "class", "definition": "A message returning a tool's result with the ID of the corresponding tool call.", "lesson": 7, "anchor": "term-toolmessage"}, {"term": "8-Agents.ipynb", "category": "file", "definition": "The notebook for agents with stock and price lookup tools.", "lesson": 8, "anchor": "term-8-agents-ipynb"}, {"term": "check_stock_service", "category": "function", "definition": "Our local inventory tool returning an item's remaining stock.", "lesson": 8, "anchor": "term-check-stock-service"}, {"term": "get_price_service", "category": "function", "definition": "Our local inventory tool returning an item's price in rupees.", "lesson": 8, "anchor": "term-get-price-service"}, {"term": "reducer", "category": "concept", "definition": "The rule for combining an existing state value with a new update.", "aliases": ["reducers"], "lesson": 9, "anchor": "term-reducer"}, {"term": "compile", "category": "function", "definition": "Checks the graph structure and creates a runnable graph.", "lesson": 9, "anchor": "term-compile"}, {"term": "super-step", "category": "concept", "definition": "One execution round; independent nodes in that round can run together.", "aliases": ["super-steps"], "lesson": 9, "anchor": "term-super-step"}, {"term": "Annotated", "category": "class", "definition": "Attaches metadata such as a reducer to a type annotation.", "lesson": 9, "anchor": "term-annotated"}, {"term": "StateGraph", "category": "class", "definition": "Builds a workflow from a state schema, nodes, and edges.", "lesson": 9, "anchor": "term-stategraph"}, {"term": "add_messages", "category": "function", "definition": "Merges message updates, appending new messages and replacing matching IDs.", "lesson": 9, "anchor": "term-add-messages"}, {"term": "1-first-graph.ipynb", "category": "file", "definition": "The notebook for Part II lesson 1: connect the dots: your first graph.", "lesson": 9, "anchor": "term-1-first-graph-ipynb"}, {"term": "add_node", "category": "function", "definition": "Registers a named function as a graph step.", "lesson": 9, "anchor": "term-add-node"}, {"term": "add_edge", "category": "function", "definition": "Connects graph steps, including waiting for multiple predecessor nodes.", "lesson": 9, "anchor": "term-add-edge"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>

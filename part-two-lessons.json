@@ -1,0 +1,58 @@
+[
+  {
+    "local": 1,
+    "number": 9,
+    "filename": "1-first-graph.ipynb",
+    "title": "Connect the dots: your first graph",
+    "lead": "State, nodes, edges, and reducers — without an LLM getting in the way."
+  },
+  {
+    "local": 2,
+    "number": 10,
+    "filename": "2-working-with-edges.ipynb",
+    "title": "Choose the path: working with edges",
+    "lead": "Run steps in order, run independent work together, choose a branch, and stop a loop."
+  },
+  {
+    "local": 3,
+    "number": 11,
+    "filename": "3-Connecting-LLM.ipynb",
+    "title": "Put an LLM inside the graph",
+    "lead": "The model call stays familiar; the graph controls where it belongs."
+  },
+  {
+    "local": 4,
+    "number": 12,
+    "filename": "4-Using-Tools.ipynb",
+    "title": "Run a tool inside the graph",
+    "lead": "A model requests the lookup; a tool node runs it and returns the result."
+  },
+  {
+    "local": 5,
+    "number": 13,
+    "filename": "5-ReActive-Graph.ipynb",
+    "title": "Let the graph ask again",
+    "lead": "Build the model-and-tool loop, then give it a clear stopping route."
+  },
+  {
+    "local": 6,
+    "number": 14,
+    "filename": "5-adding-memory.ipynb",
+    "title": "Keep the right conversation",
+    "lead": "Attach a checkpointer to the graph and continue by thread ID."
+  },
+  {
+    "local": 7,
+    "number": 15,
+    "filename": "6-Streaming.ipynb",
+    "title": "Watch the graph work",
+    "lead": "Separate completed node updates from live model text."
+  },
+  {
+    "local": 8,
+    "number": 16,
+    "filename": "7-human-in-loop.ipynb",
+    "title": "Pause and ask a person",
+    "lead": "Interrupt a request, save the state, and resume with an explicit decision."
+  }
+]

@@ -1,4 +1,4 @@
-"""Render Lessons 1–8 with exact source snippets and visible teaching notes.
+"""Render Part I and Part II with exact source snippets and teaching notes.
 
 Run from code/: uv run python ../scripts/render_lesson_snippets.py
 The first run aligns the older drafts with their notebooks. Later runs render
@@ -22,6 +22,8 @@ from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
 ROOT = Path(__file__).resolve().parents[1]
 DRAFTS = ROOT / "code/Docs/Lessons/Part1"
 NOTEBOOKS = ROOT / "code/Part I Understanding the Basics"
+PART_TWO = {entry["number"]: entry for entry in json.loads((ROOT / "part-two-lessons.json").read_text(encoding="utf-8"))}
+LAST_LESSON = max(PART_TWO)
 TERMS = json.loads((ROOT / "lesson-terms.json").read_text(encoding="utf-8"))
 ENCOUNTERED = {}
 TERM_LOOKUP = {alias.lower(): entry for entry in TERMS for alias in [entry["term"], *entry.get("aliases", [])]}
@@ -323,7 +325,10 @@ def card(reference, language, code, explanation, result, number):
 
 def add_learning_aids(page, article, lesson):
     """Highlight each term once in course order; carry its definition forward."""
-    for text_node in list(article.select(".snippet-prose, .snippet-result, .snippet-source")):
+    explanation_nodes = article.select(".snippet-prose, .snippet-result, .snippet-source")
+    if lesson in PART_TWO:
+        explanation_nodes = [node for node in article.select("p, li, td, .snippet-source") if not node.find_parent(class_="code-explorer__panel") and not node.find_parent(class_="snippet-source-comments") and not node.find_parent("pre")]
+    for text_node in explanation_nodes:
         for node in list(text_node.descendants):
             if not isinstance(node, NavigableString):
                 continue
@@ -350,13 +355,16 @@ def add_learning_aids(page, article, lesson):
 
     navigation = page.new_tag("nav", attrs={"class": "lesson-pagination", "aria-label": "Continue to another lesson"})
     for destination, direction in [(lesson - 1, "previous"), (lesson + 1, "next")]:
-        if 1 <= destination <= 8:
-            target = BeautifulSoup((ROOT / f"lesson-{destination}.html").read_text(encoding="utf-8"), "html.parser")
-            title = target.select_one(".hero h1").get_text().strip().rstrip(".")
+        if 1 <= destination <= LAST_LESSON:
+            if destination in PART_TWO:
+                title = PART_TWO[destination]["title"]
+            else:
+                target = BeautifulSoup((ROOT / f"lesson-{destination}.html").read_text(encoding="utf-8"), "html.parser")
+                title = target.select_one(".hero h1").get_text().strip().rstrip(".")
             href = f"lesson-{destination}.html"
             label = f"{'←' if direction == 'previous' else '→'} {direction.title()} · Lesson {destination}"
         else:
-            title, href = "Explore Part I", "part-one.html"
+            title, href = ("Explore Part I", "part-one.html") if lesson <= 8 else ("Explore Part II", "part-two.html")
             label = "← Course map" if direction == "previous" else "Course map →"
         link = page.new_tag("a", href=href)
         label_tag = page.new_tag("span")
@@ -380,7 +388,7 @@ def add_learning_aids(page, article, lesson):
 
 
 def render(lesson):
-    path = DRAFTS / f"lesson{lesson}_final.md"
+    path = (ROOT / "code/Docs/Lessons/Part2" / f'lesson{PART_TWO[lesson]["local"]}_final.md') if lesson in PART_TWO else DRAFTS / f"lesson{lesson}_final.md"
     markdown = path.read_text(encoding="utf-8")
     cards = []
     def substitute(match):
@@ -394,8 +402,9 @@ def render(lesson):
     for i, content in enumerate(cards):
         body = body.replace(f"<p>@@RENDERED_SNIPPET_{i}@@</p>", content)
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")
+    body = body.replace("../../../Part%20II%20Connecting%20the%20dots/", "code/Part%20II%20Connecting%20the%20dots/")
     page_path = ROOT / f"lesson-{lesson}.html"
-    original = BeautifulSoup(page_path.read_text(encoding="utf-8"), "html.parser")
+    original = BeautifulSoup((page_path if page_path.exists() else ROOT / "lesson-6.html").read_text(encoding="utf-8"), "html.parser")
     if lesson in (7, 8):
         # Use the established document shell while keeping this page's title
         # and course navigation; older shells have unrelated condensed prose.
@@ -415,6 +424,32 @@ def render(lesson):
         original = template
         for label in original.select("footer p"):
             label.string = f"Part I · Out of Time · Lesson {lesson:02d}"
+    if lesson in PART_TWO:
+        entry = PART_TWO[lesson]
+        original.title.string = f'Lesson {lesson} · {entry["title"]} · RAG to the Future'
+        original.select_one(".hero h1").string = entry["title"]
+        original.select_one(".hero .lede").string = entry["lead"]
+        original.select_one(".hero .eyebrow").string = f'PART II · CONNECTING THE DOTS · LESSON {entry["local"]:02d} / COURSE {lesson:02d}'
+        original.find("meta", attrs={"name": "description"})["content"] = entry["lead"]
+        for label in original.select("footer p"):
+            label.string = f'Part II · Connecting the dots · Lesson {entry["local"]:02d}'
+    course_map = "part-one.html" if lesson <= 8 else "part-two.html"
+    # Update the header and footer as well as the navigation below the content.
+    nav = original.select_one(".topbar nav")
+    nav.clear()
+    previous = f"lesson-{lesson-1}.html" if lesson > 1 else course_map
+    following = f"lesson-{lesson+1}.html" if lesson < LAST_LESSON else course_map
+    for href, label in [(previous, f"← Lesson {lesson-1}" if lesson > 1 else "← Course map"), ("#lesson", "Lesson"), (following, f"Lesson {lesson+1} →" if lesson < LAST_LESSON else "Course map →"), (course_map, "Part I map" if lesson <= 8 else "Part II map")]:
+        link = original.new_tag("a", href=href)
+        link.string = label
+        nav.append(link)
+    for link in original.select('footer a[href="part-one.html"], footer a[href="part-two.html"]'):
+        link["href"] = course_map
+        link.string = "← Part I map" if lesson <= 8 else "← Part II map"
+    footer_links = original.select('footer a[href^="lesson-"]')
+    for index, link in enumerate(footer_links):
+        link["href"] = previous if index == 0 else following
+        link.string = (f"← Lesson {lesson-1}" if lesson > 1 else "← Course map") if index == 0 else (f"Lesson {lesson+1} →" if lesson < LAST_LESSON else "Course map →")
     article = original.select_one("#lesson")
     article.clear()
     article["class"] = ["document"]
@@ -429,6 +464,12 @@ def render(lesson):
             original.head.append(original.new_tag("link", rel="stylesheet", href=asset))
     if not original.find("script", src="lesson-code-explorer.js"):
         original.body.append(original.new_tag("script", src="lesson-code-explorer.js", defer=True))
+    # Theme assets belong in the head so the saved appearance is applied early.
+    for old in original.find_all("link", href="theme-toggle.css"):
+        old.decompose()
+    original.head.append(original.new_tag("link", rel="stylesheet", href="theme-toggle.css"))
+    if not original.find("script", src="theme-toggle.js"):
+        original.head.append(original.new_tag("script", src="theme-toggle.js"))
     # Keep glossary initialisation after its data, including on repeated builds.
     for script in original.find_all("script", src="lesson-glossary.js"):
         script.decompose()
@@ -438,6 +479,7 @@ def render(lesson):
 
 
 if __name__ == "__main__":
-    for lesson in range(1, 9):
-        prepare(lesson)
+    for lesson in range(1, LAST_LESSON + 1):
+        if lesson <= 8:
+            prepare(lesson)
         render(lesson)

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Run steps in order, run independent work together, choose a branch, and stop a loop." name="description"/><title>Lesson 10 · Choose the path: working with edges · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/></head><body><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-9.html">← Lesson 9</a><a href="#lesson">Lesson</a><a href="lesson-11.html">Lesson 11 →</a><a href="part-two.html">Part II map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART II · CONNECTING THE DOTS · LESSON 02 / COURSE 10</p><h1 id="page-title">Choose the path: working with edges</h1><p class="lede">Run steps in order, run independent work together, choose a branch, and stop a loop.</p><a class="button" href="#lesson">Read the lesson ↓</a></section><article class="document" id="lesson"><h2 class="snippet-section">A note from me</h2>
+<p>In our first graph, the next step was always obvious. Step one finished, then step two ran. Real applications are not always that tidy.</p>
+<p>Sometimes we can do two checks together. Sometimes the answer to a check decides what happens next. Sometimes we need another attempt. Edges give us a way to describe those choices without hiding them inside one large function.</p>
+<h2 class="snippet-section">Four kinds of flow</h2>
+<p>A sequential edge says “do this next.” Parallel branches say “these jobs can start independently.” A conditional edge chooses a destination from the current state. A loop uses that same choice to revisit a node until a clear stopping condition is met.</p>
+<p>We will keep the examples local and small. There is no model call in this notebook, so the results come entirely from our Python functions.</p>
+<h2 class="snippet-section">Set up the state and nodes</h2>
+<p>The logs field collects updates; value uses the usual replacement behaviour.</p>
+<h3>Import the helpers</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-1-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 01</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">from operator import add
+from typing import Annotated
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">add</span>
+</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
+</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">operator.add will be our reducer for a list of log entries. This is a list-concatenation example, so we do not need message objects.</p>
+<p class="snippet-result"><strong>Result</strong> The graph and reducer helpers are ready.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb"><mark class="lesson-term lesson-term--file" data-term="2-working-with-edges.ipynb" id="term-2-working-with-edges-ipynb" title="The notebook for Part II lesson 2: choose the path: working with edges.">2-working-with-edges.ipynb</mark> · p2-2-1-1</a>
+</figcaption></figure>
+<h3>Describe this workflow's state</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-1-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 02</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">class FlowState(TypedDict):
+    value: int
+    logs: Annotated[list[str], add]</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">class</span><span class="w"> </span><span class="nc">FlowState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="n">value</span><span class="p">:</span> <span class="nb">int</span>
+</span><span class="code-explorer__line" data-line="3">    <span class="n">logs</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">add</span><span class="p">]</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="FlowState" id="term-flowstate" title="Our lesson schema carrying a value and a list of flow logs.">FlowState</mark> describes a current number and our logs. A returned value replaces the previous value. A returned logs list is concatenated with the existing logs. Different keys can use different update rules.</p>
+<p class="snippet-result"><strong>Result</strong> One state can hold a current number and a growing record of work.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-1-2</a>
+</figcaption></figure>
+<h3>Create two simple steps</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-1-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 03</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def increment(state: FlowState) -&gt; dict:
+    return {"value": state["value"] + 1, "logs": ["increment"]}
+
+
+def double(state: FlowState) -&gt; dict:
+    return {"value": state["value"] * 2, "logs": ["double"]}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">increment</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"increment"</span><span class="p">]}</span>
+</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4"></span><span class="code-explorer__line" data-line="5"><span class="k">def</span><span class="w"> </span><span class="nf">double</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">return</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="n">state</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"double"</span><span class="p">]}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Each function reads the current number and returns its own updates. These are ordinary functions; the graph decides when to call them.</p>
+<p class="snippet-result"><strong>Result</strong> We have two reusable nodes.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-1-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">1. Sequential</h2>
+<p>Here double needs the result of increment, so it belongs in the next round.</p>
+<h3>Connect an ordered path</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-2-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 04</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">sequential_builder = StateGraph(FlowState)
+sequential_builder.add_node("increment", increment)
+sequential_builder.add_node("double", double)
+sequential_builder.add_edge(START, "increment")
+sequential_builder.add_edge("increment", "double")
+sequential_builder.add_edge("double", END)
+sequential_graph = sequential_builder.compile()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">sequential_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">FlowState</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">sequential_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"increment"</span><span class="p">,</span> <span class="n">increment</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">sequential_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"double"</span><span class="p">,</span> <span class="n">double</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">sequential_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"increment"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5"><span class="n">sequential_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"increment"</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6"><span class="n">sequential_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"double"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="7"><span class="n">sequential_graph</span> <span class="o">=</span> <span class="n">sequential_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The path runs increment before double. The second node receives the first node's updated value.</p>
+<p class="snippet-result"><strong>Result</strong> The order of operations is explicit.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-2-1</a>
+</figcaption></figure>
+<h3>Run the ordered steps</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-2-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 05</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">sequential_result = sequential_graph.invoke({"value": 2, "logs": []})
+print(sequential_result)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">sequential_result</span> <span class="o">=</span> <span class="n">sequential_graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[]})</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">sequential_result</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Two becomes three, then three becomes six. The reducer preserves both log entries.</p>
+<p class="snippet-result"><strong>Result</strong> value is 6, and logs contains increment followed by double.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-2-2</a>
+</figcaption></figure>
+<h2 class="snippet-section">2. Parallel</h2>
+<p>Both checks read the same input. Neither needs to modify value, so each returns only a logs update.</p>
+<h3>Return partial updates from independent checks</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-3-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 06</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def check_stock(state: FlowState) -&gt; dict:
+    return {"logs": [f"stock checked for {state['value']} items"]}
+
+
+def check_price(state: FlowState) -&gt; dict:
+    return {"logs": [f"price checked for {state['value']} items"]}
+
+
+def finish_checks(state: FlowState) -&gt; dict:
+    return {"logs": ["both checks finished"]}</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">check_stock</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="p">{</span><span class="s2">"logs"</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"stock checked for </span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">'value'</span><span class="p">]</span><span class="si">}</span><span class="s2"> items"</span><span class="p">]}</span>
+</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4"></span><span class="code-explorer__line" data-line="5"><span class="k">def</span><span class="w"> </span><span class="nf">check_price</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="k">return</span> <span class="p">{</span><span class="s2">"logs"</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"price checked for </span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">'value'</span><span class="p">]</span><span class="si">}</span><span class="s2"> items"</span><span class="p">]}</span>
+</span><span class="code-explorer__line" data-line="7"></span><span class="code-explorer__line" data-line="8"></span><span class="code-explorer__line" data-line="9"><span class="k">def</span><span class="w"> </span><span class="nf">finish_checks</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="10">    <span class="k">return</span> <span class="p">{</span><span class="s2">"logs"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"both checks finished"</span><span class="p">]}</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Each check returns the field it actually changes. Returning the whole state from both branches would also make both write value in the same round, and that key has no reducer for simultaneous writes.</p>
+<p class="snippet-result"><strong>Result</strong> The two logs updates can be combined without conflicting writes to value.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-3-1</a>
+</figcaption></figure>
+<h3>Split, then wait for both branches</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-3-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 07</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">parallel_builder = StateGraph(FlowState)
+parallel_builder.add_node("stock", check_stock)
+parallel_builder.add_node("price", check_price)
+parallel_builder.add_node("finish", finish_checks)
+parallel_builder.add_edge(START, "stock")
+parallel_builder.add_edge(START, "price")
+# This join waits for both named nodes before running finish.
+parallel_builder.add_edge(["stock", "price"], "finish")
+parallel_builder.add_edge("finish", END)
+parallel_graph = parallel_builder.compile()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">parallel_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">FlowState</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"stock"</span><span class="p">,</span> <span class="n">check_stock</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"price"</span><span class="p">,</span> <span class="n">check_price</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"finish"</span><span class="p">,</span> <span class="n">finish_checks</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"stock"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="6"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"price"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="7"><span class="c1"># This join waits for both named nodes before running finish.</span>
+</span><span class="code-explorer__line" data-line="8"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">([</span><span class="s2">"stock"</span><span class="p">,</span> <span class="s2">"price"</span><span class="p">],</span> <span class="s2">"finish"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="9"><span class="n">parallel_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"finish"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="10"><span class="n">parallel_graph</span> <span class="o">=</span> <span class="n">parallel_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Two outgoing edges activate the independent checks in the same super-step. The list in add_edge creates a join that waits for both before running finish. Parallel execution does not promise which check completes first.</p>
+<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># This join waits for both named nodes before running finish.</p></div>
+<p class="snippet-result"><strong>Result</strong> The finishing node sees the combined updates.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-3-2</a>
+</figcaption></figure>
+<h3>Inspect the combined result</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-3-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 08</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">parallel_result = parallel_graph.invoke({"value": 2, "logs": []})
+print(parallel_result)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">parallel_result</span> <span class="o">=</span> <span class="n">parallel_graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[]})</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">parallel_result</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The number remains two. We inspect the log entries rather than assuming a timing order for the independent checks.</p>
+<p class="snippet-result"><strong>Result</strong> Both check entries are present before the final completion entry.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-3-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">3. Conditional</h2>
+<p>Now the next node depends on the updated number.</p>
+<h3>Choose a destination from state</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-4-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 09</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def choose_next(state: FlowState) -&gt; str:
+    return "double" if state["value"] &lt; 3 else "stop"</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">choose_next</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="s2">"double"</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">"stop"</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">This routing function returns a label. It chooses a path; it does not return a state update.</p>
+<p class="snippet-result"><strong>Result</strong> We can route to double or stop.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-4-1</a>
+</figcaption></figure>
+<h3>Map those labels to destinations</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-4-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">conditional_builder = StateGraph(FlowState)
+conditional_builder.add_node("increment", increment)
+conditional_builder.add_node("double", double)
+conditional_builder.add_edge(START, "increment")
+conditional_builder.add_conditional_edges(
+    "increment", choose_next, {"double": "double", "stop": END}
+)
+conditional_builder.add_edge("double", END)
+conditional_graph = conditional_builder.compile()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">conditional_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">FlowState</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">conditional_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"increment"</span><span class="p">,</span> <span class="n">increment</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">conditional_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"double"</span><span class="p">,</span> <span class="n">double</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">conditional_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"increment"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="5"><span class="n">conditional_builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="6">    <span class="s2">"increment"</span><span class="p">,</span> <span class="n">choose_next</span><span class="p">,</span> <span class="p">{</span><span class="s2">"double"</span><span class="p">:</span> <span class="s2">"double"</span><span class="p">,</span> <span class="s2">"stop"</span><span class="p">:</span> <span class="n">END</span><span class="p">}</span>
+</span><span class="code-explorer__line" data-line="7"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="8"><span class="n">conditional_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"double"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="9"><span class="n">conditional_graph</span> <span class="o">=</span> <span class="n">conditional_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--function" data-term="add_conditional_edges" id="term-add-conditional-edges" title="Uses a routing function to select the next graph destination.">add_conditional_edges</mark> runs choose_next after increment. The mapping explains where each label leads. We use this choice instead of also adding an unconditional edge from increment.</p>
+<p class="snippet-result"><strong>Result</strong> Only the selected next path runs.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-4-2</a>
+</figcaption></figure>
+<h3>Try both branches</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-4-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">print(conditional_graph.invoke({"value": 1, "logs": []}))
+print(conditional_graph.invoke({"value": 5, "logs": []}))</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="nb">print</span><span class="p">(</span><span class="n">conditional_graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[]}))</span>
+</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="n">conditional_graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[]}))</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">Starting at one gives two after increment, so double runs and produces four. Starting at five gives six, which routes straight to END.</p>
+<p class="snippet-result"><strong>Result</strong> The final values are 4 and 6, with different logs.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-4-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">4. Iterative</h2>
+<p>A loop is a route back to an earlier node. Give it an exit before you run it.</p>
+<h3>Define the stopping decision</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-5-1">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">def keep_counting(state: FlowState) -&gt; str:
+    return "again" if state["value"] &lt; 3 else "done"</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">keep_counting</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">FlowState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="s2">"again"</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="s2">"done"</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The condition is based on state that increment changes on every visit. Without progress towards a stopping condition, a loop could continue until the execution limit is reached.</p>
+<p class="snippet-result"><strong>Result</strong> The loop will stop when value reaches three.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-5-1</a>
+</figcaption></figure>
+<h3>Connect the bounded loop</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-5-2">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">loop_builder = StateGraph(FlowState)
+loop_builder.add_node("increment", increment)
+loop_builder.add_edge(START, "increment")
+loop_builder.add_conditional_edges(
+    "increment", keep_counting, {"again": "increment", "done": END}
+)
+loop_graph = loop_builder.compile()</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">loop_builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">FlowState</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="2"><span class="n">loop_builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"increment"</span><span class="p">,</span> <span class="n">increment</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="3"><span class="n">loop_builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"increment"</span><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="n">loop_builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="5">    <span class="s2">"increment"</span><span class="p">,</span> <span class="n">keep_counting</span><span class="p">,</span> <span class="p">{</span><span class="s2">"again"</span><span class="p">:</span> <span class="s2">"increment"</span><span class="p">,</span> <span class="s2">"done"</span><span class="p">:</span> <span class="n">END</span><span class="p">}</span>
+</span><span class="code-explorer__line" data-line="6"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="7"><span class="n">loop_graph</span> <span class="o">=</span> <span class="n">loop_builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The again label revisits increment. The done label ends the run. We can now read both the repetition and its exit directly from the connections.</p>
+<p class="snippet-result"><strong>Result</strong> The graph has a loop with an explicit end.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-5-2</a>
+</figcaption></figure>
+<h3>Run with an extra execution limit</h3>
+<figure class="code-explorer snippet-card" data-source="code/Part II Connecting the dots/2-working-with-edges.ipynb#p2-2-5-3">
+<div class="code-explorer__panel"><div class="code-explorer__toolbar">
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<code class="code-explorer__source" hidden="">loop_result = loop_graph.invoke(
+    {"value": 0, "logs": []}, {"recursion_limit": 10}
+)
+print(loop_result)</code>
+<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">loop_result</span> <span class="o">=</span> <span class="n">loop_graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span>
+</span><span class="code-explorer__line" data-line="2">    <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"logs"</span><span class="p">:</span> <span class="p">[]},</span> <span class="p">{</span><span class="s2">"recursion_limit"</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+</span><span class="code-explorer__line" data-line="3"><span class="p">)</span>
+</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="n">loop_result</span><span class="p">)</span>
+</span></code></pre></div>
+<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
+<p class="snippet-prose">The node runs three times. <mark class="lesson-term lesson-term--concept" data-term="recursion_limit" id="term-recursion-limit" title="Limits the number of graph super-steps before a run is stopped.">recursion_limit</mark> is an additional limit on graph execution steps; exceeding it raises an error rather than returning a successful answer.</p>
+<p class="snippet-result"><strong>Result</strong> value is 3 and the log contains three increment entries.</p>
+<a class="snippet-source" href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb · p2-2-5-3</a>
+</figcaption></figure>
+<h2 class="snippet-section">Check your understanding</h2>
+<ol>
+<li>Why do parallel branches return <mark class="lesson-term lesson-term--concept" data-term="partial update" id="term-partial-update" title="A node result containing only the state keys it needs to change.">partial updates</mark>?</li>
+<li>What does the join wait for?</li>
+<li>How does a conditional edge differ from a normal edge?</li>
+<li>What makes this loop stop?</li>
+</ol>
+<h2 class="snippet-section">Where we go next</h2>
+<p>Next we will put our familiar model.invoke call inside a graph node.</p>
+<p>Complete notebook: <a href="code/Part%20II%20Connecting%20the%20dots/2-working-with-edges.ipynb">2-working-with-edges.ipynb</a></p>
+<p>Further reading: <a href="https://docs.langchain.com/oss/python/langgraph/graph-api">LangGraph documentation</a>.</p>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-9.html"><span>← Previous · Lesson 9</span><strong>Connect the dots: your first graph</strong></a><a href="lesson-11.html"><span>→ Next · Lesson 11</span><strong>Put an LLM inside the graph</strong></a></nav></article></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part II · Connecting the dots · Lesson 02</p><a href="lesson-9.html">← Lesson 9</a><a href="lesson-11.html">Lesson 11 →</a></footer><script src="lesson-code-explorer.js"></script>
+
+<button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">80</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 10. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardised token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serialises a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labelled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives model chunks or graph events progressively as a run proceeds.", "lesson": 5, "anchor": "term-stream"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}, {"term": "7-Tools-and-Tool-Loops.ipynb", "category": "file", "definition": "The notebook showing how the application executes model-requested tools.", "lesson": 7, "anchor": "term-7-tools-and-tool-loops-ipynb"}, {"term": "decorator", "category": "concept", "definition": "An annotation such as @tool that adds behaviour to a function or class.", "lesson": 7, "anchor": "term-decorator"}, {"term": "docstring", "category": "concept", "definition": "Text inside a function or class that describes what it does.", "lesson": 7, "anchor": "term-docstring"}, {"term": "bind_tools", "category": "function", "definition": "Makes tool descriptions available to a model so it can request tool calls.", "lesson": 7, "anchor": "term-bind-tools"}, {"term": "tool_calls", "category": "concept", "definition": "Structured requests from a model specifying tool names and proposed arguments.", "lesson": 7, "anchor": "term-tool-calls"}, {"term": "ToolMessage", "category": "class", "definition": "A message returning a tool's result with the ID of the corresponding tool call.", "lesson": 7, "anchor": "term-toolmessage"}, {"term": "8-Agents.ipynb", "category": "file", "definition": "The notebook for agents with stock and price lookup tools.", "lesson": 8, "anchor": "term-8-agents-ipynb"}, {"term": "check_stock_service", "category": "function", "definition": "Our local inventory tool returning an item's remaining stock.", "lesson": 8, "anchor": "term-check-stock-service"}, {"term": "get_price_service", "category": "function", "definition": "Our local inventory tool returning an item's price in rupees.", "lesson": 8, "anchor": "term-get-price-service"}, {"term": "reducer", "category": "concept", "definition": "The rule for combining an existing state value with a new update.", "aliases": ["reducers"], "lesson": 9, "anchor": "term-reducer"}, {"term": "compile", "category": "function", "definition": "Checks the graph structure and creates a runnable graph.", "lesson": 9, "anchor": "term-compile"}, {"term": "super-step", "category": "concept", "definition": "One execution round; independent nodes in that round can run together.", "aliases": ["super-steps"], "lesson": 9, "anchor": "term-super-step"}, {"term": "Annotated", "category": "class", "definition": "Attaches metadata such as a reducer to a type annotation.", "lesson": 9, "anchor": "term-annotated"}, {"term": "StateGraph", "category": "class", "definition": "Builds a workflow from a state schema, nodes, and edges.", "lesson": 9, "anchor": "term-stategraph"}, {"term": "add_messages", "category": "function", "definition": "Merges message updates, appending new messages and replacing matching IDs.", "lesson": 9, "anchor": "term-add-messages"}, {"term": "1-first-graph.ipynb", "category": "file", "definition": "The notebook for Part II lesson 1: connect the dots: your first graph.", "lesson": 9, "anchor": "term-1-first-graph-ipynb"}, {"term": "add_node", "category": "function", "definition": "Registers a named function as a graph step.", "lesson": 9, "anchor": "term-add-node"}, {"term": "add_edge", "category": "function", "definition": "Connects graph steps, including waiting for multiple predecessor nodes.", "lesson": 9, "anchor": "term-add-edge"}, {"term": "2-working-with-edges.ipynb", "category": "file", "definition": "The notebook for Part II lesson 2: choose the path: working with edges.", "lesson": 10, "anchor": "term-2-working-with-edges-ipynb"}, {"term": "FlowState", "category": "class", "definition": "Our lesson schema carrying a value and a list of flow logs.", "lesson": 10, "anchor": "term-flowstate"}, {"term": "add_conditional_edges", "category": "function", "definition": "Uses a routing function to select the next graph destination.", "lesson": 10, "anchor": "term-add-conditional-edges"}, {"term": "recursion_limit", "category": "concept", "definition": "Limits the number of graph super-steps before a run is stopped.", "lesson": 10, "anchor": "term-recursion-limit"}, {"term": "partial update", "category": "concept", "definition": "A node result containing only the state keys it needs to change.", "aliases": ["partial updates"], "lesson": 10, "anchor": "term-partial-update"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>
