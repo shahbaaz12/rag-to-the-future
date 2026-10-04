@@ -1,0 +1,26 @@
+Nexa SafeLock
+Product ID: NEX-1009
+Category: Keypad smart door lock
+
+DESCRIPTION
+A keypad smart lock for a standard residential deadbolt. It offers temporary entry codes, auto-lock timing, activity history, and an emergency mechanical key. It should be installed only on a correctly aligned door.
+
+KEY FEATURES
+- Up to 30 entry codes with optional expiration dates.
+- Auto-lock timer and door-ajar reminder.
+- Physical key override and battery-level alerts.
+
+SETUP
+- Install with the door open and confirm the bolt moves freely by hand.
+- Pair the lock in the app, then create an owner code and a backup code.
+- Test lock and unlock actions before closing the door for normal use.
+
+HOW TO USE
+- Enter a valid code followed by the confirm key to unlock.
+- Create a temporary code for guests and remove it after the visit.
+- Replace all four AA batteries when the app sends a low-battery warning.
+
+ERROR CODES AND RESOLUTIONS
+E1001: Bolt obstructed. Resolution: Open the door and test bolt movement; adjust strike alignment before retrying.
+E1012: Code rejected. Resolution: Confirm the code is active in the app and enter it slowly before pressing confirm.
+E1020: Battery critically low. Resolution: Use the mechanical key, then replace all batteries with new matching cells.

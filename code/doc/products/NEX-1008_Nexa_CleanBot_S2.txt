@@ -1,0 +1,26 @@
+Nexa CleanBot S2
+Product ID: NEX-1008
+Category: Robot vacuum cleaner
+
+DESCRIPTION
+A compact robot vacuum that maps hard floors and low-pile carpets, supports room cleaning, and returns to its charging dock automatically. It includes a washable dustbin filter and app-based cleaning history.
+
+KEY FEATURES
+- Room map, no-go zones, and scheduled cleaning.
+- Auto-return charging dock and edge-cleaning brush.
+- Washable dustbin filter with replacement reminder.
+
+SETUP
+- Place the dock against a clear wall with open space on both sides.
+- Charge the robot fully, then start a Mapping Run from the app.
+- Name rooms after the map is saved and add no-go zones for cables or pet bowls.
+
+HOW TO USE
+- Choose Clean All for the full map or select one or more rooms.
+- Empty the dustbin after each major clean for best suction.
+- Clean the brush and filter when the maintenance reminder appears.
+
+ERROR CODES AND RESOLUTIONS
+E901: Robot stuck. Resolution: Move the robot to clear floor, remove nearby cables, then tap Resume.
+E914: Dock not found. Resolution: Check dock power and ensure the approach path is not blocked.
+E922: Brush jam detected. Resolution: Turn off the robot and remove hair or thread from the main brush and end caps.

@@ -1,0 +1,26 @@
+Nexa AirSense
+Product ID: NEX-1002
+Category: Indoor air-quality monitor
+
+DESCRIPTION
+A desktop monitor that tracks temperature, humidity, PM2.5 particles, and carbon dioxide trends. It gives plain-language alerts and can trigger compatible fans or purifiers through a connected HomeHub.
+
+KEY FEATURES
+- Color-coded air-quality indicator with five-minute updates.
+- Seven-day in-app history and threshold alerts.
+- USB-C powered; optional HomeHub automation support.
+
+SETUP
+- Place the unit on a stable shelf away from windows, vents, and direct sunlight.
+- Connect power, then add AirSense from the Nexa Home app.
+- Allow 20 minutes for the first sensor calibration before reviewing readings.
+
+HOW TO USE
+- Read the front display for a quick air-quality status.
+- Use History in the app to compare daily or weekly changes.
+- Set alerts for a preferred PM2.5 or CO2 level, then review the suggested action.
+
+ERROR CODES AND RESOLUTIONS
+E301: Sensor warming up. Resolution: Wait 20 minutes after power-on; readings are not final during warm-up.
+E312: Particle sensor blocked. Resolution: Gently clean the side intake with a dry soft brush and restart the unit.
+E325: Calibration failed. Resolution: Move the monitor to fresh indoor air, power-cycle it, and run calibration again.

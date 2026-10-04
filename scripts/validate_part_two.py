@@ -15,6 +15,8 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, AIMessageChunk, HumanMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult
 import nbformat
+from langgraph.errors import InvalidUpdateError
+from unittest import TestCase
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,19 +32,37 @@ class OfflineChat(BaseChatModel):
         return self
 
     def answer(self, messages):
-        if self.lesson in (4, 5):
+        if self.lesson == 3:
+            return AIMessage(content="Thanks for letting me know. What time on Friday afternoon would you prefer? I will confirm availability.")
+        if self.lesson == 4:
+            results = [message for message in messages if isinstance(message, ToolMessage)]
+            if not results:
+                context = " ".join(message.text for message in messages)
+                employee = "EMP102" if "EMP102" in context else "EMP101"
+                return AIMessage(content="", tool_calls=[{
+                    "name": "get_leave_balance", "args": {"employee_id": employee}, "id": "leave-1",
+                }])
+            remaining = json.loads(results[-1].content)["remaining"]
+            return AIMessage(content=f"You have {remaining} paid leave days remaining.")
+        if self.lesson == 5:
             results = [message for message in messages if isinstance(message, ToolMessage)]
             if not results:
                 return AIMessage(content="", tool_calls=[{
-                    "name": "check_stock_service", "args": {"item": "laptop"}, "id": "stock-1",
+                    "name": "find_routes", "args": {"origin": "Mumbai", "destination": "Goa"}, "id": "routes-1",
                 }])
-            if self.lesson == 5 and len(results) == 1:
-                return AIMessage(content="", tool_calls=[{
-                    "name": "get_price_service", "args": {"item": "laptop"}, "id": "price-1",
-                }])
-            return AIMessage(content="12 laptops available; two cost 109998 rupees." if self.lesson == 5 else "12 laptops available.")
-        history = " ".join(message.text for message in messages if isinstance(message, HumanMessage))
-        return AIMessage(content="Ada is learning about LLMs and LangGraph." if "Ada" in history else "No name has been supplied.")
+            if len(results) == 1:
+                route_ids = json.loads(results[0].content)
+                return AIMessage(content="", tool_calls=[
+                    {"name": "get_route_details", "args": {"route_id": route_id}, "id": f"detail-{i}"}
+                    for i, route_id in enumerate(route_ids)
+                ])
+            return AIMessage(content="The sample train costs INR 900 and fits INR 2000. The sample flight costs INR 4500 and exceeds it.")
+        if self.lesson == 6:
+            context = messages[0].text.split("Selected topics, in order: ", 1)[1].split(".", 1)[0]
+            return AIMessage(content=f"Beginner explanation and practice for: {context}.")
+        if self.lesson == 7:
+            return AIMessage(content="1. Cook rice. 2. Cook peas and carrots. 3. Combine and serve for two.")
+        return AIMessage(content="Offline response.")
 
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
         return ChatResult(generations=[ChatGeneration(message=self.answer(messages))])
@@ -56,52 +76,107 @@ class OfflineChat(BaseChatModel):
 
 
 def verify(lesson, scope):
+    case = TestCase()
     if lesson == 1:
-        assert [message.text for message in scope["response"]["messages"]] == ["Starting Message", "Step 1 completed.", "Step 2 completed."]
+        messages = scope["response"]["messages"]
+        assert [message.content for message in messages] == [
+            "Starting Message", "Step 1 completed.", "Step 2 completed.",
+        ]
+        assert all(isinstance(message, HumanMessage) for message in messages)
+        another = scope["graph"].invoke({"messages": ["Another start"]})
+        assert [message.content for message in another["messages"]] == [
+            "Another start", "Step 1 completed.", "Step 2 completed.",
+        ]
     elif lesson == 2:
-        assert scope["sequential_result"]["value"] == 6
+        assert scope["sequential_result"]["order"]["address"] == "12 Park Road"
+        assert scope["sequential_result"]["status"] == "validated"
+        assert scope["parallel_result"]["checks"] == {"restaurant": True, "rider": True}
         logs = scope["parallel_result"]["logs"]
-        assert len(logs) == 3 and "finish" in logs[-1].lower(), logs
-        assert scope["conditional_graph"].invoke({"value": 1, "logs": []})["value"] == 4
-        assert scope["conditional_graph"].invoke({"value": 5, "logs": []})["value"] == 6
-        assert scope["loop_result"]["value"] == 3
-        assert len(scope["loop_result"]["logs"]) == 3
+        assert len(logs) == 3 and logs[-1] == "Both checks finished."
+        assert scope["full_result"]["logs"] == ["Existing entry.", "Existing entry."]
+        with case.assertRaises(InvalidUpdateError):
+            scope["unsafe_graph"].invoke(scope["prepared_order"])
+        assert scope["open_result"]["status"] == "rider found"
+        assert scope["closed_result"]["status"] == "restaurant closed"
+        assert "Rider checked." not in scope["closed_result"]["logs"]
+        assert scope["loop_result"]["attempts"] == 2 and scope["loop_result"]["status"] == "confirmed"
+        assert scope["exhausted_result"]["attempts"] == 3 and scope["exhausted_result"]["status"] == "no rider available"
+        third_order = {**scope["prepared_order"]["order"], "rider_responses": [False, False, True]}
+        third = scope["loop_graph"].invoke({**scope["prepared_order"], "order": third_order})
+        assert third["attempts"] == 3 and third["status"] == "confirmed"
+        assert scope["dispatch_result"]["attempts"] == 0 and scope["dispatch_result"]["status"] == "confirmed"
+        busy_order = {**scope["sample_order"]["order"], "preferred_rider": "Ravi"}
+        busy = scope["dispatch_graph"].invoke({**scope["sample_order"], "order": busy_order})
+        assert busy["attempts"] == 2 and busy["status"] == "confirmed"
+        closed = scope["dispatch_graph"].invoke({**scope["sample_order"], "order": scope["closed_order"]})
+        assert closed["status"] == "restaurant closed" and closed["attempts"] == 0
+        assert scope["reset_result"]["logs"] == []
+        assert scope["reset_result"]["checks"] == scope["parallel_result"]["checks"]
+        assert scope["merge_checks"]({"restaurant": True}, {"rider": False}) == {"restaurant": True, "rider": False}
+        assert scope["merge_checks"]({"rider": True}, {"rider": False}) == {"rider": False}
+        assert scope["keep_larger"](3, 1) == 3
+        assert scope["keep_larger"](2, 3) == 3
     elif lesson == 3:
-        assert [message.type for message in scope["response"]["messages"]] == ["human", "ai"]
+        assert scope["response"]["status"] == "draft ready"
+        assert scope["response"]["email"] == scope["email_input"]["email"]
+        assert scope["response"]["tone"] == "friendly and concise"
+        assert scope["response"]["draft"]
     elif lesson in (4, 5):
         messages = scope["response"]["messages"]
         tools = [message for message in messages if isinstance(message, ToolMessage)]
-        assert [message.content for message in tools] == (["12"] if lesson == 4 else ["12", "54999"])
+        if lesson == 4:
+            assert len(tools) == 1 and json.loads(tools[0].content)["remaining"] == 6
+            assert scope["response"]["employee_id"] == "EMP101"
+            assert scope["response"]["status"] == "answered"
+            other = scope["graph"].invoke({**scope["leave_input"], "employee_id": "EMP102"})
+            other_tool = next(message for message in other["messages"] if isinstance(message, ToolMessage))
+            assert json.loads(other_tool.content)["remaining"] == 12
+        else:
+            assert len(tools) == 3 and tools[0].name == "find_routes"
+            assert json.loads(tools[0].content) == ["TRAIN-01", "FLIGHT-01"]
+            assert {json.loads(message.content)["price"] for message in tools[1:]} == {900, 4500}
+            assert scope["response"]["budget"] == 2000
+            assert scope["response"]["status"] == "answered"
         assert messages[-1].type == "ai" and not messages[-1].tool_calls
         # The branch also handles a reply that does not request any tools.
         with patch.object(OfflineChat, "answer", return_value=AIMessage(content="Hello.")):
-            direct = scope["graph"].invoke({"messages": [HumanMessage("Hello")]})
+            initial = scope["leave_input"] if lesson == 4 else scope["travel_input"]
+            direct = scope["graph"].invoke({**initial, "messages": [HumanMessage("Hello")]})
         assert [message.type for message in direct["messages"]] == ["human", "ai"]
     elif lesson == 6:
-        saved = scope["graph"].get_state(scope["user1_config"]).values["messages"]
-        other = scope["graph"].get_state(scope["user2_config"]).values["messages"]
-        assert len(saved) == 4 and len(other) == 2
-        assert "Ada" in saved[-1].text and "Ada" not in other[-1].text
+        first = scope["saved_student1"]
+        second = scope["saved_student2"]
+        assert len(first["messages"]) == 8 and first["topics"] == ["lists", "tuples"]
+        assert len(second["messages"]) == 4 and second["topics"] == ["loops", "functions"]
+        current = scope["graph"].get_state(scope["student1_config"]).values
+        assert current["topics"] == ["dictionaries"] and len(current["messages"]) == 10
+        assert current["student_id"] == "student1" and current["level"] == "beginner"
+        assert scope["graph"].get_state(scope["student2_config"]).values["topics"] == ["loops", "functions"]
+        assert len(scope["merged"]) == 1 and scope["merged"][0].text == "Corrected explanation."
     elif lesson == 7:
-        events = list(scope["graph"].stream({"messages": [HumanMessage("Hello")]}, stream_mode="updates"))
-        assert len(events) == 1 and "chatbot" in events[0]
-        chunks = list(scope["graph"].stream({"messages": [HumanMessage("Hello")]}, stream_mode="messages"))
-        assert len(chunks) > 1 and all(metadata["langgraph_node"] == "chatbot" for _, metadata in chunks)
-        assert "No name" in "".join(message.text for message, _ in chunks)
+        events = list(scope["graph"].stream(scope["recipe_input"], stream_mode="updates"))
+        assert [list(event)[0] for event in events] == ["prepare_request", "write_recipe"]
+        assert set(events[0]["prepare_request"]) == {"request", "status"}
+        assert set(events[1]["write_recipe"]) == {"recipe", "status"}
+        chunks = list(scope["graph"].stream(scope["recipe_input"], stream_mode="messages"))
+        assert len(chunks) > 1 and all(metadata["langgraph_node"] == "write_recipe" for _, metadata in chunks)
+        assert "rice" in "".join(message.text for message, _ in chunks)
     elif lesson == 8:
         assert scope["paused"]["__interrupt__"]
+        payload = scope["paused"]["__interrupt__"][0].value
+        assert payload["order_id"] == "ORD-102" and payload["amount_inr"] == 5000
         assert scope["approved_response"]["approved"] is True
         assert scope["rejected_response"]["approved"] is False
-        assert scope["approved_response"]["result"] != scope["rejected_response"]["result"]
+        assert scope["approved_response"]["status"] == "refund processed"
+        assert scope["rejected_response"]["status"] == "refund rejected"
+        assert scope["approved_response"]["amount"] == 5000
         # An ambiguous text value must not become approval through truthiness.
         config = {"configurable": {"thread_id": "invalid-decision-check"}}
-        scope["graph"].invoke({"request": "Demo", "approved": False, "result": ""}, config)
-        try:
+        scope["graph"].invoke(scope["refund_input"], config)
+        pending = scope["graph"].get_state(config)
+        assert pending.values["status"] == "awaiting review" and pending.next == ("review",)
+        with case.assertRaises(ValueError):
             scope["graph"].invoke(scope["Command"](resume="False"), config)
-        except ValueError:
-            pass
-        else:
-            raise AssertionError("String approval should be rejected")
 
 
 if __name__ == "__main__":

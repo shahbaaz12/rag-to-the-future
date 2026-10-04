@@ -1,42 +1,55 @@
-# Part II · Lesson 5 — Let the graph ask again
+# Part II · Lesson 5 — Compare travel options with a tool loop
 
 ## A note from me
 
-One lookup is useful. But a user can ask a question that needs more than one fact: do we have enough laptops, and what would two of them cost?
+“Compare the available trains and flights from Mumbai to Goa. Which option fits a ₹2,000 budget?”
 
-Rather than writing a separate fixed path for every possible question, we can let the model inspect a result and decide whether it needs another tool. The graph still defines the allowed choices.
+One lookup gives us route IDs. Another gives us prices and durations for those routes. The model needs the first result before it can request details for the returned IDs.
 
-## What is a ReAct-style loop?
+This is where a tool-execution loop becomes useful. After receiving a result, the model decides whether to request more information or give its answer.
 
-ReAct is often expanded as reasoning and acting. Here we focus on the observable flow: the model chooses a tool, the application runs it, the result returns to the model, and the model either asks again or gives an answer. We do not need to display hidden reasoning to understand that flow.
+## What we are building
 
-Our previous graph went from tools to a final-answer node. This graph goes from tools back to the assistant node. That one changed edge makes repeated decisions possible.
+find_routes returns TRAIN-01 and FLIGHT-01. get_route_details reads each route's sample record. Our sample train costs ₹900 and flight ₹4,500; these are teaching values, not current fares.
 
-The tools remain local, read-only examples. An agent loop does not grant access to anything beyond the tools we actually provide.
+The model may request several route details together or in separate rounds. The graph permits another tool round instead of forcing a fixed number of lookups.
 
-## Set up the model and tools
+ReAct is often expanded as reasoning and acting. Here we inspect the observable decisions and tool results, rather than hidden reasoning.
 
-This notebook is independent; run its setup from the top.
+### Import the graph helpers
 
-### Import the model and graph helpers
-
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-1-1 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-01 -->
 ```python
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
-from langgraph.graph import StateGraph, MessagesState, START, END
+from typing_extensions import TypedDict
+from typing import Annotated
+from langgraph.graph.message import add_messages
+from langgraph.graph import StateGraph, START, END
 ```
 
 **What happens here**
 
-These are familiar LangChain model and message helpers, plus our graph building blocks. MessagesState already defines a messages list with the add_messages reducer, so we do not need to write that same schema again.
+TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
-**Result:** The model, message, and graph helpers are available.
+**Result:** The helpers are ready; no graph has run.
 
-### Load the key and create the model
+### Import the model and messages
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-1-2 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-02 -->
+```python
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+```
+
+**What happens here**
+
+These are the same model and message helpers we used in Part I. The graph will decide when to call the model.
+
+**Result:** We can prepare the connection.
+
+### Connect to our existing Groq model
+
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-03 -->
 ```python
 # Keep GROQ_API_KEY in the local .env file.
 load_dotenv()
@@ -49,13 +62,13 @@ model = init_chat_model(
 
 **What happens here**
 
-We use the same Groq model as Part I. load_dotenv makes the key available, and init_chat_model prepares our connection. No question has been sent yet.
+load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
 
-**Result:** model is ready for the node that will call it.
+**Result:** The model is ready. Running its node will make a provider request.
 
-### Import the tool execution helpers
+### Import the tool helpers
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-1-3 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-04 -->
 ```python
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -63,87 +76,110 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 **What happens here**
 
-ToolNode runs calls against the tools we supply and creates their ToolMessage results. tools_condition examines the latest model reply and routes to tools only when that reply contains a tool request.
+ToolNode executes requests against the tools we supply. tools_condition checks whether the latest model reply contains tool calls.
 
-**Result:** We can build the same application-controlled flow with less plumbing.
+**Result:** We can keep requesting a function separate from executing it.
 
-### Give the graph a stock lookup
+### Describe the travel request
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-1-4 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-05 -->
 ```python
-@tool
-def check_stock_service(item: str) -> int:
-    """Return stock for headphone, keyboard, or laptop; use the singular item name."""
-    stock = {"headphone": 6, "keyboard": 11, "laptop": 12}
-    return stock.get(item.lower(), 0)
+class TravelState(TypedDict):
+    origin: str
+    destination: str
+    budget: int
+    messages: Annotated[list, add_messages]
+    status: str
 ```
 
 **What happens here**
 
-This is a normal Python lookup exposed through @tool. The description tells the model when it is useful, and item is its input. We use a small local dictionary so we can follow the graph without adding a database or another API.
+TravelState keeps three request facts alongside the conversation and status. A budget update would replace its earlier value; new messages merge through add_messages.
 
-**Result:** The stock tool can return a quantity when the application executes it.
+**Result:** The model can reuse the request context on every visit.
 
-### Add a price lookup
+### Find the available route IDs
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-1-5 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-06 -->
 ```python
 @tool
-def get_price_service(item: str) -> int:
-    """Return the unit price in rupees for headphone, keyboard, or laptop."""
-    prices = {"headphone": 1999, "keyboard": 1499, "laptop": 54999}
-    return prices.get(item.lower(), 0)
+def find_routes(origin: str, destination: str) -> list[str]:
+    """Find sample route IDs between an origin and destination."""
+    if origin.lower() == "mumbai" and destination.lower() == "goa":
+        return ["TRAIN-01", "FLIGHT-01"]
+    return []
 ```
 
 **What happens here**
 
-The second tool answers a different question: what one item costs. Both tools use the same item name, but their results have different meanings. These are sample catalogue values, not live prices.
+The first tool returns identifiers, not prices. This keeps the dependency visible: the model must obtain the IDs before requesting their details.
 
-**Result:** We have separate tools for stock and unit price.
+**Result:** The sample Mumbai-to-Goa search can identify two routes.
 
-## Let the assistant choose from both tools
+### Read a route's details
 
-Return the complete message each time.
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-07 -->
+```python
+@tool
+def get_route_details(route_id: str) -> dict:
+    """Read the sample price, duration, and availability for a returned route ID."""
+    routes = {
+        "TRAIN-01": {"mode": "train", "price": 900, "duration": "10 hours", "available": True},
+        "FLIGHT-01": {"mode": "flight", "price": 4500, "duration": "1.5 hours", "available": True},
+    }
+    return routes[route_id]
+```
+
+**What happens here**
+
+The second tool supplies the facts needed for comparison. It expects an ID returned by the first tool. All records are local sample data.
+
+**Result:** The application can return prices and durations without a travel-service setup.
 
 ### Bind both tools
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-2-1 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-08 -->
 ```python
-inventory_tools = [check_stock_service, get_price_service]
-tool_model = model.bind_tools(inventory_tools)
+travel_tools = [find_routes, get_route_details]
+tool_model = model.bind_tools(travel_tools)
 ```
 
 **What happens here**
 
-The model can request stock, price, or both. The tool list defines the available choices; it is not a list of actions that always runs.
+Both permitted functions are described to the model. The model can choose which one to request at each visit.
 
-**Result:** The tool-enabled model can make inventory lookup requests.
+**Result:** The tool-enabled model is ready.
 
-### Define the assistant node
+### Let the model decide what it needs next
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-2-2 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-09 -->
 ```python
-def assistant(state: MessagesState) -> dict:
+def assistant(state: TravelState) -> dict:
     reply = tool_model.invoke([
-        SystemMessage("Use inventory tools for stock and prices. Answer when you have the facts."),
+        SystemMessage(
+            f"Compare {state['origin']} to {state['destination']} travel "
+            f"within a budget of INR {state['budget']}. Find routes first, "
+            "then get details for the returned IDs before comparing. Use the tools."
+        ),
         *state["messages"],
     ])
-    return {"messages": [reply]}
+    status = "working" if reply.tool_calls else "answered"
+    return {"messages": [reply], "status": status}
 ```
 
 **What happens here**
 
-The assistant sees all messages already in state, including earlier tool results. It can decide whether the facts are sufficient or whether another available tool would help.
+Every visit includes the accumulated tool results. A tool request keeps the work going; a reply without requests is the final answer. The node returns only its new message and status.
 
-**Result:** Each visit adds a fresh model message.
+**Result:** The next decision can depend on the latest facts.
 
-### Connect the loop and its exit
+### Connect the model-and-tool loop
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-2-3 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-10 -->
 ```python
-builder = StateGraph(MessagesState)
+builder = StateGraph(TravelState)
 builder.add_node("assistant", assistant)
-builder.add_node("tools", ToolNode(inventory_tools))
+builder.add_node("tools", ToolNode(travel_tools))
 builder.add_edge(START, "assistant")
 builder.add_conditional_edges(
     "assistant", tools_condition, {"tools": "tools", END: END}
@@ -154,34 +190,32 @@ graph = builder.compile()
 
 **What happens here**
 
-After tools run, the graph returns to assistant. A model reply containing tool calls continues the loop; a reply without tool calls routes to END. The model can request multiple tools in one round or use separate rounds.
+The important changed edge is tools back to assistant. The model can ask again after reading a result. A final reply routes to END.
 
-**Result:** The graph can repeat its model-and-tool interaction.
+**Result:** We have a loop with a clear stopping route.
 
-## Run and inspect the loop
+### Run a comparison with an execution limit
 
-Set an execution limit even for a small example.
-
-### Ask a question using both facts
-
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-3-1 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-11 -->
 ```python
-response = graph.invoke(
-    {"messages": [HumanMessage("Do we have two laptops in stock, and what is their total price?")]},
-    {"recursion_limit": 12},
-)
+travel_input = {
+    "origin": "Mumbai", "destination": "Goa", "budget": 2000,
+    "messages": [HumanMessage("Compare the available trains and flights within my budget.")],
+    "status": "new",
+}
+response = graph.invoke(travel_input, {"recursion_limit": 12})
 print(response["messages"][-1].text)
 ```
 
 **What happens here**
 
-We send the question and a graph-step limit. The sample catalogue has 12 laptops at Rs 54,999 each. A successful answer using these tools can report availability and Rs 109,998 for two. The limit guards against endless execution; reaching it raises an error and is not a successful stopping condition.
+The application supplies the cities and budget. Our sample train fits the budget and the sample flight exceeds it. The exact wording and grouping of calls can vary. recursion_limit guards graph execution; it does not guarantee a useful answer if the model keeps requesting tools.
 
-**Result:** The model produces an answer using the tool results; the exact wording and tool-call order may vary.
+**Result:** The completed answer can compare facts from several lookups.
 
-### See which decisions were made
+### Read the visible execution trace
 
-<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-3-2 -->
+<!-- snippet: code/Part II Connecting the dots/5-ReActive-Graph.ipynb#p2-5-step-12 -->
 ```python
 for message in response["messages"]:
     print(message.type, message.text)
@@ -191,20 +225,20 @@ for message in response["messages"]:
 
 **What happens here**
 
-We inspect the externally visible conversation. Tool requests and ToolMessage results tell us what actually happened, even when the model's final answer sounds confident.
+Look for route discovery, returned IDs, requests for details, returned records, and the final comparison. ToolMessage IDs tie each result to its request.
 
-**Result:** We can follow the loop rather than treating it as a black box.
+**Result:** The loop is visible in the saved messages.
 
 ## Check your understanding
 
-1. Which edge turns the previous workflow into a loop?
-2. When does tools_condition route to END?
-3. Can two tools be requested in the same round?
-4. Does reaching recursion_limit mean the task succeeded?
+1. Why does the first lookup not return the final comparison?
+2. What changed from the one-round tool graph?
+3. How does the assistant receive earlier results?
+4. What makes the normal loop finish?
 
 ## Where we go next
 
-Next we will keep a conversation's state between graph invocations.
+Next a student will ask follow-up questions that rely on saved conversation context.
 
 Complete notebook: [5-ReActive-Graph.ipynb](../../../Part%20II%20Connecting%20the%20dots/5-ReActive-Graph.ipynb)
 

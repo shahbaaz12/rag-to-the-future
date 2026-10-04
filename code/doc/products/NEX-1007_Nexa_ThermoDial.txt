@@ -1,0 +1,26 @@
+Nexa ThermoDial
+Product ID: NEX-1007
+Category: Smart thermostat controller
+
+DESCRIPTION
+A wall-mounted thermostat controller for compatible heating and cooling systems. ThermoDial supports temperature schedules, occupancy-aware setbacks, and clear system status messages in the Nexa Home app.
+
+KEY FEATURES
+- Heating, cooling, and fan schedules with manual override.
+- Energy report with setpoint and runtime trends.
+- Compatible with common 24V HVAC installations.
+
+SETUP
+- Turn off HVAC power at the breaker before replacing an existing thermostat.
+- Match labels from the old terminals to the in-app wiring guide.
+- Restore power, complete the compatibility check, and set home/away temperatures.
+
+HOW TO USE
+- Turn the dial for a temporary temperature change.
+- Set schedules from Climate > Schedule and confirm the selected system mode.
+- Use Away mode when the home will be empty for an extended period.
+
+ERROR CODES AND RESOLUTIONS
+E801: Wiring check failed. Resolution: Turn off breaker power and verify wire labels against the installation guide.
+E813: System not responding. Resolution: Wait five minutes for HVAC safety delay, then check the indoor unit breaker.
+E829: Temperature sensor mismatch. Resolution: Remove the front cover, reseat it firmly, and run Sensor Check in Settings.

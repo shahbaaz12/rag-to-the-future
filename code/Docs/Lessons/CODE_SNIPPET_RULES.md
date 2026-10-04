@@ -9,12 +9,28 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 - Give each snippet a descriptive heading. Explain its purpose briefly before the code when needed.
 - Make execution order clear. Later snippets may reuse objects defined earlier; say so rather than repeating setup everywhere.
 
+## Keep graph examples simple and useful
+
+- Give each example a meaningful state with at least 3–5 fields; use more when the workflow needs them.
+- Part II Lesson 1 is an author-requested exception: preserve its original simple Step1/Step2 graph with a messages-only state.
+- Explain which fields each node reads and returns. Show partial and full returns, including how reducers apply to every returned key.
+- For parallel work, show simultaneous updates, a safe partial return, and why copying the whole state can cause conflicts or duplicate accumulated values.
+- Cover replacement, list and numeric addition, dictionary merging, a custom reducer, message updates by ID, and deliberate overwrites where they help the lesson. Reducers are functions, so these are common behaviours rather than an exhaustive list.
+- Use straightforward steps and short comments. Do not add try/except unless the example explicitly needs exception handling; leave deliberate failure demonstrations optional.
+
 ## Use the actual source
 
 - Copy code and comments exactly from the associated notebook or source file. Preserve indentation, variable names, prompts, and order.
 - Never change source code solely to manufacture an annotation.
 - Cite the notebook and relevant section. Keep the complete runnable example in the notebook.
 - If the source and lesson disagree, resolve the mismatch explicitly rather than displaying a different implementation.
+
+## Keep notebooks focused on code
+
+- Put the detailed teaching, examples, results, and review questions in the lesson drafts and HTML pages.
+- Notebook Markdown should contain only the title and useful section headings. Remove duplicated explanations and sections without associated code.
+- Keep short comments explaining the nearby code, its intent, or an important execution constraint. Keep functional docstrings and model prompts intact.
+- The explanation-below-each-snippet layout applies to the drafts and HTML; notebooks provide the runnable source.
 
 ## Explain below the code
 

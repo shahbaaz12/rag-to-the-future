@@ -15,9 +15,9 @@ const parts = {
   },
   three: {
     label: "PART III · ???? · THE LAST DEPARTURE",
-    caption: "The final jump demands dependable systems: evaluate, secure, observe, and recover the machine.",
-    link: "#journeys",
-    linkText: "Preview Part III in the trilogy →",
+    caption: "Give the assistant useful evidence: retrieve documents, resolve follow-ups, and choose the right search strategy.",
+    link: "part-three.html",
+    linkText: "Enter the Part III reading room →",
   },
 };
 

@@ -10,3 +10,5 @@ langsmith
 langchain_tavily
 jupyter
 pydantic
+langchain-text-splitters
+rank-bm25

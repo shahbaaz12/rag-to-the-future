@@ -1,0 +1,26 @@
+Nexa Glow Bulb A19
+Product ID: NEX-1003
+Category: Tunable smart LED bulb
+
+DESCRIPTION
+An energy-efficient A19 LED bulb with adjustable brightness and white color temperature. It is designed for lamps and standard indoor fixtures, with controls from the Nexa Home app, schedules, or a paired HomeHub.
+
+KEY FEATURES
+- 800-lumen output with warm-to-cool white adjustment.
+- Dimmable in the app without a separate dimmer switch.
+- Schedules, room groups, and energy-use estimates.
+
+SETUP
+- Turn off fixture power, install the bulb, then restore power.
+- Wait for the bulb to blink twice, then select Add Device in the app.
+- Name the bulb and assign it to a room before creating schedules.
+
+HOW TO USE
+- Use the Brightness slider for light level and the Temperature slider for tone.
+- Group bulbs by room to control several fixtures together.
+- Use a wake-up routine to increase brightness gradually in the morning.
+
+ERROR CODES AND RESOLUTIONS
+E401: Bulb not discovered. Resolution: Cycle fixture power three times, wait for a blink, and begin pairing again.
+E407: Unsupported wall dimmer detected. Resolution: Use a standard on/off switch; do not place the bulb on a legacy dimmer.
+E415: Firmware update interrupted. Resolution: Keep power on, remain on Wi-Fi, and retry the update from Device Settings.

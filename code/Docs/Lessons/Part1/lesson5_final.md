@@ -107,7 +107,7 @@ The loop receives chunks as the model produces them. `end=""` keeps them on the 
 
 <!-- snippet: code/Part I Understanding the Basics/4-Messages-Streaming-Batching-and-Memory.ipynb#message-feature-5 -->
 ```python
-# You will see the model's response printed in real-time as it is generated, rather than waiting for the entire response to be completed. This is useful for long responses or when you want to provide immediate feedback to users.
+# Print chunks as they arrive.
 ```
 
 **What happens here**

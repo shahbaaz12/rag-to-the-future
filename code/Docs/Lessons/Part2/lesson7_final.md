@@ -1,40 +1,51 @@
-# Part II · Lesson 7 — Watch the graph work
+# Part II · Lesson 7 — Watch a recipe appear
 
 ## A note from me
 
-Waiting for the final answer can make an application feel frozen. Sometimes the user wants the text as it appears. Sometimes we want to know which step has finished.
+“Suggest a quick vegetarian dinner using rice, peas, and carrots.”
 
-Those are two different kinds of progress. A node update tells us that a step has produced a state change. A model text chunk lets us start displaying an answer while the model is still generating it.
+Waiting for the whole answer can make an application feel frozen. Sometimes we want to see which step finished. Sometimes we want to start reading while the model is still writing.
+
+Those are two different kinds of progress. A node update reports the fields a completed node returned. Message chunks reveal the model's answer as it is generated.
 
 ## What we are building
 
-We will use the same one-node chat graph and try two stream modes. updates shows the changes a node returns. messages exposes supported model message chunks together with metadata about where they came from.
+**Prepare the request → write the recipe.** The first node uses ordinary Python to organize the ingredients. The second makes a model call.
 
-Each stream below starts a separate graph run and makes its own model request. They are two demonstrations, not two views of one shared API call. No checkpointer is attached here, so the examples do not retain chat memory.
+Our state keeps ingredients, servings, the prepared request, the recipe, and the status. We will try updates streaming and messages streaming in separate runs. Each demonstration makes its own model call; they are not two views of one shared request.
 
-## Set up the familiar chat graph
+### Import the graph helpers
 
-The node can still use model.invoke; LangGraph's streaming machinery observes the model's supported streaming callbacks.
-
-### Import the model and graph helpers
-
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-1-1 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-01 -->
 ```python
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
-from langgraph.graph import StateGraph, MessagesState, START, END
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
 ```
 
 **What happens here**
 
-These are familiar LangChain model and message helpers, plus our graph building blocks. MessagesState already defines a messages list with the add_messages reducer, so we do not need to write that same schema again.
+TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries.
 
-**Result:** The model, message, and graph helpers are available.
+**Result:** The helpers are ready; no graph has run.
 
-### Load the key and create the model
+### Import the model and messages
 
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-1-2 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-02 -->
+```python
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+```
+
+**What happens here**
+
+These are the same model and message helpers we used in Part I. The graph will decide when to call the model.
+
+**Result:** We can prepare the connection.
+
+### Connect to our existing Groq model
+
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-03 -->
 ```python
 # Keep GROQ_API_KEY in the local .env file.
 load_dotenv()
@@ -47,102 +58,141 @@ model = init_chat_model(
 
 **What happens here**
 
-We use the same Groq model as Part I. load_dotenv makes the key available, and init_chat_model prepares our connection. No question has been sent yet.
+load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
 
-**Result:** model is ready for the node that will call it.
+**Result:** The model is ready. Running its node will make a provider request.
 
-### Put the model call inside a node
+### Describe the recipe record
 
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-1-3 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-04 -->
 ```python
-def chatbot(state: MessagesState) -> dict:
+class RecipeState(TypedDict):
+    ingredients: list[str]
+    servings: int
+    request: str
+    recipe: str
+    status: str
+```
+
+**What happens here**
+
+RecipeState has five fields that let us inspect input, prepared work, and generated output. All fields replace on update; none needs an accumulating reducer in this graph.
+
+**Result:** The progress can be described by actual state changes.
+
+### Prepare a clear recipe request
+
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-05 -->
+```python
+def prepare_request(state: RecipeState) -> dict:
+    ingredients = ", ".join(state["ingredients"])
+    request = (
+        f"Suggest a quick vegetarian dinner for {state['servings']} people "
+        f"using {ingredients}. Give a short recipe with numbered steps."
+    )
+    return {"request": request, "status": "ingredients prepared"}
+```
+
+**What happens here**
+
+The Python node combines ingredients and servings into one request. It returns only the prepared text and status; the original ingredients remain in state.
+
+**Result:** The model will receive a clear request.
+
+### Generate the recipe
+
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-06 -->
+```python
+def write_recipe(state: RecipeState) -> dict:
     reply = model.invoke([
-        SystemMessage("You are a concise assistant for a Python learner."),
-        *state["messages"],
+        SystemMessage("You are a concise recipe assistant."),
+        HumanMessage(state["request"]),
     ])
-    # Return only the new reply; the reducer keeps the earlier messages.
-    return {"messages": [reply]}
+    return {"recipe": reply.text, "status": "recipe ready"}
 ```
 
 **What happens here**
 
-Our node receives the current messages, adds an instruction for this model call, and invokes the model. The star expands the existing list into the request. We return the new AIMessage itself, preserving its metadata and any structured fields. We do not return the whole old conversation again.
+The node still uses invoke. LangGraph can observe the model's supported streaming callbacks when the graph is streamed in messages mode. We return the final recipe and status after the model call finishes.
 
-**Result:** The node adds one model reply to the graph state.
+**Result:** The completed node contributes a finished recipe.
 
-### Connect and compile the chat graph
+### Connect the two-node graph
 
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-1-4 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-07 -->
 ```python
-builder = StateGraph(MessagesState)
-builder.add_node("chatbot", chatbot)
-builder.add_edge(START, "chatbot")
-builder.add_edge("chatbot", END)
+builder = StateGraph(RecipeState)
+builder.add_node("prepare_request", prepare_request)
+builder.add_node("write_recipe", write_recipe)
+builder.add_edge(START, "prepare_request")
+builder.add_edge("prepare_request", "write_recipe")
+builder.add_edge("write_recipe", END)
 graph = builder.compile()
+recipe_input = {
+    "ingredients": ["rice", "peas", "carrots"], "servings": 2,
+    "request": "", "recipe": "", "status": "new",
+}
 ```
 
 **What happens here**
 
-The flow has one working node. START sends the input to chatbot, and END finishes after its reply. This is intentionally small: adding a graph around one call helps us see where later steps will go.
+The model node waits for the prepared request. The initial record supplies all five fields. This graph has no checkpointer, so every demonstration starts a fresh run.
 
-**Result:** graph is ready to accept an initial messages list.
+**Result:** We can inspect progress from two genuinely different steps.
 
-## 1. Stream node updates
+### Stream completed node updates
 
-This mode describes completed work in the workflow.
-
-### Inspect each completed node's update
-
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-2-1 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-08 -->
 ```python
-for event in graph.stream(
-    {"messages": [HumanMessage("Explain a graph node in one sentence.")]},
-    stream_mode="updates",
-):
+for event in graph.stream(recipe_input, stream_mode="updates"):
     for node_name, update in event.items():
         print("Finished node:", node_name)
-        print(update["messages"][-1].text)
+        print(update)
 ```
 
 **What happens here**
 
-updates emits the state changes returned by completed nodes. Our graph has one chatbot node, so its update contains one complete AI reply. It does not emit one update for each generated word.
+updates mode emits each node's returned update after that node finishes. First we see the prepared request and status; later we see the complete recipe and recipe-ready status. These are partial updates, not full state snapshots or live word-by-word output.
 
-**Result:** We see the node name and its returned message after that node completes.
+**Result:** The learner can tell which work has finished.
 
-## 2. Stream the model's text
+### Stream the model's arriving text
 
-Here we can show text before the node's full answer is ready.
-
-### Print chunks from the chatbot node
-
-<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-3-1 -->
+<!-- snippet: code/Part II Connecting the dots/6-Streaming.ipynb#p2-7-step-09 -->
 ```python
-for message_chunk, metadata in graph.stream(
-    {"messages": [HumanMessage("Explain nodes and edges in three short sentences.")]},
-    stream_mode="messages",
-):
-    if metadata.get("langgraph_node") == "chatbot":
-        print(message_chunk.text, end="", flush=True)
+for chunk, metadata in graph.stream(recipe_input, stream_mode="messages"):
+    if metadata["langgraph_node"] == "write_recipe":
+        print(chunk.text, end="", flush=True)
 print()
 ```
 
 **What happens here**
 
-messages yields a chunk and metadata. langgraph_node identifies the node responsible for the model call. We print text chunks from chatbot as they arrive. A chunk may contain part of a word, several words, or no display text; it is not necessarily one token.
+messages mode exposes supported model message chunks with metadata. We select the write_recipe node and print arriving text without adding a newline after every chunk. A chunk is not guaranteed to equal one word or one token.
 
-**Result:** The response appears gradually when the chosen integration supports text streaming.
+**Result:** The recipe appears gradually while the model generates it.
+
+## What is the difference?
+
+| Output | Meaning |
+|---|---|
+| prepare_request update | Preparation finished and returned new request text. |
+| write_recipe update | The full recipe-generation step finished. |
+| Text chunks from write_recipe | Parts of the answer arrive while generation is still happening. |
+
+Showing a node update does not mean the user has received every intermediate model chunk. Choose the stream that represents the progress your application needs.
 
 ## Check your understanding
 
-1. What does updates show?
-2. Does a node update necessarily mean one model token?
-3. What does langgraph_node identify?
-4. How many model requests do these two demonstrations make?
+1. Which node uses ordinary Python?
+2. When does updates mode report write_recipe?
+3. Why do we filter the message metadata?
+4. Does each text chunk represent one token?
+5. How many separate model requests do the two demonstrations make?
 
 ## Where we go next
 
-Next we will deliberately pause a workflow and let a person decide whether it should continue.
+Finally we will pause a refund request for a person's approval or rejection.
 
 Complete notebook: [6-Streaming.ipynb](../../../Part%20II%20Connecting%20the%20dots/6-Streaming.ipynb)
 

@@ -356,7 +356,7 @@ We pass the prompt value to groq_model.invoke, limit the output, and print the r
 
 <!-- snippet: code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#fbe75c2c -->
 ```python
-# if requred we can save the above prompt template to a file and load it later for reuse. This is useful for maintaining consistency in prompts across different parts of an application or across different applications.
+# This template can be saved and loaded for reuse.
 ```
 
 **What happens here**

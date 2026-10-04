@@ -1,40 +1,53 @@
-# Part II · Lesson 4 — Run a tool inside the graph
+# Part II · Lesson 4 — Look up an employee's leave balance
 
 ## A note from me
 
-A model can sound confident about our stock. That does not mean it has checked the stock list.
+An employee asks: “How many paid leave days do I have left?”
 
-We already know what a tool request looks like from Part I. Now we will give each part of that interaction a place in the graph: ask the model, execute the requested lookup, then write an answer using the result.
+The model understands the question, but the answer lives in our company's records. Knowing how leave works is different from knowing this employee's balance.
+
+We will expose one function, get_leave_balance. The model requests it; our application runs it and returns the result. Notice who actually executes the function.
 
 ## What we are building
 
-A small inventory assistant with one read-only stock tool. Our data is a local Python dictionary. The point is the flow, so we will not complicate it with a real database yet.
+The sample employee is EMP101: allowance 20 days, used 14, remaining 6.
 
-This graph permits one round of tool calls. If the first reply does not request a tool, we end immediately. Otherwise the tool node runs the calls, and a final model call writes the answer without being given tools again.
+Our graph asks the model what it needs, runs one leave lookup if requested, then asks the model to explain the result. That is one tool round, normally involving a model request before and after the lookup.
 
-## Set up the model and tool
+### Import the graph helpers
 
-Run these setup cells first.
-
-### Import the model and graph helpers
-
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-1 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-01 -->
 ```python
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
-from langgraph.graph import StateGraph, MessagesState, START, END
+from typing_extensions import TypedDict
+from typing import Annotated
+from langgraph.graph.message import add_messages
+from langgraph.graph import StateGraph, START, END
 ```
 
 **What happens here**
 
-These are familiar LangChain model and message helpers, plus our graph building blocks. MessagesState already defines a messages list with the add_messages reducer, so we do not need to write that same schema again.
+TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
-**Result:** The model, message, and graph helpers are available.
+**Result:** The helpers are ready; no graph has run.
 
-### Load the key and create the model
+### Import the model and messages
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-2 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-02 -->
+```python
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+```
+
+**What happens here**
+
+These are the same model and message helpers we used in Part I. The graph will decide when to call the model.
+
+**Result:** We can prepare the connection.
+
+### Connect to our existing Groq model
+
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-03 -->
 ```python
 # Keep GROQ_API_KEY in the local .env file.
 load_dotenv()
@@ -47,13 +60,13 @@ model = init_chat_model(
 
 **What happens here**
 
-We use the same Groq model as Part I. load_dotenv makes the key available, and init_chat_model prepares our connection. No question has been sent yet.
+load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
 
-**Result:** model is ready for the node that will call it.
+**Result:** The model is ready. Running its node will make a provider request.
 
-### Import the tool execution helpers
+### Import the tool helpers
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-3 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-04 -->
 ```python
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -61,104 +74,119 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 **What happens here**
 
-ToolNode runs calls against the tools we supply and creates their ToolMessage results. tools_condition examines the latest model reply and routes to tools only when that reply contains a tool request.
+ToolNode executes requests against the tools we supply. tools_condition checks whether the latest model reply contains tool calls.
 
-**Result:** We can build the same application-controlled flow with less plumbing.
+**Result:** We can keep requesting a function separate from executing it.
 
-### Give the graph a stock lookup
+### Keep the employee and conversation in state
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-1-4 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-05 -->
+```python
+class LeaveState(TypedDict):
+    employee_id: str
+    request_type: str
+    messages: Annotated[list, add_messages]
+    status: str
+```
+
+**What happens here**
+
+LeaveState has four fields. The selected employee and leave type stay available while messages grows. add_messages appends new message IDs and updates existing IDs. status uses ordinary replacement.
+
+**Result:** The tool exchange can keep its messages without resending the whole state.
+
+### Expose the leave-record lookup
+
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-06 -->
 ```python
 @tool
-def check_stock_service(item: str) -> int:
-    """Return stock for headphone, keyboard, or laptop; use the singular item name."""
-    stock = {"headphone": 6, "keyboard": 11, "laptop": 12}
-    return stock.get(item.lower(), 0)
+def get_leave_balance(employee_id: str) -> dict:
+    """Read the paid leave allowance, days used, and balance for an employee."""
+    records = {
+        "EMP101": {"allowance": 20, "used": 14, "remaining": 6},
+        "EMP102": {"allowance": 20, "used": 8, "remaining": 12},
+    }
+    return records[employee_id]
 ```
 
 **What happens here**
 
-This is a normal Python lookup exposed through @tool. The description tells the model when it is useful, and item is its input. We use a small local dictionary so we can follow the graph without adding a database or another API.
+The tool reads a local sample record. Its docstring tells the model what it does, and employee_id is its argument. Our application supplies the selected employee ID; a production application would derive that identity from the signed-in user.
 
-**Result:** The stock tool can return a quantity when the application executes it.
+**Result:** Executing the tool for EMP101 returns a six-day balance.
 
-## Separate asking from answering
+### Make the tool available to the model
 
-The first node can request a tool; the final node only writes an answer.
-
-### Bind the allowed tool
-
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-1 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-07 -->
 ```python
-stock_tools = [check_stock_service]
-tool_model = model.bind_tools(stock_tools)
+leave_tools = [get_leave_balance]
+tool_model = model.bind_tools(leave_tools)
 ```
 
 **What happens here**
 
-bind_tools supplies the stock tool's description and arguments to the model. It does not run the function. stock_tools also supplies the actual tool object to the execution node below.
+bind_tools supplies the tool description and input schema. It does not execute the function.
 
-**Result:** The model knows which lookup it can request.
+**Result:** The model can request a permitted leave lookup.
 
-### Ask whether a tool is needed
+### Ask the model for the required information
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-2 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-08 -->
 ```python
-def ask_model(state: MessagesState) -> dict:
+def ask_model(state: LeaveState) -> dict:
     reply = tool_model.invoke([
-        SystemMessage("Use the stock tool for inventory quantities."),
+        SystemMessage(
+            f"Answer a {state['request_type']} request for {state['employee_id']}. "
+            "Use get_leave_balance for the balance; do not guess it."
+        ),
         *state["messages"],
     ])
-    return {"messages": [reply]}
+    return {"messages": [reply], "status": "model replied"}
 ```
 
 **What happens here**
 
-The reply may contain tool_calls. We keep the complete message so the requested function name, arguments, and call ID reach the execution node.
+The model receives the selected employee and the question. Its AIMessage may contain a tool name and arguments rather than answer text. We return that message itself so its tool-call ID and metadata survive.
 
-**Result:** The state contains either a normal answer or a tool-call request.
+**Result:** The graph receives a tool request if the model chooses the lookup.
 
-### Answer after the lookup
+### Write the answer from the tool result
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-2-3 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-09 -->
 ```python
-def answer_from_tool(state: MessagesState) -> dict:
+def answer_from_tool(state: LeaveState) -> dict:
     reply = model.invoke([
-        SystemMessage("Answer using the stock tool result."),
+        SystemMessage("Explain the employee's leave balance using the tool result."),
         *state["messages"],
     ])
-    return {"messages": [reply]}
+    return {"messages": [reply], "status": "answered"}
 ```
 
 **What happens here**
 
-Here we use the original model object rather than tool_model. It receives the question, tool-call request, and ToolMessage result, then writes a final answer.
+This final node uses the original model without bound tools. It reads the returned record and explains it. The node returns only the new reply and status; earlier messages remain in state.
 
-**Result:** This node closes the single-round tool interaction.
+**Result:** The tool result can become a clear answer.
 
-## Connect the request and result
+### Register the model and execution nodes
 
-Keep the tool route visible.
-
-### Register all three nodes
-
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-1 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-10 -->
 ```python
-builder = StateGraph(MessagesState)
+builder = StateGraph(LeaveState)
 builder.add_node("ask_model", ask_model)
-builder.add_node("tools", ToolNode(stock_tools))
+builder.add_node("tools", ToolNode(leave_tools))
 builder.add_node("answer", answer_from_tool)
 ```
 
 **What happens here**
 
-ToolNode is the framework helper that executes the supplied tools and returns their results as ToolMessage objects. The model itself still does not execute the Python lookup.
+ToolNode is the application step that actually executes the requested lookup. It returns ToolMessage results through the messages field, preserving employee_id and request_type.
 
-**Result:** Our builder knows the request, tool execution, and final-answer steps.
+**Result:** The three jobs have explicit places in the graph.
 
-### Route to tools only when requested
+### Connect one controlled tool round
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-2 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-11 -->
 ```python
 builder.add_edge(START, "ask_model")
 builder.add_conditional_edges(
@@ -171,17 +199,33 @@ graph = builder.compile()
 
 **What happens here**
 
-tools_condition looks at the latest model message. A tool request takes the tools path; a normal answer ends the run. After a lookup we always run answer, which has no bound tools.
+A tool request routes to execution. A reply with no tool request can end directly. After execution, answer writes the final response and ends. There is no route back for another tool round in this example.
 
-**Result:** The graph can handle a direct answer or one round of lookups.
+**Result:** The application controls the lookup and final response.
 
-### Ask and inspect the conversation
+### Ask about the selected employee
 
-<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-3-3 -->
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-12 -->
 ```python
-response = graph.invoke({
-    "messages": [HumanMessage("How many laptops are in stock?")]
-})
+leave_input = {
+    "employee_id": "EMP101", "request_type": "paid leave",
+    "messages": [HumanMessage("How many paid leave days do I have left?")],
+    "status": "new",
+}
+response = graph.invoke(leave_input)
+print(response["messages"][-1].text)
+```
+
+**What happens here**
+
+The employee ID is supplied by our application, rather than guessed from the question. When the lookup is used, the final answer can report six remaining days.
+
+**Result:** We have an answer grounded in our sample record.
+
+### Inspect the request and result
+
+<!-- snippet: code/Part II Connecting the dots/4-Using-Tools.ipynb#p2-4-step-13 -->
+```python
 for message in response["messages"]:
     print(message.type, message.text)
     if getattr(message, "tool_calls", None):
@@ -190,20 +234,20 @@ for message in response["messages"]:
 
 **What happens here**
 
-We inspect both text and tool_calls because a tool-request message may have empty text. The stock dictionary holds 12 laptops; when the model uses the lookup correctly, its answer can use that result.
+Inspect tool_calls as well as text: a tool-request message may have empty text. The ToolMessage contains the returned record and matches the original request by its call ID.
 
-**Result:** The trace makes the request, tool result, and final response visible.
+**Result:** The trace shows request, application execution, and final answer.
 
 ## Check your understanding
 
-1. Does bind_tools execute a tool?
-2. What does ToolNode return?
-3. Why does the final node use model instead of tool_model?
-4. What happens if no tool call is requested?
+1. Does bind_tools execute get_leave_balance?
+2. Where does the employee ID come from?
+3. Which node executes the function?
+4. Why does answer use the unbound model?
 
 ## Where we go next
 
-Next we will allow the model to revisit its decision after receiving a tool result.
+Next we will let a model request more information after seeing a first result.
 
 Complete notebook: [4-Using-Tools.ipynb](../../../Part%20II%20Connecting%20the%20dots/4-Using-Tools.ipynb)
 

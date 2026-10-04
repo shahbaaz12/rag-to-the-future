@@ -1,30 +1,24 @@
-# Part II · Lesson 8 — Pause and ask a person
+# Part II · Lesson 8 — Approve or reject a refund
 
 ## A note from me
 
-Letting a model suggest an action is one thing. Letting an application carry it out is another. Sometimes we want a person to review what will happen before the next step runs.
+Preparing a refund request is different from issuing the refund. Before money moves, we want a person to inspect the order, amount, and reason.
 
-We do not need to ask an LLM to demonstrate this. A plain graph can pause a request, show the proposed action, and wait for a human decision. That makes the boundary easy to see.
+Our workflow prepares a sample request, pauses, and waits for approval or rejection. That pause gives the next step a clear reason to wait.
 
 ## What we are building
 
-A demo request to order two laptops. The graph pauses before deciding whether to take the approved path. We will try approval in one thread and rejection in another.
+The request is a ₹5,000 refund for a damaged item in order ORD-102. A reviewer sees the details and supplies True or False.
 
-No purchase is made. The final nodes only return text describing which demo path ran. In a real application, a purchasing API would belong after approval, with the application's own permission checks.
+Approve continues to the demo refund function. Reject records the decision and ends without running that function. No actual money moves, and no model API is needed for this example.
 
-## Three pieces that work together
+Three pieces work together: interrupt exposes the request and pauses; a checkpointer stores progress; Command(resume=...) supplies the decision using the same thread ID.
 
-interrupt pauses the graph and exposes a review payload. A checkpointer saves the state needed to continue. Command(resume=...) supplies the decision using the same thread ID.
+On resume, the interrupted node starts again from its beginning. Keep actions that should happen only once out of the code before interrupt. The refund step belongs after the approval branch.
 
-On resume, the interrupted node starts again from its beginning; interrupt then returns the supplied decision. Keep irreversible side effects out of the code before interrupt. An API action after approval also needs protection against repeated execution in a real system.
+### Import the graph helpers
 
-## Set up a local approval workflow
-
-No model key is needed for this notebook.
-
-### Import the approval helpers
-
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-1-1 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-01 -->
 ```python
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
@@ -34,198 +28,196 @@ from langgraph.types import interrupt, Command
 
 **What happens here**
 
-We use the same graph and checkpointing pieces, plus interrupt and Command for the pause-and-resume interaction.
+TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries.
 
-**Result:** The local workflow helpers are ready.
+**Result:** The helpers are ready; no graph has run.
 
-### Describe the review state
+### Describe the refund request
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-1-2 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-02 -->
 ```python
-class ApprovalState(TypedDict):
-    request: str
+class RefundState(TypedDict):
+    order_id: str
+    amount: int
+    reason: str
     approved: bool
-    result: str
+    status: str
 ```
 
 **What happens here**
 
-ApprovalState gives our review record three fields. request says what is proposed. approved records the human decision, and result records which final path ran. Each field uses normal replacement behaviour.
+RefundState carries three request facts, the reviewer's decision, and the workflow status. All five fields use replacement behaviour. approved starts as a placeholder and changes only after the reviewer responds.
 
-**Result:** We have a small review record.
+**Result:** The review payload and outcome have clear places in state.
 
-### Pause before deciding
+### Prepare the request for review
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-1-3 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-03 -->
 ```python
-def review_request(state: ApprovalState) -> dict:
+def prepare_refund(state: RefundState) -> dict:
+    if state["amount"] <= 0:
+        raise ValueError("The refund amount must be positive.")
+    return {"status": "awaiting review"}
+```
+
+**What happens here**
+
+The preparation step checks our sample amount and returns only status. order_id, amount, and reason remain available for review.
+
+**Result:** The request is ready for the pause.
+
+### Pause and request an explicit decision
+
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-04 -->
+```python
+def review_refund(state: RefundState) -> dict:
     decision = interrupt({
-        "request": state["request"],
-        "question": "Approve this demo request? Resume with True or False.",
+        "order_id": state["order_id"], "amount_inr": state["amount"],
+        "reason": state["reason"], "question": "Approve this refund?",
     })
     if not isinstance(decision, bool):
-        raise ValueError("Approval must be True or False.")
-    return {"approved": decision}
+        raise ValueError("Resume with True or False.")
+    return {"approved": decision, "status": "reviewed"}
 ```
 
 **What happens here**
 
-interrupt exposes the proposed request and pauses execution. The line after it runs only after the graph resumes. We accept an actual boolean, so text such as the string False cannot accidentally act as approval.
+interrupt pauses before a decision is available. When resumed, it returns the supplied value. We require a real boolean so the text False cannot accidentally act as approval through Python truthiness.
 
-**Result:** The node waits for an explicit True or False decision.
+**Result:** The graph waits for a person's decision and then records it.
 
-### Define the two possible outcomes
+### Define approval and rejection outcomes
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-1-4 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-05 -->
 ```python
-def approved_request(state: ApprovalState) -> dict:
-    # Demo only: no external order or payment is created.
-    return {"result": f"Approved demo request: {state['request']}"}
+def process_refund(state: RefundState) -> dict:
+    # Demo only: record the result without moving money.
+    return {"status": "refund processed"}
 
 
-def rejected_request(state: ApprovalState) -> dict:
-    return {"result": "Request rejected. No action taken."}
+def reject_refund(state: RefundState) -> dict:
+    return {"status": "refund rejected"}
 ```
 
 **What happens here**
 
-We keep the approved and rejected paths separate. Both are local functions; the approved path does not call a shop, send a message, or spend money.
+Only the approval branch reaches process_refund. Both functions merely update this local demo record. The rejection branch records its own result without processing a refund.
 
-**Result:** Each outcome can provide a clear final result.
+**Result:** The two possible outcomes are explicit.
 
-### Route according to the human decision
+### Choose the branch after review
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-1-5 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-06 -->
 ```python
-def approval_route(state: ApprovalState) -> str:
-    return "approved" if state["approved"] else "rejected"
+def refund_route(state: RefundState) -> str:
+    return "approve" if state["approved"] else "reject"
 ```
 
 **What happens here**
 
-This routing function uses the decision stored by the review node. It chooses one path rather than running both.
+The routing function reads the saved boolean decision. It returns a label rather than changing the state.
 
-**Result:** The graph has an explicit approval branch.
+**Result:** The review result selects one final step.
 
-## Compile with a checkpointer
+### Register and connect the refund workflow
 
-The saved state is what makes a later resume possible.
-
-### Connect review and outcomes
-
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-2-1 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-07 -->
 ```python
-builder = StateGraph(ApprovalState)
-builder.add_node("review", review_request)
-builder.add_node("approved", approved_request)
-builder.add_node("rejected", rejected_request)
-builder.add_edge(START, "review")
+builder = StateGraph(RefundState)
+builder.add_node("prepare", prepare_refund)
+builder.add_node("review", review_refund)
+builder.add_node("process", process_refund)
+builder.add_node("reject", reject_refund)
+builder.add_edge(START, "prepare")
+builder.add_edge("prepare", "review")
 builder.add_conditional_edges(
-    "review", approval_route,
-    {"approved": "approved", "rejected": "rejected"},
+    "review", refund_route, {"approve": "process", "reject": "reject"}
 )
-builder.add_edge("approved", END)
-builder.add_edge("rejected", END)
+builder.add_edge("process", END)
+builder.add_edge("reject", END)
 ```
 
 **What happens here**
 
-Every request reaches review first. Once the review returns its decision, the conditional edge chooses the approved or rejected node, then ends.
+Preparation precedes review. The conditional edge selects process or reject, and both outcomes end. The review node must finish with a decision before either final node can run.
 
-**Result:** Neither final path can bypass the review node.
+**Result:** The graph describes the approval boundary.
 
-### Attach memory for the paused run
+### Attach memory and prepare the sample request
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-2-2 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-08 -->
 ```python
 memory = InMemorySaver()
 graph = builder.compile(checkpointer=memory)
-review_config = {"configurable": {"thread_id": "order-review-1"}}
+refund_input = {
+    "order_id": "ORD-102", "amount": 5000, "reason": "Item arrived damaged.",
+    "approved": False, "status": "new",
+}
+approve_config = {"configurable": {"thread_id": "refund-review-1"}}
 ```
 
 **What happens here**
 
-The checkpointer stores the paused workflow. review_config identifies the run we must return to when supplying a decision. This storage is still in-memory, so a kernel restart loses the pending review.
+The checkpointer stores the interrupted workflow. The thread ID identifies this review. False is only the initial placeholder; it does not bypass the pause or automatically reject the request.
 
-**Result:** We can pause and resume this thread within the current process.
+**Result:** The graph can pause and later resume this exact request.
 
-## Try approval, then rejection
+### Start the workflow and inspect the pause
 
-The decision is supplied explicitly in the notebook. A real UI would wait for the reviewer to choose it.
-
-### Start the request and inspect the pause
-
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-3-1 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-09 -->
 ```python
-paused = graph.invoke(
-    {"request": "Order two laptops", "approved": False, "result": ""},
-    review_config,
-)
-print("Review needed:", paused["__interrupt__"][0].value)
+paused = graph.invoke(refund_input, approve_config)
+print(paused["__interrupt__"][0].value)
+print(graph.get_state(approve_config).values["status"])
 ```
 
 **What happens here**
 
-The run reaches interrupt and returns the review payload. The initial approved=False is only a default in the record; it is not the human's decision. The final outcome nodes have not run yet.
+Preparation runs and review pauses. The interrupt payload contains the order, amount, and reason. The saved status remains awaiting review because the review node has not returned its update yet.
 
-**Result:** The workflow is paused with an empty result.
+**Result:** Neither process_refund nor reject_refund has run.
 
-### Resume the same thread with approval
+### Resume with approval
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-3-2 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-10 -->
 ```python
-approved_response = graph.invoke(Command(resume=True), review_config)
-print(approved_response["result"])
+approved_response = graph.invoke(Command(resume=True), approve_config)
+print(approved_response["approved"], approved_response["status"])
 ```
 
 **What happens here**
 
-Command supplies True to the paused interrupt using the same thread ID. review_request returns the decision, and the graph selects the approved path.
+We resume with True and the same thread. The review node receives the decision, then the approval branch reaches the demo refund function.
 
-**Result:** The approved demo message is returned; no external order is placed.
+**Result:** The final result is True and refund processed.
 
-### Start another review
+### Try rejection in another review
 
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-3-3 -->
+<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-step-11 -->
 ```python
-reject_config = {"configurable": {"thread_id": "order-review-2"}}
-rejected_pause = graph.invoke(
-    {"request": "Order two laptops", "approved": False, "result": ""},
-    reject_config,
-)
-print("Review needed:", rejected_pause["__interrupt__"][0].value)
-```
-
-**What happens here**
-
-We use a new thread so this example starts its own review. It does not modify the approved thread.
-
-**Result:** The second request is paused independently.
-
-### Resume with rejection
-
-<!-- snippet: code/Part II Connecting the dots/7-human-in-loop.ipynb#p2-8-3-4 -->
-```python
+reject_config = {"configurable": {"thread_id": "refund-review-2"}}
+graph.invoke(refund_input, reject_config)
 rejected_response = graph.invoke(Command(resume=False), reject_config)
-print(rejected_response["result"])
+print(rejected_response["approved"], rejected_response["status"])
 ```
 
 **What happens here**
 
-False is returned by interrupt for the second thread. The router chooses rejected, so the approved path is never entered for this request.
+A separate thread starts and pauses its own copy of the request. False then selects rejection. Using another thread keeps this experiment independent of the already completed approval.
 
-**Result:** Request rejected. No action taken.
+**Result:** The final result is False and refund rejected.
 
 ## Check your understanding
 
-1. Which three pieces make interrupt and resume work?
-2. Why must the resume use the same thread ID?
-3. Does the interrupted node continue only from the next line?
-4. Which path runs when the reviewer sends False?
+1. What information does the reviewer see?
+2. Why must the decision be a boolean?
+3. Why does the resume use the same thread ID?
+4. Does either final node run before review finishes?
+5. Why is processing placed after approval?
 
 ## Where we go next
 
-You can now assemble, route, remember, stream, and pause a workflow. Return to the Part II map and try changing one connection at a time before adding a more complicated application.
+We now have fixed steps, branches, tools, loops, memory, streaming, and approval. These are useful foundations for the next part of the course.
 
 Complete notebook: [7-human-in-loop.ipynb](../../../Part%20II%20Connecting%20the%20dots/7-human-in-loop.ipynb)
 

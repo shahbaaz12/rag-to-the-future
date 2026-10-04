@@ -1,0 +1,26 @@
+Nexa BrewMate
+Product ID: NEX-1005
+Category: Connected coffee maker
+
+DESCRIPTION
+A programmable drip coffee maker that prepares scheduled brews and sends maintenance alerts to the Nexa Home app. It supports a thermal carafe, strength selection, and a water-level check before a scheduled start.
+
+KEY FEATURES
+- 1.2-liter thermal carafe and three brew-strength settings.
+- Scheduled start with water and carafe safety checks.
+- Cleaning reminders and brew-history counter.
+
+SETUP
+- Rinse the removable filter basket and run one water-only cycle.
+- Add BrewMate in the app while the machine is powered on.
+- Set local time, preferred strength, and a default weekday schedule.
+
+HOW TO USE
+- Fill the reservoir, insert a filter and grounds, then choose Brew Now.
+- For a schedule, prepare ingredients first and confirm the app's readiness notice.
+- Run the guided cleaning cycle when the maintenance alert appears.
+
+ERROR CODES AND RESOLUTIONS
+E601: Water level too low. Resolution: Fill the reservoir above the minimum mark, then start the brew again.
+E609: Carafe not detected. Resolution: Center the carafe on the warming plate and clean any spilled liquid beneath it.
+E618: Descale required. Resolution: Run the guided descale cycle before scheduling another brew.

@@ -1,42 +1,55 @@
-# Part II · Lesson 6 — Keep the right conversation
+# Part II · Lesson 6 — Remember a student's selected topics
 
 ## A note from me
 
-Our graph can carry messages from node to node. That is useful, but what happens after the run finishes and the user asks another question?
+A student says, “I'm a beginner learning Python. I want to understand lists and tuples.”
 
-A fresh graph call has no earlier conversation unless our application provides it or restores saved state. We met checkpointers in Part I through create_agent. Now we attach one directly to our own graph.
+Then: “Explain the first one with an example.” Later: “How is it different from the second one?” And finally: “Give me three practice questions on both.”
+
+The student does not repeat the topic names in every question. Our application carries the earlier conversation so the model can understand first one, second one, and both.
 
 ## What we are building
 
-A small chat graph with separate conversations for user1 and user2. We send only the new message on the second turn; the checkpointer restores the saved messages for the same thread.
+A study assistant with five state fields: student_id, level, topics, messages, and last_answer.
 
-We use a simple chatbot here rather than adding tools again. The same checkpointer mechanism can also be attached when compiling the tool loop from the previous lesson.
+A checkpointer saves the graph state. The same thread_id continues that conversation; a different ID starts a separate one. InMemorySaver keeps this data only while the current Python process remains alive.
 
-InMemorySaver stores state only in the current Python process. Restarting the kernel loses it. A thread ID chooses conversation state; it is not a login or an access-control check.
+For each later turn we send the new message. The graph restores the earlier state; we do not rebuild and resend the whole history ourselves.
 
-## Set up the chat node
+### Import the graph helpers
 
-The model and node match the earlier single-node graph.
-
-### Import the model and graph helpers
-
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-1-1 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-01 -->
 ```python
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
-from langgraph.graph import StateGraph, MessagesState, START, END
+from typing_extensions import TypedDict
+from typing import Annotated
+from langgraph.graph.message import add_messages
+from langgraph.graph import StateGraph, START, END
 ```
 
 **What happens here**
 
-These are familiar LangChain model and message helpers, plus our graph building blocks. MessagesState already defines a messages list with the add_messages reducer, so we do not need to write that same schema again.
+TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
-**Result:** The model, message, and graph helpers are available.
+**Result:** The helpers are ready; no graph has run.
 
-### Load the key and create the model
+### Import the model and messages
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-1-2 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-02 -->
+```python
+from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from langchain_core.messages import HumanMessage, SystemMessage
+```
+
+**What happens here**
+
+These are the same model and message helpers we used in Part I. The graph will decide when to call the model.
+
+**Result:** We can prepare the connection.
+
+### Connect to our existing Groq model
+
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-03 -->
 ```python
 # Keep GROQ_API_KEY in the local .env file.
 load_dotenv()
@@ -49,145 +62,204 @@ model = init_chat_model(
 
 **What happens here**
 
-We use the same Groq model as Part I. load_dotenv makes the key available, and init_chat_model prepares our connection. No question has been sent yet.
+load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
 
-**Result:** model is ready for the node that will call it.
+**Result:** The model is ready. Running its node will make a provider request.
 
-### Put the model call inside a node
+### Describe the student's context
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-1-3 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-04 -->
 ```python
-def chatbot(state: MessagesState) -> dict:
-    reply = model.invoke([
-        SystemMessage("You are a concise assistant for a Python learner."),
-        *state["messages"],
-    ])
-    # Return only the new reply; the reducer keeps the earlier messages.
-    return {"messages": [reply]}
+class StudyState(TypedDict):
+    student_id: str
+    level: str
+    topics: list[str]
+    messages: Annotated[list, add_messages]
+    last_answer: str
 ```
 
 **What happens here**
 
-Our node receives the current messages, adds an instruction for this model call, and invokes the model. The star expands the existing list into the request. We return the new AIMessage itself, preserving its metadata and any structured fields. We do not return the whole old conversation again.
+StudyState preserves useful learning context alongside the conversation. topics is an ordinary list that replaces on update. messages has a message-aware reducer. last_answer gives us an easy place to read the latest reply.
 
-**Result:** The node adds one model reply to the graph state.
+**Result:** List-shaped fields can have different update rules because their meanings differ.
 
-## Compile with memory
+### Answer using the restored context
 
-This is where persistence enters the graph.
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-05 -->
+```python
+def tutor(state: StudyState) -> dict:
+    reply = model.invoke([
+        SystemMessage(
+            f"You are a concise Python tutor for a {state['level']} student. "
+            f"Selected topics, in order: {', '.join(state['topics'])}. "
+            "Use the conversation to understand follow-up references."
+        ),
+        *state["messages"],
+    ])
+    return {"messages": [reply], "last_answer": reply.text}
+```
 
-### Create a checkpointer
+**What happens here**
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-2-1 -->
+The tutor receives saved metadata and earlier messages. It returns only the new AIMessage and last_answer. Resending the entire old message list is unnecessary.
+
+**Result:** The node can answer a follow-up using its context.
+
+### Attach a checkpointer to the graph
+
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-06 -->
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
 
 memory = InMemorySaver()
-```
-
-**What happens here**
-
-InMemorySaver gives this Python process a place to hold saved graph state. Reuse the same instance for the conversations you want to continue.
-
-**Result:** memory is ready to attach to the graph.
-
-### Attach it during compilation
-
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-2-2 -->
-```python
-builder = StateGraph(MessagesState)
-builder.add_node("chatbot", chatbot)
-builder.add_edge(START, "chatbot")
-builder.add_edge("chatbot", END)
+builder = StateGraph(StudyState)
+builder.add_node("tutor", tutor)
+builder.add_edge(START, "tutor")
+builder.add_edge("tutor", END)
 graph = builder.compile(checkpointer=memory)
 ```
 
 **What happens here**
 
-Passing checkpointer at compile time lets the graph save and restore state around execution. MessagesState still controls how new messages merge with the stored list.
+The checkpointer stores the state needed by later invocations. It saves our metadata as well as messages. A thread ID identifies which saved conversation to load; it is not an authentication mechanism.
 
-**Result:** The graph can continue a named thread.
+**Result:** The graph can continue separate conversations.
 
-## Continue one thread, then try another
+### Start the first student's conversation
 
-Send only the new input on each turn.
-
-### Start the first conversation
-
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-3-1 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-07 -->
 ```python
-user1_config = {"configurable": {"thread_id": "user1"}}
-first_response = graph.invoke(
-    {"messages": [HumanMessage("My name is Ada. I am learning LangGraph.")]},
-    user1_config,
-)
-print(first_response["messages"][-1].text)
+student1_config = {"configurable": {"thread_id": "student1"}}
+first_response = graph.invoke({
+    "student_id": "student1", "level": "beginner",
+    "topics": ["lists", "tuples"], "last_answer": "",
+    "messages": [HumanMessage("I want to understand Python lists and tuples.")],
+}, student1_config)
+print(first_response["last_answer"])
 ```
 
 **What happens here**
 
-The configuration names the conversation. The graph stores Ada's introduction and the model's reply under that thread.
+The first turn supplies all five fields. The selected topics have an explicit order, which makes first one and second one meaningful.
 
-**Result:** user1 has a saved conversation.
+**Result:** The first student's context and reply are saved.
 
-### Ask a follow-up in the same thread
+### Continue with only the new messages
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-3-2 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-08 -->
 ```python
-second_response = graph.invoke(
-    {"messages": [HumanMessage("What is my name, and what am I learning?")]},
-    user1_config,
-)
-print(second_response["messages"][-1].text)
+for question in [
+    "Explain the first one with an example.",
+    "How is it different from the second one?",
+    "Give me three practice questions on both.",
+]:
+    response = graph.invoke(
+        {"messages": [HumanMessage(question)]}, student1_config
+    )
+    print("Student:", question)
+    print("Tutor:", response["last_answer"])
 ```
 
 **What happens here**
 
-We send only the new question with the same thread ID. The checkpointer restores the earlier state, and the message reducer adds this question. The model receives Ada's earlier introduction as context.
+Each invocation sends a partial input update containing just the new message. The checkpointer restores the level, topics, and prior conversation for student1. The model receives that history even though our calling code sends only one new turn.
 
-**Result:** The reply can use the facts supplied in the first turn.
+**Result:** The follow-up references can be interpreted from the saved context.
 
-### Start a different conversation
+### Start a different student's thread
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-3-3 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-09 -->
 ```python
-user2_config = {"configurable": {"thread_id": "user2"}}
-other_response = graph.invoke(
-    {"messages": [HumanMessage("What is my name?")]}, user2_config
+student2_config = {"configurable": {"thread_id": "student2"}}
+graph.invoke({
+    "student_id": "student2", "level": "beginner",
+    "topics": ["loops", "functions"], "last_answer": "",
+    "messages": [HumanMessage("I want to understand Python loops and functions.")],
+}, student2_config)
+second_student = graph.invoke(
+    {"messages": [HumanMessage("Explain the first one.")]}, student2_config
 )
-print(other_response["messages"][-1].text)
+print(second_student["last_answer"])
 ```
 
 **What happens here**
 
-A different thread selects different saved state. We have not supplied a name in user2's conversation, so the model should ask for one rather than claim to remember Ada.
+student2 has their own topics and messages. Their first one refers to loops, while student1's first one refers to lists. Separate threads prevent these two example conversations from sharing state.
 
-**Result:** The two threads do not share their message histories.
+**Result:** The two students can ask the same words with different context.
 
 ### Inspect the stored state
 
-<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-3-4 -->
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-10 -->
 ```python
-saved_state = graph.get_state(user1_config)
-print("Messages saved for user1:", len(saved_state.values["messages"]))
+saved_student1 = graph.get_state(student1_config).values
+saved_student2 = graph.get_state(student2_config).values
+print(saved_student1["topics"], len(saved_student1["messages"]))
+print(saved_student2["topics"], len(saved_student2["messages"]))
 ```
 
 **What happens here**
 
-get_state gives us a snapshot of the saved graph state for this thread. We count message objects, not tokens. The history normally contains two human requests and two AI replies.
+get_state reads the saved snapshot. Student1 has eight messages from four exchanges; student2 has four from two exchanges. Counting messages does not count their tokens.
 
-**Result:** user1 has four conversation messages after the two turns.
+**Result:** We can verify thread separation directly.
+
+## Updating selected topics
+
+A student can choose a new topic. A topics update replaces that ordinary list. A messages update merges into the history. The two fields deliberately behave differently.
+
+### Change topics without discarding the conversation
+
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-11 -->
+```python
+changed_topics = graph.invoke({
+    "topics": ["dictionaries"],
+    "messages": [HumanMessage("Switch to dictionaries. Explain this new topic simply.")],
+}, student1_config)
+print(changed_topics["topics"])
+print(len(changed_topics["messages"]))
+```
+
+**What happens here**
+
+The selected topics become dictionaries. The earlier messages remain, and this exchange adds two more. The tutor's system instruction uses the current selection while the history still records how the conversation evolved.
+
+**Result:** The new topic list contains one item and the history contains ten messages.
+
+## Why add_messages is more than list addition
+
+A new message ID appends a message. Returning a message with an existing ID replaces that message instead. This is useful when correcting a stored reply.
+
+### Demonstrate an update by message ID
+
+<!-- snippet: code/Part II Connecting the dots/5-adding-memory.ipynb#p2-6-step-12 -->
+```python
+from langchain_core.messages import AIMessage
+
+earlier = [AIMessage(content="Earlier explanation.", id="reply-1")]
+corrected = AIMessage(content="Corrected explanation.", id="reply-1")
+merged = add_messages(earlier, [corrected])
+print(len(merged), merged[0].text)
+```
+
+**What happens here**
+
+Both replies use reply-1, so add_messages updates that entry and the length stays one. This small standalone demonstration does not edit either student's checkpoint.
+
+**Result:** The stored message becomes Corrected explanation without appending a duplicate.
 
 ## Check your understanding
 
-1. Where do we attach the checkpointer?
-2. Why do we send only new messages on the second turn?
-3. What happens when the kernel restarts?
-4. Does a thread ID prove which user is logged in?
+1. Which state fields are restored for a follow-up?
+2. What does the same thread ID mean?
+3. Why does student2's first one mean loops?
+4. Why does topics replace while messages merges?
+5. What happens when a returned message has an existing ID?
 
 ## Where we go next
 
-Next we will watch a graph's progress and receive model text as it arrives.
+Next we will show progress while a recipe is being generated.
 
 Complete notebook: [5-adding-memory.ipynb](../../../Part%20II%20Connecting%20the%20dots/5-adding-memory.ipynb)
 

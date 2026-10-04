@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 introduced = {}
 total = 0
 
-for path in [*(ROOT / "code/Part I Understanding the Basics").glob("*.ipynb"), *(ROOT / "code/Part II Connecting the dots").glob("*.ipynb")]:
+for path in (ROOT / "code").glob("Part*/*.ipynb"):
     notebook = json.loads(path.read_text(encoding="utf-8"))
     for entry in notebook["cells"]:
         if entry["cell_type"] == "code":
@@ -26,7 +26,7 @@ for path in [*(ROOT / "code/Part I Understanding the Basics").glob("*.ipynb"), *
 for path in [*(ROOT / "code").glob("*.py"), *(ROOT / "scripts").glob("*.py")]:
     ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
-last_lesson = max(entry["number"] for entry in json.loads((ROOT / "part-two-lessons.json").read_text(encoding="utf-8")))
+last_lesson = max(entry["number"] for filename in ("part-two-lessons.json", "part-three-lessons.json") for entry in json.loads((ROOT / filename).read_text(encoding="utf-8")))
 for lesson in range(1, last_lesson + 1):
     page = BeautifulSoup((ROOT / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
     for card in page.select(".snippet-card"):
@@ -58,7 +58,7 @@ for lesson in range(1, last_lesson + 1):
     for entry in registry:
         assert entry["definition"] and introduced[entry["term"]] == {"lesson": entry["lesson"], "anchor": entry["anchor"]}
     navigation = page.select("#lesson > .lesson-pagination a")
-    assert [link["href"] for link in navigation] == [f"lesson-{lesson-1}.html" if lesson > 1 else "part-one.html", f"lesson-{lesson+1}.html" if lesson < last_lesson else "part-two.html"]
+    assert [link["href"] for link in navigation] == [f"lesson-{lesson-1}.html" if lesson > 1 else "part-one.html", f"lesson-{lesson+1}.html" if lesson < last_lesson else "part-three.html"]
     for element in page.select("a[href], link[href], script[src], img[src]"):
         url = urlsplit(element.get("href", element.get("src")))
         if not url.scheme and url.path:

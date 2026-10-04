@@ -1,0 +1,26 @@
+Nexa LeakGuard
+Product ID: NEX-1010
+Category: Water-leak sensor
+
+DESCRIPTION
+A small battery-powered sensor that detects water beneath sinks, washing machines, water heaters, and similar risk areas. It sends an immediate alert to the Nexa Home app and can trigger a compatible shutoff valve.
+
+KEY FEATURES
+- Water-contact detection and loud local alarm.
+- Temperature warning for potential pipe-freeze conditions.
+- Optional automation with a compatible smart shutoff valve.
+
+SETUP
+- Place the metal contact points flat on a dry surface near, not inside, the likely leak path.
+- Add LeakGuard in the app and label it with its exact location.
+- Test once by touching a few drops of clean water to the contacts, then dry them.
+
+HOW TO USE
+- Treat every water alert as urgent and inspect the named location first.
+- Use event history to confirm when the sensor became wet or dry.
+- Replace the battery annually or whenever the low-battery alert appears.
+
+ERROR CODES AND RESOLUTIONS
+E1101: Sensor wet. Resolution: Inspect for a leak immediately, dry the contacts, and resolve the source before resetting.
+E1110: Battery low. Resolution: Replace the coin-cell battery with the specified type and retest the sensor.
+E1124: Temperature reading unavailable. Resolution: Remove the battery for 30 seconds, reinstall it, and check the device connection.

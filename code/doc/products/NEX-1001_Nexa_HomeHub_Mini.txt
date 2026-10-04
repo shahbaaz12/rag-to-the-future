@@ -1,0 +1,26 @@
+Nexa HomeHub Mini
+Product ID: NEX-1001
+Category: Smart-home voice hub
+
+DESCRIPTION
+A compact Wi-Fi hub that brings compatible lights, plugs, sensors, and routines into one voice-controlled dashboard. It supports room-based controls and scheduled automations for a small home or apartment.
+
+KEY FEATURES
+- 2.4 GHz Wi-Fi setup with Bluetooth-assisted pairing.
+- Voice commands, mobile dashboard, and routines.
+- Up to 40 compatible devices on a single home profile.
+
+SETUP
+- Connect the supplied USB-C power cable and wait for the status ring to pulse blue.
+- Open the Nexa Home app, choose Add Device, and scan the QR code on the base.
+- Join a 2.4 GHz network, assign a room, then add compatible devices from the Devices tab.
+
+HOW TO USE
+- Say a command such as 'Turn on living room lights,' or select a room in the app.
+- Create routines from Automations; for example, turn lights off at 11:00 PM.
+- Check the dashboard activity log when a routine did not run as expected.
+
+ERROR CODES AND RESOLUTIONS
+E101: Wi-Fi connection failed. Resolution: Confirm a 2.4 GHz network is available, move closer to the router, then restart setup.
+E118: Device limit reached. Resolution: Remove an unused accessory or create a separate home profile.
+E201: Voice service unavailable. Resolution: Verify internet access and restart the HomeHub from Settings > System.

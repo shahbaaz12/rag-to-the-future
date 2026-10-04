@@ -1,0 +1,26 @@
+Nexa PowerStrip Pro
+Product ID: NEX-1006
+Category: Surge-protected smart power strip
+
+DESCRIPTION
+A six-outlet smart power strip with individually controlled outlets, energy monitoring, and surge protection. It is useful for desks, media centers, or small appliance stations where scheduled shutoff can reduce standby consumption.
+
+KEY FEATURES
+- Six controlled outlets and two USB-C charging ports.
+- Per-outlet naming, schedules, and energy usage totals.
+- Built-in overload and surge status indicator.
+
+SETUP
+- Plug the strip directly into a wall outlet; do not connect it to another power strip.
+- Add PowerStrip Pro from the app and label each outlet by the connected device.
+- Set an off schedule only for equipment that can safely lose power.
+
+HOW TO USE
+- Toggle individual outlets from the app or add them to routines.
+- Review energy totals to identify devices with high standby use.
+- Press the physical main button once to turn all controlled outlets off.
+
+ERROR CODES AND RESOLUTIONS
+E701: Overload protection active. Resolution: Unplug high-wattage devices, wait one minute, then press Reset.
+E716: Outlet unavailable. Resolution: Turn the outlet on in the app and inspect the connected device's own power switch.
+E724: Surge protection expired. Resolution: Replace the power strip; its protection components are no longer reliable.

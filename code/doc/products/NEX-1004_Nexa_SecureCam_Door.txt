@@ -1,0 +1,26 @@
+Nexa SecureCam Door
+Product ID: NEX-1004
+Category: Battery video doorbell
+
+DESCRIPTION
+A weather-resistant video doorbell with motion alerts, two-way audio, local event history, and optional cloud backup. It is intended for a front door or protected outdoor entrance with a reliable Wi-Fi signal.
+
+KEY FEATURES
+- 1080p live video, night vision, and adjustable motion zones.
+- Rechargeable battery with low-battery notifications.
+- Two-way talk from the Nexa Home mobile app.
+
+SETUP
+- Charge the unit fully before mounting it at chest height beside the door.
+- Add SecureCam in the app while standing near the installation location.
+- Set motion zones to exclude public roads or constantly moving trees.
+
+HOW TO USE
+- Tap a notification to open live view or speak with a visitor.
+- Review Events to see clips sorted by date and motion type.
+- Charge when the app reports 20 percent battery or less.
+
+ERROR CODES AND RESOLUTIONS
+E501: Camera offline. Resolution: Check Wi-Fi strength at the door, then press and hold the side button for 10 seconds.
+E514: Storage unavailable. Resolution: Confirm the local storage card is inserted correctly or free space in cloud storage.
+E527: Motion zone invalid. Resolution: Redraw the zone so it remains inside the visible camera frame.

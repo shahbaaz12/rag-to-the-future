@@ -10,49 +10,49 @@
     "local": 2,
     "number": 10,
     "filename": "2-working-with-edges.ipynb",
-    "title": "Choose the path: working with edges",
-    "lead": "Run steps in order, run independent work together, choose a branch, and stop a loop."
+    "title": "Choose the path: food delivery",
+    "lead": "Ordered steps, independent availability checks, a clear open/closed branch, and a bounded rider search."
   },
   {
     "local": 3,
     "number": 11,
     "filename": "3-Connecting-LLM.ipynb",
-    "title": "Put an LLM inside the graph",
-    "lead": "The model call stays familiar; the graph controls where it belongs."
+    "title": "Draft an office email reply",
+    "lead": "One node, one model call, and a four-field email record."
   },
   {
     "local": 4,
     "number": 12,
     "filename": "4-Using-Tools.ipynb",
-    "title": "Run a tool inside the graph",
-    "lead": "A model requests the lookup; a tool node runs it and returns the result."
+    "title": "Look up an employee's leave balance",
+    "lead": "The model requests a function; the application reads the record and returns its result."
   },
   {
     "local": 5,
     "number": 13,
     "filename": "5-ReActive-Graph.ipynb",
-    "title": "Let the graph ask again",
-    "lead": "Build the model-and-tool loop, then give it a clear stopping route."
+    "title": "Compare travel options with a tool loop",
+    "lead": "Find route IDs, fetch their details, and return to the model until it can answer."
   },
   {
     "local": 6,
     "number": 14,
     "filename": "5-adding-memory.ipynb",
-    "title": "Keep the right conversation",
-    "lead": "Attach a checkpointer to the graph and continue by thread ID."
+    "title": "Remember a student's selected topics",
+    "lead": "Keep learning level, topics, and conversation context within separate student threads."
   },
   {
     "local": 7,
     "number": 15,
     "filename": "6-Streaming.ipynb",
-    "title": "Watch the graph work",
-    "lead": "Separate completed node updates from live model text."
+    "title": "Watch a recipe appear",
+    "lead": "See completed node updates and live model text as two different kinds of progress."
   },
   {
     "local": 8,
     "number": 16,
     "filename": "7-human-in-loop.ipynb",
-    "title": "Pause and ask a person",
-    "lead": "Interrupt a request, save the state, and resume with an explicit decision."
+    "title": "Approve or reject a refund",
+    "lead": "Pause a five-field refund request, save its state, and resume with a human decision."
   }
 ]
