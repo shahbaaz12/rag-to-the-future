@@ -1,0 +1,32 @@
+.temporal-lesson .lesson-graph { margin: 2.2rem 0 3rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); }
+.lesson-graph__header { padding: 1.2rem 1.4rem; border-bottom: 1px solid var(--temporal-border); }
+.lesson-graph__header > span { color: var(--temporal-accent); font: .75rem/1.5 var(--temporal-mono); letter-spacing: .1em; }
+.lesson-graph__header h4 { margin: .35rem 0 0; font: 600 1.5rem/1.4 var(--temporal-sans, "DM Sans", sans-serif); color: var(--temporal-text); }
+.lesson-graph__hint { display: none; }
+.lesson-graph__canvas { max-width: 100%; overflow-x: auto; padding: .7rem 0; background: linear-gradient(135deg, color-mix(in srgb, var(--temporal-accent) 5%, transparent), transparent); }
+.lesson-graph__canvas svg { display: block; width: 100%; min-width: 660px; height: auto; }
+.lesson-graph__canvas:focus-visible, .lesson-graph summary:focus-visible { outline: 2px solid var(--temporal-accent); outline-offset: -3px; }
+.graph-node rect { fill: var(--temporal-panel); stroke: var(--temporal-accent); stroke-width: 1.7; }
+.graph-node--terminal rect { fill: color-mix(in srgb, var(--temporal-accent) 12%, var(--temporal-panel)); }
+.graph-node text { fill: var(--temporal-text); font: 18px var(--temporal-mono); }
+[data-lesson-graph="graph-execution"] .graph-node text { font-size: 20px; }
+.graph-edge { fill: none; stroke: var(--temporal-accent); stroke-width: 2; }
+.graph-edge--choice { stroke-dasharray: 6 4; }
+.lesson-graph marker path { fill: var(--temporal-accent); }
+.graph-edge-label { fill: var(--temporal-accent); font: 16px var(--temporal-mono); stroke: var(--temporal-panel); stroke-width: 5px; paint-order: stroke; stroke-linejoin: round; }
+.lesson-graph figcaption { padding: 1rem 1.4rem; border-top: 1px solid var(--temporal-border); }
+.lesson-graph figcaption p { margin: 0; }
+.lesson-graph__storage { display: block; margin-top: .9rem; color: var(--temporal-accent); font: .85rem/1.6 var(--temporal-mono); }
+.lesson-graph__connections { padding: .9rem 1.4rem; border-top: 1px solid var(--temporal-border); }
+.lesson-graph__connections summary { cursor: pointer; color: var(--temporal-accent); font-size: 1rem; }
+.lesson-graph__connections ul { padding-left: 1.25rem; }
+.lesson-graph__connections li { overflow-wrap: anywhere; }
+.lesson-graph__stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 0; margin: 0; list-style: none; background: var(--temporal-border); border-bottom: 1px solid var(--temporal-border); }
+.temporal-lesson #lesson .lesson-graph__stages li { margin: 0; padding: 1.2rem; background: var(--temporal-panel); }
+.lesson-graph__stages b { display: block; color: var(--temporal-accent); font: .85rem/1.5 var(--temporal-mono); }
+.lesson-graph__stages span { display: block; margin-top: .5rem; font-size: 1rem; line-height: 1.6; }
+@media (max-width: 650px) {
+  .temporal-lesson .lesson-graph__hint { display: block; padding: .75rem 1rem; margin: 0; color: var(--temporal-accent); font: .85rem/1.5 var(--temporal-mono); border-bottom: 1px solid var(--temporal-border); }
+  .lesson-graph__stages { grid-template-columns: 1fr; }
+  .lesson-graph__header, .lesson-graph figcaption, .lesson-graph__connections { padding-left: 1rem; padding-right: 1rem; }
+}

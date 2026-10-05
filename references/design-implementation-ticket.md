@@ -198,3 +198,23 @@ Status: complete. Design, FE, Ops and QA finished sequentially. Baseline committ
 Validation: all 20 teaching articles match the pre-change snapshot exactly, including code/comments, links and anchors. Every lesson includes one versioned topic stylesheet, and repeated generation is stable. Source validation passes 284 snippets and 128 glossary terms. Browser review confirms numbered major panels, subordinate markers, unchanged display typefaces and an unaffected nested tokenizer title. Desktop and narrow mobile layouts have no page-wide overflow; both light and dark themes retain readable topic contrast. Original theme, viewport and completion records were restored, and a preview screenshot was saved outside the repository.
 
 Shipped: consistent topic panels, smaller subtopic dividers and clearer spacing across all published lessons, integrated into repeatable generation. No teaching content, story, map or progress changes; no deployment requested.
+
+## Ticket: Make graph construction and execution visible
+
+Goal: Explain Lesson 9 Topic 5 visually and show every constructed graph beside its construction code.
+
+Scope: a shared static diagram component, authored topology data, and repeatable lesson generation. Cover all 17 explicit StateGraph examples and three Part I agent wrappers, labeling those wrappers as conceptual flows. Preserve all existing prose, exact teaching snippets/comments, IDs and navigation. No model calls, story changes or deployment.
+
+Acceptance criteria:
+- [x] Topic 5 shows definition, compilation, invocation, node execution and reducer updates accurately.
+- [x] Every constructed graph has its matching named nodes, edges, branches, joins and loops visible beside its code.
+- [x] Diagrams have captions and readable text equivalents; responsive layouts and both themes work without page-wide overflow.
+- [x] Generation is repeatable, graph/source checks and lesson validation pass, and existing snippets remain identical.
+
+Assigned sequentially: Design — operational diagram vocabulary and accessible captions; FE — static responsive SVG panels; Ops — topology data and shared build integration; QA — topology/source parity, preservation, responsive/theme review. BE — n/a, no server or API changes.
+
+Status: complete. Design, FE, Ops and QA finished sequentially.
+
+Validation: 17 explicit graphs and three conceptual agent flows are read from displayed Python without executing it. Four tests cover explicit joins, literal construction loops, conditional/retry edges, inline compilation, checkpoint attachment, agent tool choices, complete coverage and repeat insertion. All 20 teaching articles match the prior content after removing the new visuals and accounting for the previously requested agentic-AI heading correction. Source validation passes 284 snippets and 128 glossary terms. Repeat generation is byte-stable across all 24 pages. Browser review covers Topic 5's execution cycle, the combined dispatch graph, parallel joins and the shopping-agent flow. Desktop/mobile and light/dark themes have no page-wide overflow; narrow diagrams support keyboard horizontal scrolling, visible guidance and expandable text connections. Original theme, viewport and lesson completion states were restored. A preview screenshot was saved outside the repository.
+
+Shipped: a definition/compile/invoke and runtime-cycle visual in Lesson 9 Topic 5, plus source-derived diagrams beside every existing graph/agent construction. Captions explain conditional choices, joins, bounded retries, unsafe parallel returns, human pause/resume and checkpointer storage. Shared generation and drafting guidance retain the visuals for future graph lessons. Existing code/comments, prose and navigation remain intact. No model calls, story changes or deployment requested.

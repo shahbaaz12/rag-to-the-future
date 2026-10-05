@@ -1,7 +1,7 @@
 """Static design components, shared by the site and lesson renderer.
 
-All instruments sit outside lesson teaching articles. Run this file to apply
-the design layer without regenerating or editing teaching content.
+Navigation instruments sit outside lesson teaching articles; graph visuals
+sit beside their source snippets. Existing teaching prose and code are preserved.
 """
 from pathlib import Path
 from hashlib import sha256
@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from lesson_stories import opening, remove_legacy_story
 from lesson_navigation import section_index, part_one_cards
 from american_english import standardize_page
+from lesson_graphs import add_graph_visuals
 
 ROOT = Path(__file__).resolve().parents[1]
 PARTS = {
@@ -152,6 +153,11 @@ def apply_design(page, part=None, lesson=None):
     if lesson:
         hero.append(fragment(circuit(part, lesson)))
         article = page.select_one("#lesson")
+        add_graph_visuals(page, lesson)
+        for old in page.select('link[href^="lesson-graphs.css"]'):
+            old.decompose()
+        if article.select_one('[data-lesson-graph]'):
+            page.head.append(page.new_tag("link", rel="stylesheet", href=versioned("lesson-graphs.css")))
         if lesson == 1:
             remove_legacy_story(article)
         story = opening(lesson)
@@ -185,4 +191,4 @@ if __name__ == "__main__":
         page = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
         apply_design(page, part, lesson)
         path.write_text(str(page), encoding="utf-8")
-    print(f"Updated design components on {len(targets)} pages; teaching articles preserved.")
+    print(f"Updated design components on {len(targets)} pages; existing teaching prose and code preserved.")

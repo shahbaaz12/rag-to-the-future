@@ -119,6 +119,8 @@ Diagrams should be operational, not decorative. Use a small vocabulary of nodes,
 
 Label every visual connection. Give diagrams a short caption that states the lesson's conclusion in plain language.
 
+Lesson graph panels use `lesson-graphs.css` and static SVG with the current era's accent. `scripts/graph_topology.py` reads registered nodes, ordinary/conditional edges, explicit joins and loops from the displayed construction snippets without executing them. `scripts/lesson_graphs.py` inserts a diagram immediately after each compilation snippet and renders the three framework-managed agent wrappers as conceptual flows. Keep a readable caption and expandable connection list with every diagram; permit horizontal scrolling inside the diagram on narrow screens while the caption stays in the reading column. Keep checkpointer storage outside the node path. Add a title/caption in `lesson-graphs.json` for new constructions so rebuilds retain the visual.
+
 ### Progress states
 
 | State | Visual treatment | Meaning |

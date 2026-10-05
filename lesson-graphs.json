@@ -1,0 +1,22 @@
+{
+  "6:agent": ["A conversation with saved state", "The wrapper calls the model with this thread's conversation state. There are no tools in this example. The checkpointer saves and restores state; it is storage, not an execution node."],
+  "8:basic_inventory_agent": ["The stock-checking agent", "The model can request check_stock_service, receive its result and continue. It can also answer directly. This is a conceptual view of the framework-managed loop."],
+  "8:shopping_agent": ["The shopping agent", "The model can request one or several supplied tools, then see their returned results. These branches show the available stock and price tools, not a required order. This is a conceptual view of the framework-managed loop."],
+  "9:builder": ["Our first graph", "START leads to STEP ONE, then STEP TWO, then END. Each working node contributes a message to the shared state."],
+  "10:sequential_builder": ["Read, then validate", "read finishes before validate runs. Each node sees the state produced by the preceding round."],
+  "10:parallel_builder": ["Two checks, one join", "restaurant and rider run in the same super-step. The explicit join waits for both before finish runs; their completion order is not guaranteed."],
+  "10:full_builder": ["A full-state return", "The review node returns the existing state as well as its update. The topology is simple; the accumulated log can still be duplicated by its reducer."],
+  "10:unsafe_builder": ["Parallel full returns: the unsafe example", "Both nodes return full state at once. This drawing shows the constructed routes; invoking this example can raise InvalidUpdateError for conflicting updates. There is no explicit wait-for-both join here."],
+  "10:conditional_builder": ["Choose one restaurant route", "restaurant_route selects open or closed. Only the selected branch runs, then the workflow ends."],
+  "10:loop_builder": ["Search with a bounded retry", "again revisits search. assigned reaches confirm; unavailable reaches no_rider. The routing function stops after success or three attempts."],
+  "10:dispatch_builder": ["The complete dispatch workflow", "Read and validate, run both checks, then wait at finish. The chosen result rejects, confirms, or enters the bounded search. again repeats only the search node."],
+  "10:reset_builder": ["Reset the accumulated log", "clear returns Overwrite for the log field. The graph runs one working node and ends; other state fields remain unchanged."],
+  "11:builder": ["An LLM inside a node", "draft_reply reads EmailState, calls the model and returns an update. The graph itself follows a fixed path."],
+  "12:builder": ["A tool call with a final answer step", "ask_model can finish directly or request tools. On the tools route, answer runs after the tool result; this graph has no edge back to ask_model."],
+  "13:builder": ["The reactive tool loop", "assistant chooses a tool call or a final reply. tools returns to assistant so the model can inspect the result and decide again."],
+  "14:builder": ["The tutor with a checkpointer", "The execution path remains START → tutor → END. The checkpointer restores and saves state for thread_id; it does not add another graph node."],
+  "15:builder": ["The streaming recipe graph", "prepare_request runs before write_recipe. Streaming reveals output as work proceeds; it does not change these graph connections."],
+  "16:builder": ["Pause for a refund decision", "review pauses at interrupt for human input. After resuming, approve selects process and reject selects reject. The checkpointer preserves the paused run."],
+  "17:builder": ["Retrieve only when needed", "decide selects retrieve or generate. The retrieval route supplies documents before generation; the direct route skips retrieval."],
+  "20:builder": ["Choose detail or summary retrieval", "route selects DETAIL or SUMMARY. Only the selected retrieval node runs, and both possible paths lead to generate."]
+}

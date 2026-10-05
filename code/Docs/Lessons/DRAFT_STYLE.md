@@ -39,3 +39,4 @@ Adapt this structure to the lesson; do not add sections that do not help.
 - Use Markdown headings, lists, tables, and code blocks only when they make the teaching easier to scan.
 - Keep claims proportionate. Prefer “can”, “may”, and “often” where behavior depends on a provider, model, or application design.
 - Reference the exact associated notebook or code file when the lesson discusses it.
+- Show each constructed graph beside its construction code, including branch labels, explicit joins and return loops. The shared graph component derives topology from displayed Python snippets; add its concise title/caption to `lesson-graphs.json`. Label framework-managed agent flows as conceptual, and keep checkpointer storage separate from execution nodes. Preserve all source code/comments when adding visuals.

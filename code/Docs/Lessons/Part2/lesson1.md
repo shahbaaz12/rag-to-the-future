@@ -1,4 +1,4 @@
-1. Understanding agents. :
+1. Understanding agentic AI. :
 
     Agents are AI systems that have the capabilities of generative ai eg creating content reasoning.
     But now they also have the tools to go beyond and acheieve the task.

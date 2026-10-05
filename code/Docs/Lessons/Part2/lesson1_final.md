@@ -6,7 +6,7 @@ We have worked with models, messages, tools, and agents. Now let’s connect tho
 
 Do not worry about making the model clever in this first lesson. We will use two ordinary Python functions. If we understand how data moves between them, adding an LLM later becomes a much smaller step.
 
-## Understanding agents
+## Understanding agentic AI
 
 Generative AI can create content and reason about the input we give it. An agent can also use tools to work towards a task.
 
