@@ -228,7 +228,7 @@ for document in hybrid_results:
 
 **What happens here**
 
-Both searches use the same question and underlying chunks. Fusion chooses the final candidates. We print a source and excerpt so the retrieval behaviour is visible before involving the answer model.
+Both searches use the same question and underlying chunks. Fusion chooses the final candidates. We print a source and excerpt so the retrieval behavior is visible before involving the answer model.
 
 **Result:** Hybrid retrieval returns Documents ready to be used as context.
 

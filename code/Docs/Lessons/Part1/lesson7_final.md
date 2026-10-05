@@ -14,7 +14,7 @@ Tools let the model request information or an action from the outside world. The
 
 - define a small LangChain tool;
 - let a model request that tool;
-- execute only recognised tool calls; and
+- execute only recognized tool calls; and
 - explain the tool-execution loop.
 
 ---
@@ -71,7 +71,7 @@ groq_model = init_chat_model(
 
 ## What is a tool?
 
-A tool is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorised.
+A tool is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorized.
 
 For the first example, we use a tiny local lookup. It keeps the focus on the flow rather than adding another API key.
 
@@ -206,7 +206,7 @@ for tool_call in model_message.tool_calls:
 
 **What happens here**
 
-We look up the requested name in tools_by_name. A recognised tool runs with the proposed arguments; an unknown name receives a fallback. ToolMessage carries the result with the original call ID so the model can match it to the request.
+We look up the requested name in tools_by_name. A recognized tool runs with the proposed arguments; an unknown name receives a fallback. ToolMessage carries the result with the original call ID so the model can match it to the request.
 
 **Result:** The history now contains the tool result for each request. This small example checks the tool name; real applications also need argument and permission checks.
 

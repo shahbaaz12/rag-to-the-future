@@ -135,7 +135,7 @@ len(messages) counts message objects, rather than tokens. We have one instructio
 
 **Result:** Messages stored: 5
 
-## 2. Manual memory with summarisation
+## 2. Manual memory with summarization
 
 A growing history becomes more input on every call. Here we replace older details with a short summary. This example starts its own history list.
 
@@ -155,7 +155,7 @@ messages = [
 
 **What happens here**
 
-We create a five-message conversation to practise on. Ada's name, Python preference, and Groq usage are the useful facts we want to carry forward.
+We create a five-message conversation to practice on. Ada's name, Python preference, and Groq usage are the useful facts we want to carry forward.
 
 **Result:** This replaces the messages list from the manual-memory example.
 
@@ -173,7 +173,7 @@ print("Summary:", summary)
 
 **What happens here**
 
-messages[1:] skips the system instruction. The join builds text containing each message's role and content. We ask the model to summarise that text and take the response content.
+messages[1:] skips the system instruction. The join builds text containing each message's role and content. We ask the model to summarize that text and take the response content.
 
 **Result:** summary holds the generated summary. Creating it uses an additional model call.
 
@@ -328,7 +328,7 @@ Work through the complete examples in [6-Memory.ipynb](../../../Part%20I%20Under
 ## Check your understanding
 
 1. Why does the manual-memory example send the whole list again on turn two?
-2. What benefit and risk come from summarising old messages?
+2. What benefit and risk come from summarizing old messages?
 3. What does a `thread_id` do?
 4. Why does a new `thread_id` not know Ada’s name?
 

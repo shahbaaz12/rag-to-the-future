@@ -170,22 +170,11 @@ To Python this whole sentence is one string. A model's tokenizer will divide it 
 
 **Result:** The string can contain several tokens.
 
-The model may see it more like this:
+Try changing the sentence in this playground and watch the pieces and counts update:
 
-### Picture the token pieces
+<!-- interactive: tokenizer-playground -->
 
-<!-- snippet: code/Docs/Lessons/Part1/lesson4_final.md#supplement -->
-```text
-"I" | " love" | " building" | " AI" | " apps" | "!"
-```
-
-**What happens here**
-
-This is an illustrative split into tokens, including spaces and punctuation. It is not output from a particular model's tokenizer.
-
-**Result:** A word and a token are not always the same unit.
-
-That is only an illustration. The exact token split changes from one model to another. The important point is that **a word is not always one token**. Long words may become several tokens, and a space often belongs to the token after it.
+The playground is an illustration. The exact token split changes from one model to another. The important point is that **a word is not always one token**. Long words may become several tokens, and a space often belongs to the token after it.
 
 ### Why do models use tokens instead of words or strings?
 
@@ -255,7 +244,7 @@ There is one extra detail here: this model uses a mixture-of-experts design. Its
 
 When we call this model through Groq, our laptop is not downloading or loading 120 billion parameters. Groq hosts the model and performs the computation. We only send the request and receive the response through the API.
 
-Two models can give different answers to the same prompt because they may differ in training, speed, context size, tool support, safety behaviour, and price.
+Two models can give different answers to the same prompt because they may differ in training, speed, context size, tool support, safety behavior, and price.
 
 Record the name returned in the response metadata when you test an application. “The model gave a strange answer” is difficult to investigate; “this prompt behaved differently on this model through this provider” is useful information.
 
@@ -299,7 +288,7 @@ The f-string inserts users_question into the instruction. We can replace the use
 
 **Result:** The model receives the comedian instruction and the sandwich question together.
 
-Dynamic prompts are how an application personalises an answer, inserts a user question, or supplies retrieved information. They are also where string-building gets messy surprisingly quickly.
+Dynamic prompts are how an application personalizes an answer, inserts a user question, or supplies retrieved information. They are also where string-building gets messy surprisingly quickly.
 
 ---
 
@@ -369,7 +358,7 @@ It is not magic prompt engineering. It is useful validation and reuse. If we for
 
 The template can also live outside the Python file. The notebook mentions saving a template. These supplementary snippets extend that idea: we save the same template as JSON and load it again.
 
-### Import the file and serialisation helpers
+### Import the file and serialization helpers
 
 <!-- snippet: code/Docs/Lessons/Part1/lesson4_final.md#supplement -->
 ```python
@@ -394,7 +383,7 @@ template_path.write_text(dumps(dynamic_question_template, pretty=True), encoding
 
 **What happens here**
 
-We choose a JSON path, create the prompts folder if needed, and write the existing dynamic_question_template. dumps serialises the template rather than sending a request to the model.
+We choose a JSON path, create the prompts folder if needed, and write the existing dynamic_question_template. dumps serializes the template rather than sending a request to the model.
 
 **Result:** The JSON file can be reused by another part of the application.
 

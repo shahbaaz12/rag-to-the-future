@@ -4,7 +4,7 @@
 
 ## The idea
 
-We will build a simple **study assistant** that explains topics, handles follow-up questions, summarises supplied notes, and uses small tools for data lookup and calculation. Each lesson introduces one capability through a familiar problem.
+We will build a simple **study assistant** that explains topics, handles follow-up questions, summarizes supplied notes, and uses small tools for data lookup and calculation. Each lesson introduces one capability through a familiar problem.
 
 Examples should require almost no domain knowledge: “Explain HTTP to a beginner” and “How long will these two lessons take?” are enough. Reuse the assistant when continuity helps, while keeping exercises small enough to understand independently.
 
@@ -16,7 +16,7 @@ The time-travel story in [material.md](../../../../material.md) can continue in 
 |---|---|---|
 | Optional story | Continue the narrative. | A short scene that can be skipped without losing technical information. |
 | Explanation | Teach the concept directly. | A practical problem, plain-language explanation, familiar example, and expected outcome. |
-| Code exercise — later | Demonstrate the concept. | A small implementation with its own inputs, behaviour, and checks, using ordinary names and data. |
+| Code exercise — later | Demonstrate the concept. | A small implementation with its own inputs, behavior, and checks, using ordinary names and data. |
 
 **Independence check:** Removing every story section must leave the explanations and exercises complete. The explanation must make sense without reading code. Each code exercise must state its task without referring back to a story event.
 
@@ -53,7 +53,7 @@ This is a proposal for review. Existing lesson files and the broader outline do 
 
 **Practical problem:** A learner has used chatbots but does not know how AI, ML, deep learning, LLMs, and AI applications fit together.
 
-**What we will learn:** Build a practical vocabulary: artificial intelligence is the broad field; machine learning develops behaviour from data; deep learning uses neural networks; and an LLM is a language model that can generate responses from context. An AI application also needs ordinary software around the model to manage inputs, data, tools, and results.
+**What we will learn:** Build a practical vocabulary: artificial intelligence is the broad field; machine learning develops behavior from data; deep learning uses neural networks; and an LLM is a language model that can generate responses from context. An AI application also needs ordinary software around the model to manage inputs, data, tools, and results.
 
 Discuss why the field feels fast-moving without turning the lesson into a catalogue of products. Our starting point is the request-and-response cycle because later capabilities build on it.
 
@@ -79,7 +79,7 @@ Read the response as more than an answer string: the surrounding result may also
 
 **Learning outcome:** The learner can trace one complete model interaction and distinguish a returned answer from a failed request.
 
-**Next problem:** The request works, but its resource use and behaviour are still unfamiliar.
+**Next problem:** The request works, but its resource use and behavior are still unfamiliar.
 
 ## Lesson 3 — Tokens, Context, and Model Selection
 
@@ -89,11 +89,11 @@ Read the response as more than an answer string: the surrounding result may also
 
 Explore model selection through task quality, response time, resource use, deployment needs, and supported capabilities. Read model names using their provider's documentation rather than treating naming conventions as universal rules.
 
-Separate two choices often mixed together: hosted versus self-hosted deployment, and proprietary versus open-weight or open-source licensing. Available weights do not automatically imply an unrestricted licence or free operation.
+Separate two choices often mixed together: hosted versus self-hosted deployment, and proprietary versus open-weight or open-source licensing. Available weights do not automatically imply an unrestricted license or free operation.
 
 Introduce temperature as a sampling control where supported. Lower temperature does not guarantee truth or identical results; higher temperature does not automatically improve creativity. Exact settings belong in later model-specific implementation material.
 
-**What we will make:** A comparison plan for choosing the assistant's model, using the same tasks for each candidate: explain HTTP, summarise a supplied paragraph, and rewrite an explanation for a beginner.
+**What we will make:** A comparison plan for choosing the assistant's model, using the same tasks for each candidate: explain HTTP, summarize a supplied paragraph, and rewrite an explanation for a beginner.
 
 **Learning outcome:** The learner can explain why “the biggest model” and “the lowest temperature” are insufficient selection rules.
 
@@ -103,7 +103,7 @@ Introduce temperature as a sampling control where supported. Lower temperature d
 
 **Practical problem:** We want to try another model, but connection details are spreading throughout the application design.
 
-**What we will learn:** Introduce LangChain as a framework that helps organise model interactions and related application components. Begin with the direct interaction from lesson 2 so the learner understands what the framework is abstracting.
+**What we will learn:** Introduce LangChain as a framework that helps organize model interactions and related application components. Begin with the direct interaction from lesson 2 so the learner understands what the framework is abstracting.
 
 
 Discuss a common interface for invoking models and handling messages. A shared interface can reduce repetitive integration work, but it does not make providers identical. Model capabilities, options, and response details still need checking.
@@ -154,11 +154,11 @@ Summaries reduce volume but can lose detail or preserve mistakes. Important fact
 
 **Practical problem:** A long answer leaves the user waiting without feedback, and several independent notes need summaries.
 
-**What we will learn:** Streaming exposes a response incrementally so a person can begin reading before it is complete. Batching groups multiple independent requests for processing. They address different needs and can have different operational behaviour.
+**What we will learn:** Streaming exposes a response incrementally so a person can begin reading before it is complete. Batching groups multiple independent requests for processing. They address different needs and can have different operational behavior.
 
 Streaming does not inherently improve correctness or reduce total generation time. A partial response may be unfinished or unsuitable for immediate downstream use. Batching still requires the application to associate each result with its input and handle failures individually; it is not the same as combining unrelated questions into one prompt.
 
-**What we will make:** Two planned interaction modes: a live explanation that appears progressively, and a batch task that summarises three short, supplied paragraphs separately.
+**What we will make:** Two planned interaction modes: a live explanation that appears progressively, and a batch task that summarizes three short, supplied paragraphs separately.
 
 **Demonstration idea:** Interrupt a streamed answer and include one failed request in a batch. Define what the learner should see in each case.
 
@@ -216,7 +216,7 @@ Introduce middleware as application logic around model or tool interactions. Giv
 
 ## Final experience: what the assistant would do
 
-At the end of this foundation block, a learner could ask the assistant to explain HTTP, simplify the explanation in a follow-up, summarise supplied notes, extract a structured study request, and calculate whether selected lessons fit into the available study time.
+At the end of this foundation block, a learner could ask the assistant to explain HTTP, simplify the explanation in a follow-up, summarize supplied notes, extract a structured study request, and calculate whether selected lessons fit into the available study time.
 
 The assistant would carry useful conversation context forward, show progress during longer responses, and explain when it lacks information. Its limited agent loop would use only the available tools and stop within a defined budget.
 
@@ -226,7 +226,7 @@ Searching a document collection and producing evidence-backed answers across tho
 
 Use a small set of scenarios throughout the lessons so progress is visible:
 
-| Scenario | Expected behaviour |
+| Scenario | Expected behavior |
 |---|---|
 | Clear explanation request | Gives an answer suited to the specified audience. |
 | Follow-up referring to an earlier answer | Uses the conversation context supplied by the application. |
@@ -237,7 +237,7 @@ Use a small set of scenarios throughout the lessons so progress is visible:
 | Repeated tool requests | Stops when the configured execution limit is reached. |
 | Question requiring unavailable document evidence | Acknowledges the evidence gap and motivates retrieval. |
 
-These checks demonstrate the intended behaviour on selected examples; they do not establish general reliability.
+These checks demonstrate the intended behavior on selected examples; they do not establish general reliability.
 
 ## Mapping from the current notes
 
@@ -245,17 +245,17 @@ These checks demonstrate the intended behaviour on selected examples; they do no
 |---|---|---|
 | lesson1.md | Lesson 1 | Establish vocabulary, motivation, and the project goal. |
 | lesson2.md | Lessons 2–3 | Separate the first connection from model-selection trade-offs. |
-| lesson3.md | Lessons 3–4 | Explain model behaviour before adding the LangChain abstraction. |
+| lesson3.md | Lessons 3–4 | Explain model behavior before adding the LangChain abstraction. |
 | lesson4.md | Lessons 2–3 and 5 | Separate response inspection, tokens, and prompt construction. |
 | lesson5.md | Lessons 5–7 | Introduce message roles before memory; give streaming and batching a distinct purpose. |
 | lesson6.md | Lesson 9 | Teach structured arguments and validation before tool execution. |
 | lesson7.md | Lesson 10 | Explain agents only after the complete tool loop is understood. |
 | lesson8.md — currently absent | Lesson 8 | Fill the sequence with structured output. |
 | lesson9.md | Lessons 8 and 10 | Separate output contracts from controls around execution. |
-| lesson10.md | Lesson 6 | Teach history and summarisation together as context-management choices. |
+| lesson10.md | Lesson 6 | Teach history and summarization together as context-management choices. |
 
 ## Suggested format for the eventual lessons
 
-Keep the optional story in a clearly separate section. The technical explanation should begin with a practical problem, teach the concept directly, and compare a successful example with a revealing failure. End with a learning outcome and the next technical question. The future code exercise should repeat its own task, inputs, and expected behaviour so it can be followed independently.
+Keep the optional story in a clearly separate section. The technical explanation should begin with a practical problem, teach the concept directly, and compare a successful example with a revealing failure. End with a learning outcome and the next technical question. The future code exercise should repeat its own task, inputs, and expected behavior so it can be followed independently.
 
 When code is introduced later, it should implement this progression in small steps. Avoid adding a framework, a new model, memory, and tools in the same first exercise: learners should be able to explain each capability before combining them.

@@ -60,7 +60,7 @@ Starting with one visible round trip keeps failures understandable. If the answe
 
 ## LLM versus chat model
 
-An **LLM** is the language engine. It can be used for tasks such as completion, extraction, classification, summarisation, and generating an answer.
+An **LLM** is the language engine. It can be used for tasks such as completion, extraction, classification, summarization, and generating an answer.
 
 A **chat model** is an LLM presented through a conversational interface. It is useful when an application needs instructions and a user conversation.
 
@@ -131,7 +131,7 @@ You have completed the first repair when you can answer these questions:
 
 ## Repair record
 
-**Status: stabilised.**
+**Status: stabilized.**
 
 You can now place an LLM inside an application, describe the limits of that model connection, and prepare a local project without exposing credentials.
 

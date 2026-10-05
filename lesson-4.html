@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 4: Inspect tokens and metadata, then build prompts that remain clear and reusable." name="description"/><title>Lesson 4 · Read the Response, Shape the Prompt · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/><link href="temporal-design.css?v=0eb89fc3db" rel="stylesheet"/><script defer="True" src="course-progress.js?v=59cdfeaf72"></script><script defer="True" src="temporal-ui.js?v=26edff2bdd"></script></head><body class="temporal-lesson" data-era="one"><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-3.html">← Lesson 3</a><a href="#lesson">Lesson</a><a href="lesson-5.html">Lesson 5 →</a><a href="part-one.html">Part I map</a></nav></header><main><nav aria-label="Three-part journey" class="era-route" data-temporal-component=""><a aria-current="step" href="part-one.html"><span class="era-route__number">01</span><span><b>1985</b><small>Analogue workshop</small></span><span aria-hidden="true">↗</span></a><a href="part-two.html"><span class="era-route__number">02</span><span><b>2045</b><small>Future workshop</small></span><span aria-hidden="true">↗</span></a><a href="part-three.html"><span class="era-route__number">03</span><span><b>????</b><small>Frontier workshop</small></span><span aria-hidden="true">↗</span></a></nav><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 04</p><h1 id="page-title">Read the Response, Shape the Prompt</h1><p class="lede">Inspect tokens and metadata, then build prompts that remain clear and reusable.</p><a class="button" href="#lesson">Read the lesson ↓</a><section aria-label="Current workshop and progress" class="temporal-circuit" data-temporal-component="">
-<div class="temporal-circuit__readout"><span>DESTINATION / ANALOGUE WORKSHOP</span><strong>1985</strong></div>
+<html lang="en-US"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Lesson 4: Inspect tokens and metadata, then build prompts that remain clear and reusable." name="description"/><title>Lesson 4 · Read the Response, Shape the Prompt · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/><link href="temporal-design.css?v=56bd37b1b7" rel="stylesheet"/><link href="lesson-story.css?v=66e6199a95" rel="stylesheet"/><link href="lesson-tokenizer.css?v=2165025943" rel="stylesheet"/><script defer="True" src="lesson-tokenizer.js?v=12784d6cc1"></script><script defer="True" src="course-progress.js?v=6f2472a680"></script><script defer="True" src="temporal-ui.js?v=89bcf7925f"></script><script defer="True" src="lesson-reading.js?v=65da995312"></script></head><body class="temporal-lesson" data-era="one"><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-3.html">← Lesson 3</a><a href="#lesson">Lesson</a><a href="lesson-5.html">Lesson 5 →</a><a href="part-one.html">Part I map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow"><span></span> PART I · OUT OF TIME · LESSON 04</p><h1 id="page-title">Read the Response, Shape the Prompt</h1><p class="lede">Inspect tokens and metadata, then build prompts that remain clear and reusable.</p><a class="button" href="#lesson">Read the lesson ↓</a><section aria-label="Current workshop" class="temporal-circuit" data-temporal-component="">
+<div class="temporal-circuit__readout"><span>DESTINATION / ANALOG WORKSHOP</span><strong>1985</strong></div>
 <div class="temporal-circuit__position"><span>LESSON 04 / 08</span><b>COURSE 04</b></div>
-<div class="charge-meter" data-course-meter="" data-end="8" data-start="1">
-<div class="charge-meter__label"><span>REPAIRS RECORDED</span><b><span data-meter-count="">0</span> / 8</b></div>
-<div aria-label="Recorded lesson completion" aria-valuemax="8" aria-valuemin="0" aria-valuenow="0" class="charge-meter__track" role="progressbar"><i></i></div>
-<p data-save-note="">Saved on this browser · self-reported</p></div></section></section><article class="document" id="lesson"><blockquote>
+</section></section><article class="document" id="lesson"><blockquote>
 <p><strong>Review draft</strong></p>
 <p>This lesson moves past printing model text. We inspect the whole response, understand why tokens matter, and make prompts reusable without turning them into a fragile collection of f-strings.</p>
 </blockquote>
-<h2 class="snippet-section">A note from me</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-01">A note from me</h2>
 <p>We made a model call. It answered. Nice. But an application needs more than <code>print(response.text)</code>.</p>
 <p>We need to know which model answered, how much text went in and came out, and how to give the model a consistent instruction as our application grows. This is where the response object and prompts start doing real work for us.</p>
-<h2 class="snippet-section">What you will be able to do</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-02">What you will be able to do</h2>
 <ul>
 <li>inspect generated text, model metadata, and token usage;</li>
 <li>explain why models use tokens instead of plain strings;</li>
@@ -21,7 +18,7 @@
 <li>use a <code>PromptTemplate</code> to reuse and validate prompt variables.</li>
 </ul>
 <hr/>
-<h2 class="snippet-section">Set up once</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-03">Set up once</h2>
 <p>Run these snippets in order in the associated notebook. Later snippets reuse the objects created here.</p>
 <h3>Import the building blocks</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#response-prompt-1">
@@ -73,7 +70,7 @@ load_dotenv()</code>
 <p class="snippet-result"><strong>Result</strong> We can reuse this model object in the following snippets.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb · response-prompt-1</a>
 </figcaption></figure>
-<h2 class="snippet-section">Understand the response</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-04">Understand the response</h2>
 <p>A call through LangChain returns an AI message object. The text is the part we usually show a user, but it is not the only useful part.</p>
 <h3>Make a request to inspect</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#response-prompt-3">
@@ -105,7 +102,7 @@ print("Token usage:", response.usage_metadata)</code>
 </span><span class="code-explorer__line" data-line="5"><span class="nb">print</span><span class="p">(</span><span class="s2">"Token usage:"</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">usage_metadata</span><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><code>response.text</code> gives readable text. <mark class="lesson-term lesson-term--concept" data-term="response_metadata" id="term-response-metadata" title="The response dictionary containing provider-reported details about the call.">response_metadata</mark> reports model details, and <mark class="lesson-term lesson-term--concept" data-term="usage_metadata" id="term-usage-metadata" title="LangChain's standardised token-usage information, when the provider supplies it.">usage_metadata</mark> reports token counts when supplied by the integration.</p>
+<p class="snippet-prose"><code>response.text</code> gives readable text. <mark class="lesson-term lesson-term--concept" data-term="response_metadata" id="term-response-metadata" title="The response dictionary containing provider-reported details about the call.">response_metadata</mark> reports model details, and <mark class="lesson-term lesson-term--concept" data-term="usage_metadata" id="term-usage-metadata" title="LangChain's standardized token-usage information, when the provider supplies it.">usage_metadata</mark> reports token counts when supplied by the integration.</p>
 <p class="snippet-result"><strong>Result</strong> We can inspect the answer, its model, and its token usage.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb · response-prompt-3</a>
 </figcaption></figure>
@@ -163,7 +160,7 @@ print("Model:", response.response_metadata.get("model_name"))</code>
 <p>The metadata can tell us which model actually responded. Usage metadata can report input, output, and total tokens. Providers do not all report exactly the same fields, so use <code>.get(...)</code> or a fallback when reading optional metadata.</p>
 <p>Follow the complete example in <a href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb</a>.</p>
 <hr/>
-<h2 class="snippet-section">Tokens: what are they?</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-05">Tokens: what are they?</h2>
 <p>Before a model can work with text, it breaks that text into <strong>tokens</strong>. A token is a small piece of text. It can be a whole word, part of a word, punctuation, a space, or even a line break.</p>
 <p>For example, the sentence below is one Python string to us:</p>
 <h3>Start with a string</h3>
@@ -179,21 +176,23 @@ print("Model:", response.response_metadata.get("model_name"))</code>
 <p class="snippet-result"><strong>Result</strong> The string can contain several tokens.</p>
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson4_final.md">lesson4_final.md · supplement</a>
 </figcaption></figure>
-<p>The model may see it more like this:</p>
-<h3>Picture the token pieces</h3>
-<figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson4_final.md#supplement">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 10</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">"I" | " love" | " building" | " AI" | " apps" | "!"</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">"I" | " love" | " building" | " AI" | " apps" | "!"
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">This is an illustrative split into tokens, including spaces and punctuation. It is not output from a particular model's tokenizer.</p>
-<p class="snippet-result"><strong>Result</strong> A word and a token are not always the same unit.</p>
-<a class="snippet-source" href="code/Docs/Lessons/Part1/lesson4_final.md">lesson4_final.md · supplement</a>
-</figcaption></figure>
-<p>That is only an illustration. The exact token split changes from one model to another. The important point is that <strong>a word is not always one token</strong>. Long words may become several tokens, and a space often belongs to the token after it.</p>
+<p>Try changing the sentence in this playground and watch the pieces and counts update:</p>
+<section aria-labelledby="tokenizer-title" class="tokenizer-playground" id="tokenizer-playground">
+<header class="tokenizer-header"><h3 id="tokenizer-title"><span class="tokenizer-live">Live sim</span> Tokenizer playground</h3>
+<p>type → watch it split into tokens</p></header>
+<div class="tokenizer-body"><label for="tokenizer-input">Your text</label>
+<textarea aria-describedby="tokenizer-note" id="tokenizer-input" maxlength="5000" rows="3">AI Engineering is surprisingly approachable!</textarea>
+<div aria-label="Illustrative token pieces" class="tokenizer-pieces" data-tokenizer-pieces=""><span class="tokenizer-chip" data-color="0">AI</span><span class="tokenizer-chip" data-color="1">Engi</span><span class="tokenizer-chip" data-color="2">neer</span><span class="tokenizer-chip" data-color="3">ing</span><span class="tokenizer-chip" data-color="4">is</span><span class="tokenizer-chip" data-color="0">surp</span><span class="tokenizer-chip" data-color="1">risi</span><span class="tokenizer-chip" data-color="2">ngly</span><span class="tokenizer-chip" data-color="3">appr</span><span class="tokenizer-chip" data-color="4">oach</span><span class="tokenizer-chip" data-color="0">able</span><span class="tokenizer-chip" data-color="1">!</span></div>
+<dl aria-atomic="true" aria-live="polite" class="tokenizer-stats">
+<div><dt>Tokens</dt><dd data-tokenizer-count="">12</dd></div>
+<div><dt>Characters</dt><dd data-tokenizer-characters="">44</dd></div>
+<div><dt>Cost @ $5/1M tok</dt><dd data-tokenizer-cost="">$0.000060</dd></div></dl>
+<p class="tokenizer-note" id="tokenizer-note">Notice: in this simulation, common short words stay whole; long words get chopped into pieces.
+      <strong>Rough rule for English: 1 token ≈ ¾ of a word ≈ 4 characters.</strong></p>
+<p class="tokenizer-disclaimer">Illustrative splitter, not a model’s tokenizer. Exact splits and counts depend on the model; the cost uses an example rate.</p>
+<noscript><p>Enable JavaScript to update the split as you type. The example above remains available.</p></noscript>
+</div></section>
+<p>The playground is an illustration. The exact token split changes from one model to another. The important point is that <strong>a word is not always one token</strong>. Long words may become several tokens, and a space often belongs to the token after it.</p>
 <h3>Why do models use tokens instead of words or strings?</h3>
 <p>Models need a fixed set of small pieces that they can turn into numbers and work with consistently. Whole strings are too open-ended: there are endlessly many possible sentences, names, URLs, spelling mistakes, and made-up words. Whole words are also awkward because a model would need to know every word in every language before it could read a sentence.</p>
 <p>Tokens are the practical middle ground. They are small enough to handle a new or unusual word by splitting it into pieces, but large enough that the model does not have to process every character one at a time. That is why we write strings in Python, while the model internally reads and generates tokens.</p>
@@ -202,8 +201,8 @@ print("Model:", response.response_metadata.get("model_name"))</code>
 <h3>Separate the two token counts</h3>
 <figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson4_final.md#supplement">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 11</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 10</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Text</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">your instructions + user input + context  →  input tokens
 model answer                             →  output tokens</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1">your instructions + user input + context  →  input tokens
@@ -216,13 +215,13 @@ model answer                             →  output tokens</code>
 </figcaption></figure>
 <p>You are normally charged for <strong>both</strong> incoming and outgoing tokens: the input you give the model and the output you receive from it. More tokens also usually mean more time and more pressure on the model’s context limit.</p>
 <p>You do not need to count every token by hand. You do need to notice when a prompt, conversation history, or retrieved document is getting large. Token usage is one of the first signals that an application needs better context management.</p>
-<h2 class="snippet-section">What does the model name mean?</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-06">What does the model name mean?</h2>
 <p>Look again at the model setup we use in this course:</p>
 <h3>Choose the model and provider</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#response-prompt-1">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 12</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 11</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">groq_model = init_chat_model(
     "openai/gpt-oss-120b",
     model_provider="groq",
@@ -266,17 +265,17 @@ model answer                             →  output tokens</code>
 <p>It is included in the name to distinguish this model from smaller variants, such as <code>gpt-oss-20b</code>. It gives developers a quick hint about the model family and scale when choosing a model to host or compare. A larger parameter count can mean more capacity to represent learned patterns, but it does <strong>not</strong> automatically mean a better answer for every task.</p>
 <p>There is one extra detail here: this model uses a mixture-of-experts design. Its name is a rounded total-size label; not all of those parameters are used for every token it generates. That is why parameter count is useful context, not a direct prediction of speed, cost, or quality.</p>
 <p>When we call this model through Groq, our laptop is not downloading or loading 120 billion parameters. Groq hosts the model and performs the computation. We only send the request and receive the response through the API.</p>
-<p>Two models can give different answers to the same prompt because they may differ in training, speed, context size, tool support, safety behaviour, and price.</p>
+<p>Two models can give different answers to the same prompt because they may differ in training, speed, context size, tool support, safety behavior, and price.</p>
 <p>Record the name returned in the response metadata when you test an application. “The model gave a strange answer” is difficult to investigate; “this prompt behaved differently on this model through this provider” is useful information.</p>
 <hr/>
-<h2 class="snippet-section">What is a prompt?</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-07">What is a prompt?</h2>
 <p>A prompt is everything we provide to guide a model’s response: instructions, a question, examples, formatting requirements, and any context we include. In a chat application, the prompt can be spread across system, user, and previous assistant messages.</p>
 <p>A <strong>static prompt</strong> stays fixed:</p>
 <h3>Send a static prompt</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#response-prompt-7">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 13</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 12</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">static_prompt = "Will Ash's Pikachu ever evolve ?"
 print(groq_model.invoke(static_prompt, max_tokens=200).text)</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">static_prompt</span> <span class="o">=</span> <span class="s2">"Will Ash's Pikachu ever evolve ?"</span>
@@ -291,8 +290,8 @@ print(groq_model.invoke(static_prompt, max_tokens=200).text)</code>
 <h3>Build a prompt from a changing question</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#response-prompt-7">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 14</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 13</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">users_question = "How do you make a sandwich?"  # This is your user input, which can be dynamically changed at runtime.
 dynamic_prompt = f"Answer this question like a comedian: {users_question}"  # simple string interpolation to create a dynamic prompt
 print("Dynamic Prompt:")
@@ -308,15 +307,15 @@ print(groq_model.invoke(dynamic_prompt, max_tokens=200).text)</code>
 <p class="snippet-result"><strong>Result</strong> The model receives the comedian instruction and the sandwich question together.</p>
 <a class="snippet-source" href="code/Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb">3-Responses-and-Prompts.ipynb · response-prompt-7</a>
 </figcaption></figure>
-<p>Dynamic prompts are how an application personalises an answer, inserts a user question, or supplies retrieved information. They are also where string-building gets messy surprisingly quickly.</p>
+<p>Dynamic prompts are how an application personalizes an answer, inserts a user question, or supplies retrieved information. They are also where string-building gets messy surprisingly quickly.</p>
 <hr/>
-<h2 class="snippet-section">Use a prompt template</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-08">Use a prompt template</h2>
 <p>You can absolutely build a prompt with a normal Python string or an f-string. For a one-off prompt, that is often the simplest thing to do. <code>PromptTemplate</code> becomes useful when the same prompt appears in several places or needs a clearer contract for its values.</p>
 <h3>Import PromptTemplate</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#fbe75c2c">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 15</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 14</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">from langchain_core.prompts import PromptTemplate</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.prompts</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptTemplate</span>
 </span></code></pre></div>
@@ -328,8 +327,8 @@ print(groq_model.invoke(dynamic_prompt, max_tokens=200).text)</code>
 <h3>Fill the question placeholder</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#fbe75c2c">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 16</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 15</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 15" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">dynamic_question_template = PromptTemplate(
     template="Answer the question as a sarcastic teacher: {question}",
     input_variables=["question"],
@@ -352,8 +351,8 @@ prompt = dynamic_question_template.invoke({"question": question})</code>
 <h3>Send the filled prompt</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#fbe75c2c">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 17</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 16</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 16" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">result = groq_model.invoke(prompt, max_tokens=200)
 print(result.text)</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">result</span> <span class="o">=</span> <span class="n">groq_model</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
@@ -367,8 +366,8 @@ print(result.text)</code>
 <h3>Keep reuse in mind</h3>
 <figure class="code-explorer snippet-card" data-source="code/Part I Understanding the Basics/3-Responses-and-Prompts.ipynb#fbe75c2c">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 18</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 18" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 17</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 17" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden=""># This template can be saved and loaded for reuse.</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="c1"># This template can be saved and loaded for reuse.</span>
 </span></code></pre></div>
@@ -380,26 +379,26 @@ print(result.text)</code>
 </figcaption></figure>
 <p>It is not magic prompt engineering. It is useful validation and reuse. If we forget <code>question</code>, the template raises an error before we make a model call. An f-string can also fail when a Python variable is undefined. The template's advantage is an explicit set of named inputs and reusable wording.</p>
 <p>The template can also live outside the Python file. The notebook mentions saving a template. These supplementary snippets extend that idea: we save the same template as JSON and load it again.</p>
-<h3>Import the file and serialisation helpers</h3>
+<h3>Import the file and serialization helpers</h3>
 <figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson4_final.md#supplement">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 19</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 19" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 18</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 18" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">from pathlib import Path
 from langchain_core.load import dumps, loads</code>
 <pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 </span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps</span><span class="p">,</span> <span class="n">loads</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="Path" id="term-path" title="The pathlib class for working with file and folder paths.">Path</mark> handles the file location. <mark class="lesson-term lesson-term--function" data-term="dumps" id="term-dumps" title="In this lesson, serialises a LangChain template into a JSON string.">dumps</mark> and <mark class="lesson-term lesson-term--function" data-term="loads" id="term-loads" title="In this lesson, reconstructs a LangChain object from trusted JSON.">loads</mark> convert the LangChain template to JSON and reconstruct it later.</p>
+<p class="snippet-prose"><mark class="lesson-term lesson-term--class" data-term="Path" id="term-path" title="The pathlib class for working with file and folder paths.">Path</mark> handles the file location. <mark class="lesson-term lesson-term--function" data-term="dumps" id="term-dumps" title="In this lesson, serializes a LangChain template into a JSON string.">dumps</mark> and <mark class="lesson-term lesson-term--function" data-term="loads" id="term-loads" title="In this lesson, reconstructs a LangChain object from trusted JSON.">loads</mark> convert the LangChain template to JSON and reconstruct it later.</p>
 <p class="snippet-result"><strong>Result</strong> The helpers for the supplementary save-and-load example are ready.</p>
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson4_final.md">lesson4_final.md · supplement</a>
 </figcaption></figure>
 <h3>Save the reusable template</h3>
 <figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson4_final.md#supplement">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 20</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 20" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 19</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 19" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">template_path = Path("prompts/explanation_template.json")
 template_path.parent.mkdir(exist_ok=True)
 template_path.write_text(dumps(dynamic_question_template, pretty=True), encoding="utf-8")</code>
@@ -408,15 +407,15 @@ template_path.write_text(dumps(dynamic_question_template, pretty=True), encoding
 </span><span class="code-explorer__line" data-line="3"><span class="n">template_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">dumps</span><span class="p">(</span><span class="n">dynamic_question_template</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
 </span></code></pre></div>
 <figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">We choose a JSON path, create the prompts folder if needed, and write the existing dynamic_question_template. dumps serialises the template rather than sending a request to the model.</p>
+<p class="snippet-prose">We choose a JSON path, create the prompts folder if needed, and write the existing dynamic_question_template. dumps serializes the template rather than sending a request to the model.</p>
 <p class="snippet-result"><strong>Result</strong> The JSON file can be reused by another part of the application.</p>
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson4_final.md">lesson4_final.md · supplement</a>
 </figcaption></figure>
 <h3>Load the saved template</h3>
 <figure class="code-explorer snippet-card" data-source="code/Docs/Lessons/Part1/lesson4_final.md#supplement">
 <div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 21</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 21" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
+<p class="code-explorer__title">Snippet 20</p>
+<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 20" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
 <code class="code-explorer__source" hidden="">loaded_template = loads(
     template_path.read_text(encoding="utf-8"),
     valid_namespaces=["langchain_core"],
@@ -432,18 +431,25 @@ template_path.write_text(dumps(dynamic_question_template, pretty=True), encoding
 <a class="snippet-source" href="code/Docs/Lessons/Part1/lesson4_final.md">lesson4_final.md · supplement</a>
 </figcaption></figure>
 <p>That gives us a reusable prompt file that another part of the application can load. Later, it also gives us a clean place to review, test, or change prompt wording without mixing it into every Python function.</p>
-<h2 class="snippet-section">Check your understanding</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-09">Check your understanding</h2>
 <ol>
 <li>What can you learn from response metadata that you cannot learn from <code>response.text</code> alone?</li>
 <li>Why might a long conversation become expensive or fail?</li>
 <li>When is a dynamic prompt more useful than a static prompt?</li>
 <li>What problem does <code>PromptTemplate</code> solve?</li>
 </ol>
-<h2 class="snippet-section">Next lesson</h2>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-10">Next lesson</h2>
 <p>We will work with chat messages, stream responses as they arrive, batch independent requests, and see what “memory” really means in an application.</p>
 <nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-3.html"><span>← Previous · Lesson 3</span><strong>One Interface, Many Models</strong></a><a href="lesson-5.html"><span>→ Next · Lesson 5</span><strong>More Than One Answer</strong></a></nav></article><section aria-label="Record your lesson progress" class="lesson-completion" data-temporal-component="">
-<div><span class="temporal-label">WORKSHOP LOG / 04</span><p>Record this repair</p></div>
-<div><label><input data-complete="4" type="checkbox"/> Lesson complete</label><small data-save-note="">Saved on this browser · self-reported</small></div></section></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 04</p><a href="lesson-3.html">← Lesson 3</a></footer><script defer="True" src="lesson-code-explorer.js"></script>
+<span aria-hidden="true" class="lesson-end" data-lesson-end="4"></span>
+<div><span class="temporal-label">LESSON 04</span><p>Your lesson progress</p><small>Marked complete when you reach the end. You can undo it below.</small></div>
+<div><label><input data-complete="4" type="checkbox"/> Lesson complete</label><small data-save-note="">Saved on this browser</small></div></section></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part I · Out of Time · Lesson 04</p><a href="lesson-3.html">← Lesson 3</a></footer><script defer="True" src="lesson-code-explorer.js"></script>
 <button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
 <svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">32</span></button>
-<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 4. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardised token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serialises a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}]</script><script defer="True" src="lesson-glossary.js"></script></body></html>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 4. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardized token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serializes a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}]</script><script defer="True" src="lesson-glossary.js"></script><nav aria-label="Three-part journey" class="era-route" data-temporal-component=""><a aria-current="step" data-route-part="1" href="part-one.html">
+<span class="era-route__heading"><span class="era-route__number">01</span><b>1985</b><small>Analog workshop</small><span class="era-route__count" data-end="8" data-route-count="" data-start="1">0 / 8</span></span></a><a data-route-part="2" href="part-two.html">
+<span class="era-route__heading"><span class="era-route__number">02</span><b>2015</b><small>Future workshop</small><span class="era-route__count" data-end="16" data-route-count="" data-start="9">0 / 8</span></span></a><a data-route-part="3" href="part-three.html">
+<span class="era-route__heading"><span class="era-route__number">03</span><b>1885</b><small>Frontier workshop</small><span class="era-route__count" data-end="20" data-route-count="" data-start="17">0 / 4</span></span></a><div aria-label="Journey completion" aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="route-progress" data-route-progress="" role="progressbar">
+<span class="route-progress__fill"></span><img alt="" class="route-progress__vehicle" height="72" src="assets/progress-car.svg" width="160"/></div></nav><aside class="lesson-index" data-temporal-component="">
+<details open=""><summary>On this page</summary>
+<nav aria-label="Lesson sections"><ol><li><a href="#lesson-section-01">A note from me</a></li><li><a href="#lesson-section-02">What you will be able to do</a></li><li><a href="#lesson-section-03">Set up once</a></li><li><a href="#lesson-section-04">Understand the response</a></li><li><a href="#lesson-section-05">Tokens: what are they?</a></li><li><a href="#lesson-section-06">What does the model name mean?</a></li><li><a href="#lesson-section-07">What is a prompt?</a></li><li><a href="#lesson-section-08">Use a prompt template</a></li><li><a href="#lesson-section-09">Check your understanding</a></li><li><a href="#lesson-section-10">Next lesson</a></li></ol></nav></details></aside></body></html>

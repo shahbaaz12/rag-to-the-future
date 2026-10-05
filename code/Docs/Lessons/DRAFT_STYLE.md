@@ -6,6 +6,7 @@
 
 ## Voice
 
+- Use American English spelling consistently: organization, initialization, serialization, behavior and color. Preserve exact source code, comments, identifiers and filenames.
 - Write as a developer speaking directly to another developer: warm, practical, and curious.
 - Start with why the topic matters in a learner's working life. A short personal hook or question is welcome when it serves the lesson.
 - Invite the learner to build and experiment. Use plain, encouraging language such as “Just follow along” and “let’s get our feet wet” where it fits naturally.
@@ -36,5 +37,5 @@ Adapt this structure to the lesson; do not add sections that do not help.
 - Preserve the learner-facing rhythm: short paragraphs, direct questions, and intentional emphasis.
 - Polish grammar and clarity without removing the author's personality or replacing their point of view.
 - Use Markdown headings, lists, tables, and code blocks only when they make the teaching easier to scan.
-- Keep claims proportionate. Prefer “can”, “may”, and “often” where behaviour depends on a provider, model, or application design.
+- Keep claims proportionate. Prefer “can”, “may”, and “often” where behavior depends on a provider, model, or application design.
 - Reference the exact associated notebook or code file when the lesson discusses it.

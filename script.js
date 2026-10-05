@@ -3,21 +3,21 @@ const githubUrl = "https://github.com/shahbaaz12/rag-to-the-future";
 const parts = {
   one: {
     label: "PART I · 1985 · OUT OF TIME",
-    caption: "Start in the professor's workshop. Give the machine a voice, a memory, and evidence for its answers.",
+    caption: "Come into my workshop. I'll help you give the console a voice, carry a conversation, and connect its first tools.",
     link: "part-one.html",
     linkText: "Enter the 1985 workshop →",
   },
   two: {
-    label: "PART II · 2045 · YOUR CHILDREN'S TOMORROW",
-    caption: "The assistant now has tools and agency. Learn to let it plan, check its work, and ask before it acts.",
+    label: "PART II · 2015 · THE FUTURE WORKSHOP",
+    caption: "Join me in the future workshop. We'll connect operations, trace their state, and pause for a person to choose.",
     link: "part-two.html",
-    linkText: "Enter the 2045 workshop →",
+    linkText: "Enter the 2015 workshop →",
   },
   three: {
-    label: "PART III · ???? · THE LAST DEPARTURE",
-    caption: "Give the assistant useful evidence: retrieve documents, resolve follow-ups, and choose the right search strategy.",
+    label: "PART III · 1885 · THE LAST DEPARTURE",
+    caption: "Meet me at the frontier workshop. We'll find the relevant pages, resolve follow-ups, and inspect the information behind an answer.",
     link: "part-three.html",
-    linkText: "Enter the Part III reading room →",
+    linkText: "Enter the 1885 workshop →",
   },
 };
 
@@ -48,15 +48,15 @@ function setPart(partId) {
 
 function updateAtlas(partId, link) {
   const views = {
-    one: ["analogue", "1985 / ANALOGUE WORKSHOP"],
-    two: ["future", "2045 / FUTURE WORKSHOP"],
-    three: ["frontier", "FRONTIER / YEAR UNCONFIRMED"],
+    one: ["analogue", "1985 / ANALOG WORKSHOP"],
+    two: ["future", "2015 / FUTURE WORKSHOP"],
+    three: ["frontier", "1885 / FRONTIER WORKSHOP"],
   };
   const [asset, label] = views[partId];
   const image = document.getElementById("atlas-image");
   if (!image) return;
   image.src = `assets/workshop-${asset}.svg`;
-  image.alt = `The clocktower square in the ${asset} workshop setting`;
+  image.alt = `The clocktower square in the ${label.split(' / ')[1].toLowerCase()} setting`;
   document.getElementById("atlas-label").textContent = label;
   document.getElementById("atlas-link").href = link;
 }

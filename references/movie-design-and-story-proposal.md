@@ -17,11 +17,11 @@ Part II and Part III currently share a technical course-card layout with little 
 | Priority | Addition | Placement and purpose |
 |---|---|---|
 | 1 | A compact time-circuit strip | Reuse the home page's instrument language at the beginning of every lesson: era, scene number, current location, and machine state. Keep a separate field for the course part rather than overloading the clock display. |
-| 1 | One location shown across three eras | Add an original illustrated town square with a clocktower, workshop, road, and railway. Reuse the composition: analogue workshop in Part I, future transit district in Part II, unfinished frontier settlement in Part III. Recognisable geography makes the jumps feel connected. |
+| 1 | One location shown across three eras | Add an original illustrated town square with a clocktower, workshop, road, and railway. Reuse the composition: analog workshop in Part I, future transit district in Part II, unfinished frontier settlement in Part III. Recognizable geography makes the jumps feel connected. |
 | 1 | A visibly repaired companion machine | Reuse one original time-machine illustration. Show a restored voice module after Part I, connected control routes after Part II, and a working archive reader during Part III. Keep this small in lessons and prominent on the part maps. |
 | 1 | Separate opening scene | A short scene card above the teaching article, with a recap, immediate problem, and changed machine state. This is the main story-progress device. |
 | 2 | A branching journey map | Make each lesson a stop along a visible route. Use branches for Part II, archive destinations for Part III, and explicit available/completed/planned labels. Allow direct access to every published lesson. |
-| 2 | Era-specific physical artefacts | Part I: graph paper, taped labels, CRT console, workshop notes. Part II: layered glass instruments, transit maps, service terminals. Part III: folded letters, brass gauges, ink diagrams, railway tickets, weathered wood and metal. Apply these to narrative areas and maps. |
+| 2 | Era-specific physical artifacts | Part I: graph paper, taped labels, CRT console, workshop notes. Part II: layered glass instruments, transit maps, service terminals. Part III: folded letters, brass gauges, ink diagrams, railway tickets, weathered wood and metal. Apply these to narrative areas and maps. |
 | 2 | A photograph or mission document that evolves | At act milestones, update an original workshop photograph or mission dossier to show a repaired component or clearer route. Use it as a visible consequence of progress; avoid a constant fading animation. |
 | 3 | A jump transition at act boundaries | A brief pair of fire trails, a changed time readout, then the next location. Trigger only when the learner chooses the next act. Provide a static equivalent for reduced motion. |
 | 3 | Optional instrument sounds | An explicit sound toggle can enable a short switch click or departure chime. Keep audio off by default. |
@@ -54,8 +54,8 @@ Recommended order:
 
 1. Lesson title and technical description.
 2. Compact instrument strip: part, setting, and scene number.
-3. An explicitly labelled **Story progress · optional** card.
-4. One sentence labelled **Previously**, limited to events before this scene.
+3. An explicitly labeled **Story progress · optional** card.
+4. One sentence labeled **Previously**, limited to events before this scene.
 5. A 60–100 word scene, usually two short paragraphs and at most one line of dialogue.
 6. A textual machine-state change or mission log entry.
 7. **Begin lesson** and **Skip story** links, both reaching the teaching article.
@@ -109,7 +109,7 @@ These are opening-scene premises, not replacements for the lessons' everyday exa
 | 4 | Responses and prompts | A reply arrives with instrument readings. You inspect what was sent, what returned, and how the instructions shaped it. |
 | 5 | Messages, streaming, batching, structured output | Fragments arrive from several workshop requests. Roles and structured fields help keep the console's records usable. |
 | 6 | Memory | The console forgets the departure instruction when the next question arrives. You carry the right conversation record forward. |
-| 7 | Tools and tool loops | The console proposes checking a component. The workshop must recognise and execute the permitted action. |
+| 7 | Tools and tool loops | The console proposes checking a component. The workshop must recognize and execute the permitted action. |
 | 8 | Agents | The console selects among approved tools. The first jump is possible; retrieval and source verification are still pending. |
 | 9 | First graph | After arrival, the service bay needs several steps connected in a dependable order. You begin with two simple stations. |
 | 10 | Edges and branching | One repair route is closed. The workshop checks alternatives, branches on availability, and limits repeated attempts. |

@@ -19,6 +19,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
 from temporal_design import apply_design
+from lesson_tokenizer import tokenizer_playground
 
 ROOT = Path(__file__).resolve().parents[1]
 DRAFTS = ROOT / "code/Docs/Lessons/Part1"
@@ -402,12 +403,14 @@ def render(lesson):
         cards.append(card(*match.groups(), len(cards) + 1))
         return f"\n\n@@RENDERED_SNIPPET_{len(cards)-1}@@\n\n"
     markdown = NOTE.sub(substitute, markdown)
+    markdown = markdown.replace('<!-- interactive: tokenizer-playground -->', '\n\n@@RENDERED_TOKENIZER@@\n\n')
     assert "```" not in markdown, f"Unannotated block in lesson {lesson}"
     body = mistune.create_markdown(plugins=["table"])(markdown)
     body = re.sub(r"<h1>.*?</h1>\n", "", body, count=1)
     body = re.sub(r"<h2>(.*?)</h2>", r'<h2 class="snippet-section">\1</h2>', body)
     for i, content in enumerate(cards):
         body = body.replace(f"<p>@@RENDERED_SNIPPET_{i}@@</p>", content)
+    body = body.replace('<p>@@RENDERED_TOKENIZER@@</p>', tokenizer_playground())
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")
     body = body.replace("../../../Part%20II%20Connecting%20the%20dots/", "code/Part%20II%20Connecting%20the%20dots/")
     body = body.replace("../../../Part%20III%20Give%20the%20model%20something%20to%20read/", "code/Part%20III%20Give%20the%20model%20something%20to%20read/")

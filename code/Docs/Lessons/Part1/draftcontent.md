@@ -144,7 +144,7 @@ response = client.responses.create(
 print(response.output_text)
 ```
 
-`model` chooses the provider's model identifier. `instructions` sets the desired behaviour for this request, while `input` contains the task. The returned `response` is a full response object; `response.output_text` extracts the generated text for display.
+`model` chooses the provider's model identifier. `instructions` sets the desired behavior for this request, while `input` contains the task. The returned `response` is a full response object; `response.output_text` extracts the generated text for display.
 
 The notebook's model ID is a recorded example, not a permanent course constant. Provider model catalogs and availability change, so learners should choose a currently available model from the Groq console when their request fails with a model error.
 
@@ -166,7 +166,7 @@ response = client.interactions.create(
 print(response.output_text)
 ```
 
-This has the same overall shape as the Groq example: configure a client, choose a model, give it instructions and input, then print text. The method names differ because this is Gemini's own SDK rather than an OpenAI-compatible client. `system_instruction` provides the behavioural guidance, and `input` provides the user task.
+This has the same overall shape as the Groq example: configure a client, choose a model, give it instructions and input, then print text. The method names differ because this is Gemini's own SDK rather than an OpenAI-compatible client. `system_instruction` provides the behavioral guidance, and `input` provides the user task.
 
 ## Lesson 1 check
 
@@ -190,7 +190,7 @@ LangChain reduces repeated provider-integration code. It does not make models id
 
 ## Code walkthrough: the LangChain notebook
 
-### Snippet 1 — initialise notebook configuration
+### Snippet 1 — initialize notebook configuration
 
 ```python
 from dotenv import load_dotenv

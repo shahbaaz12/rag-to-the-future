@@ -26,7 +26,7 @@ By the end of this lesson, you can:
 
 Create a new folder wherever you prefer, then open it in a terminal, VS Code, or another IDE.
 
-### Initialise the project
+### Initialize the project
 
 <!-- snippet: code/Docs/Lessons/Part1/lesson2_final.md#supplement -->
 ```powershell
@@ -138,7 +138,7 @@ If you see the message and a version number, we are good. If it fails, fix the e
 
 ---
 
-## Organise the first part
+## Organize the first part
 
 Create a folder named:
 
@@ -386,9 +386,9 @@ The provider hosts and runs the model. Your application decides what to send, re
 
 Say you built your application around one provider’s API. Then its price changes, its privacy policy no longer meets your company’s standards, or another provider becomes a better fit. Switching can become a real undertaking.
 
-The notebook can demonstrate a small change in only a few lines. In a real application, models may be woven into prompts, output parsing, evaluation, security reviews, deployment configuration, and user-facing behaviour. The change can easily turn into a multi-sprint development cycle.
+The notebook can demonstrate a small change in only a few lines. In a real application, models may be woven into prompts, output parsing, evaluation, security reviews, deployment configuration, and user-facing behavior. The change can easily turn into a multi-sprint development cycle.
 
-Yes, we will learn better ways to organise code. But let’s be honest: many projects accumulate shortcuts before anyone gets around to the architecture book. The useful lesson here is simple: know which parts of your code are provider-specific, and keep an eye on them from the beginning.
+Yes, we will learn better ways to organize code. But let’s be honest: many projects accumulate shortcuts before anyone gets around to the architecture book. The useful lesson here is simple: know which parts of your code are provider-specific, and keep an eye on them from the beginning.
 
 ---
 

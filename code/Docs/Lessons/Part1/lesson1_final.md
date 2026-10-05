@@ -28,15 +28,7 @@ By the end of this lesson, the learner can:
 
 ---
 
-## Optional story — A voice through the static
-
-The professor switches on the workshop console. It answers immediately, sounding certain and helpful. Then it suggests a destination that does not exist.
-
-“A voice is useful,” he says. “It is not a map.”
-
 The machine can generate language. It still needs software around it to decide what question to ask, what information it may use, and what to do with its answer.
-
-> This story is optional. Skip to the next section without losing any technical content.
 
 ---
 
@@ -46,7 +38,7 @@ AI is not new; it is more than seventy years old. For most of that time, it was 
 
 | Period | What changed | Why it matters to a developer |
 |---|---|---|
-| 1950s–2000s | AI was mainly a research field. Progress was real, but systems were expensive, specialised, and difficult to use. | Building with AI usually required significant expertise, data, and computing resources. |
+| 1950s–2000s | AI was mainly a research field. Progress was real, but systems were expensive, specialized, and difficult to use. | Building with AI usually required significant expertise, data, and computing resources. |
 | 2017 | The Transformer architecture was introduced. It made it possible to train language models that could work with large amounts of text effectively. | This became a major foundation for modern systems such as GPT, Claude, Gemini, and many open-weight models. |
 | 2022 onwards | Chat interfaces made language models easy for anyone to try. Providers then exposed APIs that developers could call from ordinary applications. | A developer can now add language capabilities without training a model from scratch. |
 | Today → you | Major labs train the difficult foundation models. Developers can call them through an API in a few lines of code. | That is what this class is about: learning the stable application pattern before chasing every release. |
@@ -62,7 +54,7 @@ These words describe related ideas, but they are not interchangeable.
 
 | Term | Plain-language meaning |
 |---|---|
-| **Artificial intelligence (AI)** | The broad field of making software perform tasks we associate with intelligence, such as recognising patterns, reasoning, planning, or working with language. |
+| **Artificial intelligence (AI)** | The broad field of making software perform tasks we associate with intelligence, such as recognizing patterns, reasoning, planning, or working with language. |
 | **Machine learning (ML)** | A way of creating some AI systems by learning patterns from data instead of writing every decision as a hand-written rule. |
 | **Deep learning (DL)** | A family of machine-learning techniques that uses multi-layer neural networks. It has been especially effective for images, audio, and language. |
 | **Large language model (LLM)** | A deep-learning model trained to work with language. Given the context it receives, it generates likely and useful next pieces of text. |
@@ -88,7 +80,7 @@ For now, success means something modest but valuable: you can ask a model a ques
 
 ## Why start with building instead of mathematics?
 
-Statistics, probability, linear algebra, and optimisation matter if you want to understand how models are trained or build new models. But instead of diving straight into all of that, let’s get our feet wet first and understand how developers like you and me can use and harness AI in real applications.
+Statistics, probability, linear algebra, and optimization matter if you want to understand how models are trained or build new models. But instead of diving straight into all of that, let’s get our feet wet first and understand how developers like you and me can use and harness AI in real applications.
 
 ---
 
@@ -96,11 +88,11 @@ Statistics, probability, linear algebra, and optimisation matter if you want to 
 
 LLM stands for **large language model**. Strip away the hype and it does one thing unbelievably well: it predicts the next token from the context it receives. A token is a small unit of text; it may be a whole word, part of a word, punctuation, or whitespace.
 
-That simple mechanism can produce many useful behaviours:
+That simple mechanism can produce many useful behaviors:
 
 - answering questions;
 - rewriting text;
-- summarising a passage;
+- summarizing a passage;
 - extracting fields from text;
 - generating code; and
 - continuing a conversation.

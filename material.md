@@ -77,7 +77,7 @@ The system from Part II now fails in revealing ways. Requests time out. A tool r
 | 19. The Poisoned Almanac | A retrieved document tries to redirect the assistant. | Prompt injection, evidence vs. instructions, permissions, boundaries. |
 | 20. Read the Instruments | The journey fails and the cause is unclear. | Traces, logs, retrieval inspection, outcomes, latency, cost. |
 | 21. Enough Power for One Jump | Extra model calls consume scarce resources. | Token budgets, model selection, context reduction, caching, trade-offs. |
-| 22. It Worked in the Professor’s Lab | Behaviour changes outside the workshop. | Packaging, Docker, configuration, secrets, reproducible deployment. |
+| 22. It Worked in the Professor’s Lab | Behavior changes outside the workshop. | Packaging, Docker, configuration, secrets, reproducible deployment. |
 | 23. When the Connection Breaks | A consequential operation fails halfway through. | Timeouts, retries, idempotency, recovery, fallbacks, escalation. |
 | 24. The Future Is Unwritten | The final departure happens under difficult conditions. | Capstone: deploy, evaluate, observe, break, repair, justify. |
 

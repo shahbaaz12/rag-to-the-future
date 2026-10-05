@@ -30,4 +30,4 @@ uv run python ../scripts/validate_lessons.py
 uv run python ../scripts/validate_part_three.py
 ```
 
-The offline validator substitutes deterministic chat and lexical embedding fixtures while executing the real indexes, BM25, fusion, and graphs. It verifies application behaviour, not the quality of hosted models or production semantic retrieval.
+The offline validator substitutes deterministic chat and lexical embedding fixtures while executing the real indexes, BM25, fusion, and graphs. It verifies application behavior, not the quality of hosted models or production semantic retrieval.

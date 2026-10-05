@@ -15,7 +15,7 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 - Part II Lesson 1 is an author-requested exception: preserve its original simple Step1/Step2 graph with a messages-only state.
 - Explain which fields each node reads and returns. Show partial and full returns, including how reducers apply to every returned key.
 - For parallel work, show simultaneous updates, a safe partial return, and why copying the whole state can cause conflicts or duplicate accumulated values.
-- Cover replacement, list and numeric addition, dictionary merging, a custom reducer, message updates by ID, and deliberate overwrites where they help the lesson. Reducers are functions, so these are common behaviours rather than an exhaustive list.
+- Cover replacement, list and numeric addition, dictionary merging, a custom reducer, message updates by ID, and deliberate overwrites where they help the lesson. Reducers are functions, so these are common behaviors rather than an exhaustive list.
 - Use straightforward steps and short comments. Do not add try/except unless the example explicitly needs exception handling; leave deliberate failure demonstrations optional.
 
 ## Use the actual source
@@ -34,13 +34,13 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 
 ## Explain below the code
 
-- Display syntax-coloured code at full width, with line numbers and a copy button.
+- Display syntax-colored code at full width, with line numbers and a copy button.
 - Place a visible **What happens here** explanation directly below each snippet.
 - Start with a short plain-language explanation of the action. Add a few ordered points only when the snippet has distinct steps.
 - Quote exact code lines when explaining important operations. Preserve existing comments verbatim as source comments; keep additional teaching prose clearly separate.
 - End with the expected result or state change when it helps. Label illustrative model responses as examples, not guaranteed outputs.
 - Keep explanations readable without hover, expansion, truncated labels, or side panels. Use normal prose typography for explanations and monospace for code.
-- Highlight newly introduced terms only at their first explanation in course order. Use consistent colours for functions, classes, files, and concepts; never alter the code or source comments to add a highlight.
+- Highlight newly introduced terms only at their first explanation in course order. Use consistent colors for functions, classes, files, and concepts; never alter the code or source comments to add a highlight.
 - Maintain `lesson-terms.json` with a short, plain definition for each term. The floating glossary carries introduced terms forward, opens from its icon, and closes on an outside click or Escape.
 
 ## Page layout

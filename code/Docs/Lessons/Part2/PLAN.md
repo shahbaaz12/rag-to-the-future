@@ -23,7 +23,7 @@ Build final Markdown drafts, then render the pages with the shared snippet style
 
 Lesson 1 retains the original messages-only graph requested by the author: Step1 and Step2 demonstrate nodes, edges, and `add_messages`. Lessons 2–8 have four or five meaningful state fields. Lesson 2 adds replacement, list accumulation, dictionary merging, and a custom maximum reducer. It contrasts safe parallel partial updates with an optional full-copy failure, explains duplicate logs, compares numeric deltas with totals, and uses `Overwrite` to clear accumulated data.
 
-Lessons 4–6 introduce message accumulation using `add_messages`. Lesson 6 also demonstrates replacement of a message with a matching ID, replacement of the selected-topic list, and separate checkpointed conversations. Reducers are functions rather than a closed set of types: choose the behaviour that matches the field's meaning.
+Lessons 4–6 introduce message accumulation using `add_messages`. Lesson 6 also demonstrates replacement of a message with a matching ID, replacement of the selected-topic list, and separate checkpointed conversations. Reducers are functions rather than a closed set of types: choose the behavior that matches the field's meaning.
 
 Keep comments short and steps straightforward. Do not add try/except boilerplate to teaching code. The intentional parallel-write failure is commented out so the delivery notebook runs from the top; the offline validator executes and checks that failure separately. Refund processing is a local demonstration and moves no money. Travel prices are sample data.
 
@@ -35,4 +35,4 @@ From the `code` folder:
 - `uv run python ../scripts/validate_lessons.py`
 - `uv run python ../scripts/validate_part_two.py`
 
-The offline validator executes all notebook cells, exercises retry and routing alternatives, checks the conflicting parallel return, validates reducer behaviour and student threads, and tests both refund decisions. It supplies deterministic model responses without provider API calls.
+The offline validator executes all notebook cells, exercises retry and routing alternatives, checks the conflicting parallel return, validates reducer behavior and student threads, and tests both refund decisions. It supplies deterministic model responses without provider API calls.

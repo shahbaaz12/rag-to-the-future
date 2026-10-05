@@ -32,7 +32,7 @@ model + instructions + allowed tools = agent
 
 **What happens here**
 
-The model reasons about the request, instructions guide its behaviour, and allowed tools provide actions or information.
+The model reasons about the request, instructions guide its behavior, and allowed tools provide actions or information.
 
 **Result:** The framework can coordinate these parts as an agent.
 

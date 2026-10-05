@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 72" width="160" height="72">
+  <title>Silver time machine with wheels folded for flight</title>
+  <defs><linearGradient id="metal" x2="0" y2="1"><stop stop-color="#edf6fc"/><stop offset=".5" stop-color="#a2bbc8"/><stop offset="1" stop-color="#536e80"/></linearGradient></defs>
+  <g stroke="#162c3e" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M29 39V23l11-7h22L78 4h32l27 22 15 7v14H29Z" fill="url(#metal)"/>
+    <path d="M69 21 83 9h23l16 12Z" fill="#133d55" stroke="#b9eafa"/>
+    <path d="M93 9v12M68 28h48v12H69M77 36h21" fill="none"/>
+    <path d="M33 20h24l-3-12H40Z" fill="#273e51" stroke="#8ebccc"/>
+    <path d="M40 5V17M52 3v15M35 12h19" stroke="#63dfff"/>
+    <path d="M31 34h12M137 34h13" stroke="#ffda83" stroke-width="4"/>
+    <ellipse cx="59" cy="47" rx="16" ry="5" fill="#102333" stroke="#d5e5ed"/>
+    <ellipse cx="128" cy="47" rx="16" ry="5" fill="#102333" stroke="#d5e5ed"/>
+    <path d="M47 53h24M115 53h26" stroke="#63dfff" stroke-width="3"/>
+  </g>
+  <path d="M47 59h24M117 59h23M6 38h17M2 44h17" stroke="#63dfff" stroke-width="2" opacity=".8" stroke-linecap="round"/>
+  <path d="M52 65h15M121 65h14" stroke="#63dfff" opacity=".5" stroke-linecap="round"/>
+</svg>

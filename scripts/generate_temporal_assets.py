@@ -1,5 +1,6 @@
 """Draw original, matching vector views of the workshop square in three eras."""
 from pathlib import Path
+from american_english import americanize
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets"
 
@@ -31,9 +32,10 @@ def machine(accent):
 
 
 def draw(era, accent, sky, scenery, foreground):
+    label = americanize(era)
     stars = ''.join(f'<circle cx="{x}" cy="{y}" r="1.4"/>' for x, y in [(90,85),(152,135),(240,66),(350,115),(715,80),(807,139),(899,71),(680,141)])
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520">
-    <title>The workshop square · {era}</title><desc>An original clocktower square, workshop and time machine, viewed in the {era} setting.</desc>
+    <title>The workshop square · {label}</title><desc>An original clocktower square, workshop and time machine, viewed in the {label} setting.</desc>
     <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="{sky}"/><stop offset="1" stop-color="#07131e"/></linearGradient>
     <radialGradient id="halo"><stop stop-color="{accent}" stop-opacity=".22"/><stop offset="1" stop-color="{accent}" stop-opacity="0"/></radialGradient>
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#9dc5dc" stroke-opacity=".06"/></pattern></defs>

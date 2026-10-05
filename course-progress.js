@@ -1,4 +1,4 @@
-/* Shared learner-reported completion, migrated from the original Part I map. */
+/* Shared reading completion and manual records, migrated from the original Part I map. */
 (() => {
   const key = "rag-to-the-future-course-progress";
   const legacyKey = "rag-to-the-future-part-one-progress";

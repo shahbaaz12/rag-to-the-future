@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 84" width="190" height="84">
+  <title>Brass and steel steam time train</title>
+  <defs><linearGradient id="brass" x2="0" y2="1"><stop stop-color="#ffdc98"/><stop offset="1" stop-color="#9d6b36"/></linearGradient></defs>
+  <g stroke="#213649" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M25 27h40v38H25Z" fill="#773c30" stroke="#ffd79c"/>
+    <path d="M20 24h50v-7H20Z" fill="url(#brass)"/>
+    <path d="M32 33h12v16H32ZM48 33h12v16H48Z" fill="#95d5e4"/>
+    <path d="M67 34h77v28H67Z" fill="url(#brass)"/>
+    <path d="M77 33v30M91 33v30M126 33v30" stroke="#64554d"/>
+    <path d="M128 32V14h15v18M124 14h23V7h-23Z" fill="#384d5d" stroke="#e0c091"/>
+    <path d="M95 34V22h16v12" fill="#57788a" stroke="#d8e7f0"/>
+    <path d="M23 61h137v9H23Z" fill="#435969" stroke="#d9bd8c"/>
+    <path d="M149 64 176 76h-27Z" fill="#b98850"/>
+    <circle cx="145" cy="43" r="9" fill="#ffdb8d" stroke="#c59150"/>
+    <circle cx="47" cy="69" r="11" fill="#273f51" stroke="#edc68b"/><circle cx="82" cy="69" r="13" fill="#273f51" stroke="#edc68b"/>
+    <circle cx="114" cy="69" r="13" fill="#273f51" stroke="#edc68b"/><circle cx="145" cy="71" r="9" fill="#273f51" stroke="#edc68b"/>
+    <path d="M45 69h102" stroke="#cfe6ee" stroke-width="3"/>
+    <circle cx="100" cy="47" r="4" fill="#63dfff"/><circle cx="116" cy="47" r="4" fill="#ff7859"/>
+  </g>
+  <path d="M7 63h11M3 69h15" stroke="#f4c471" stroke-width="2" stroke-linecap="round"/>
+</svg>

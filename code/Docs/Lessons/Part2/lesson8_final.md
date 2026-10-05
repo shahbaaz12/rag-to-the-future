@@ -46,7 +46,7 @@ class RefundState(TypedDict):
 
 **What happens here**
 
-RefundState carries three request facts, the reviewer's decision, and the workflow status. All five fields use replacement behaviour. approved starts as a placeholder and changes only after the reviewer responds.
+RefundState carries three request facts, the reviewer's decision, and the workflow status. All five fields use replacement behavior. approved starts as a placeholder and changes only after the reviewer responds.
 
 **Result:** The review payload and outcome have clear places in state.
 

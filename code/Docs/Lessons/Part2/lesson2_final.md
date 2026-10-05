@@ -21,7 +21,7 @@ Just follow along. We will understand one connection at a time, then put the pie
 
 We use five top-level fields. order holds the input details, checks collects availability results, attempts counts the fallback search, status records progress, and logs records the steps.
 
-A reducer combines an existing value with a returned update. It is a function, so there is no fixed list of every possible reducer. Let’s cover the common behaviours with a small, useful example.
+A reducer combines an existing value with a returned update. It is a function, so there is no fixed list of every possible reducer. Let’s cover the common behaviors with a small, useful example.
 
 ### Import the graph and update helpers
 
@@ -491,7 +491,7 @@ print("Exhausted:", exhausted_result["attempts"], exhausted_result["status"])
 
 The first run confirms after two attempts. The second stops after three failures. recursion_limit is an additional limit on graph super-steps, not a rider-attempt count. Our normal exit comes from rider_route.
 
-**Result:** The bounded search has predictable stopping behaviour.
+**Result:** The bounded search has predictable stopping behavior.
 
 ## Put the pieces together
 
@@ -620,13 +620,13 @@ print(keep_larger(3, 1))  # 3: a smaller update cannot lower it
 
 **What happens here**
 
-These are direct calls to the reducer functions, so we can see their behaviour without building another graph. For a sum reducer, returning 3 when the current count is 2 would produce 5. For keep_larger, returning 3 means keep the total at 3.
+These are direct calls to the reducer functions, so we can see their behavior without building another graph. For a sum reducer, returning 3 when the current count is 2 would produce 5. For keep_larger, returning 3 means keep the total at 3.
 
 **Result:** Match the returned value to the field's reducer: a delta for addition, a total for our maximum reducer.
 
 ## The update rules we have seen
 
-| Behaviour | Example | What happens |
+| Behavior | Example | What happens |
 |---|---|---|
 | Replace | status: str | A sequential update replaces the earlier value. |
 | Accumulate a list | logs with add | New entries join the existing list. Resending old entries duplicates them. |

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 64" width="160" height="64">
+  <title>Silver time machine on wheels</title>
+  <defs><linearGradient id="metal" x2="0" y2="1"><stop stop-color="#edf6fc"/><stop offset=".45" stop-color="#a2bbc8"/><stop offset="1" stop-color="#536e80"/></linearGradient></defs>
+  <path d="M7 45h24M2 51h29" stroke="#ffb018" stroke-width="3" stroke-linecap="round"/>
+  <g stroke="#162c3e" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M31 45V29l10-7h21l17-14h32l26 22 15 7v16H31Z" fill="url(#metal)"/>
+    <path d="M68 26 83 13h23l16 13Z" fill="#133d55" stroke="#b9eafa"/>
+    <path d="M93 13v13M69 31h47v14H70M75 41h23" fill="none"/>
+    <path d="M34 25h23l-3-13H40Z" fill="#273e51" stroke="#8ebccc"/>
+    <path d="M37 16h15M39 20h14" stroke="#63dfff"/>
+    <path d="M37 9v12M51 7v15" stroke="#9bacbb"/>
+    <path d="M29 42h17M136 38h17" stroke="#ffda83" stroke-width="4"/>
+    <path d="M55 46h70" stroke="#63dfff"/>
+    <circle cx="59" cy="50" r="11" fill="#102333" stroke="#d5e5ed"/><circle cx="129" cy="50" r="11" fill="#102333" stroke="#d5e5ed"/>
+    <circle cx="59" cy="50" r="5" fill="#809dad"/><circle cx="129" cy="50" r="5" fill="#809dad"/>
+  </g>
+</svg>

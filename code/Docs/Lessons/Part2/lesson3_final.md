@@ -75,7 +75,7 @@ class EmailState(TypedDict):
 
 **What happens here**
 
-EmailState separates the incoming message and requested tone from the generated draft and workflow status. All four fields use ordinary replacement behaviour.
+EmailState separates the incoming message and requested tone from the generated draft and workflow status. All four fields use ordinary replacement behavior.
 
 **Result:** We can inspect the input and output together.
 

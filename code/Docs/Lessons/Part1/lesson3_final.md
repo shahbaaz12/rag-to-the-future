@@ -193,7 +193,7 @@ Lower values make the model more likely to choose the most probable next tokens.
 
 | Task | A sensible starting temperature | Why |
 |---|---:|---|
-| Factual answers, maths, code, extraction | 0.0–0.3 | Favour consistency and predictable formatting. |
+| Factual answers, maths, code, extraction | 0.0–0.3 | Favor consistency and predictable formatting. |
 | General questions and explanations | 0.5–0.7 | Balance clarity with natural variation. |
 | Creative writing, stories, and jokes | 0.9–1.2 | Allow more diverse phrasing and ideas. |
 | Wild brainstorming | 1.5+ | Encourage surprising directions; expect less consistency. |
@@ -230,7 +230,7 @@ low_temperature_model = init_chat_model(
 
 **What happens here**
 
-We configure the first model with temperature 0.0, an output limit of 300 tokens, and low reasoning effort. Lower temperature favours more consistent token choices.
+We configure the first model with temperature 0.0, an output limit of 300 tokens, and low reasoning effort. Lower temperature favors more consistent token choices.
 
 **Result:** low_temperature_model is ready for the shared prompt.
 

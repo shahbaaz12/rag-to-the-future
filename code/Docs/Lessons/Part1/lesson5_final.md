@@ -18,7 +18,7 @@ Let’s add those pieces one at a time.
 - batch independent requests;
 - ask for validated structured output;
 - use system, human, and AI messages;
-- explain how labelled messages shape a conversation.
+- explain how labeled messages shape a conversation.
 
 ---
 
@@ -535,7 +535,7 @@ We resend the conversation list. The model can use the earlier messages to inter
 
 **Result:** The response uses the history that our application provided.
 
-Without earlier context, a follow-up like this can become ambiguous. Labels do not guarantee perfect behaviour, but they give the application and model a clear, reliable conversation structure.
+Without earlier context, a follow-up like this can become ambiguous. Labels do not guarantee perfect behavior, but they give the application and model a clear, reliable conversation structure.
 
 ---
 

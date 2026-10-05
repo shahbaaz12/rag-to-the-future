@@ -1,0 +1,44 @@
+{
+  "1": {
+    "title": "A voice through the static",
+    "year": "1985",
+    "location": "My workshop",
+    "asset": "analogue",
+    "image_caption": "1985 · Preparing the first jump",
+    "recap": "Our journey begins at the workshop bench.",
+    "paragraphs": [
+      "I pull a stool up to the bench and turn the console towards you. Outside, the clocktower marks another quiet evening in Hill Valley. On the wall, a diagram from 1955 waits beside my plans for the first jump.",
+      "You ask the console where we should go. It answers immediately, with a destination that does not exist. I set my notebook beside the screen.",
+      "“We have a voice,” I tell you. “Now let’s understand what’s answering before we ask it to guide us.”"
+    ],
+    "obstacle": "Understand what the console can do—and where its answers need care."
+  },
+  "9": {
+    "title": "The route between the switches",
+    "year": "2015",
+    "location": "The future workshop",
+    "asset": "future",
+    "image_caption": "2015 · Finding the right route",
+    "recap": "The first chapter introduced the console’s voice, conversation record and tools.",
+    "paragraphs": [
+      "I open the service-bay door. Beyond the square, traffic passes above the streets; inside, a row of switches waits on the workbench. Each one works on its own. Together, they still have no route to follow.",
+      "You reach for the first switch. I lay two station cards between us and draw a line from one to the other.",
+      "“Start here,” I say. “Before we ask the console to decide anything, let’s make two simple steps run in the right order.”"
+    ],
+    "obstacle": "Connect two stations into one dependable sequence."
+  },
+  "17": {
+    "title": "The sealed archive",
+    "year": "1885",
+    "location": "The frontier workshop",
+    "asset": "frontier",
+    "image_caption": "1885 · Finding the way home",
+    "recap": "The second chapter connected operations and introduced a pause for human approval.",
+    "paragraphs": [
+      "I spread the old workshop journals across the bench. Outside, a locomotive waits beside the unfinished station. Our console can follow a route, but the next repair depends on instructions it has never seen.",
+      "You ask it a question. The answer sounds convincing. I open a journal beside the screen and point to a different instruction.",
+      "“Before we trust that answer, let’s find the page that supports it,” I tell you. “The way home may already be written down. We need to know where to look.”"
+    ],
+    "obstacle": "Find the relevant instructions before asking for an answer."
+  }
+}
