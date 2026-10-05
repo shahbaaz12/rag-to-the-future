@@ -79,6 +79,10 @@ def assets(page):
         link.decompose()
     if page.select_one("#lesson"):
         page.head.append(page.new_tag("link", rel="stylesheet", href=versioned("lesson-story.css")))
+    for link in page.select('link[href^="lesson-topics.css"]'):
+        link.decompose()
+    if page.select_one('#lesson'):
+        page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-topics.css')))
     for node in page.select('link[href^="lesson-tokenizer.css"], script[src^="lesson-tokenizer.js"]'):
         node.decompose()
     if page.select_one('.tokenizer-playground'):

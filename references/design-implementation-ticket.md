@@ -177,3 +177,24 @@ Status: complete. Design, FE, Ops and QA finished sequentially.
 Validation: audited all 24 pages and updated 24 authored content files, glossary definitions and SVG descriptions. The rendering policy standardizes readable text, metadata and embedded glossary definitions while excluding code, exact source comments, technical term names and paths. Original teaching code/comments, IDs and links match the pre-change snapshot. Repeated generation is stable. Source validation passes 284 snippets and 128 glossary terms. Focused conversion checks preserve unrelated words such as conversation/exercise, inline code and fenced comments. Browser review confirms serialization/serializes in Lesson 4 and American spelling in dynamic homepage labels and accessible image descriptions. A proof screenshot was saved outside the repository.
 
 Shipped: consistent American English prose across home, maps, lessons and authored sources, with an explicit drafting policy and renderer enforcement. Executable source, exact comments, filenames and identifiers remain intact. No deployment requested.
+
+
+## Ticket: Clear lesson topic boundaries
+
+Goal: Make major topics and subtopics visibly distinct throughout the lessons.
+
+Scope: a shared reading stylesheet and renderer asset integration. Major topics receive numbered header panels, part-accent borders and clearer spacing; direct subtopic headings receive smaller number markers and dividers. Preserve heading wording/typefaces, all teaching content, exact code/comments, glossary, section anchors and progress. No story/map changes or deployment.
+
+Acceptance criteria:
+- [x] All 20 lessons have visible major topic boundaries and subordinate subtopic markers.
+- [x] Existing text, code/comments, IDs and links are unchanged; story/playground headings keep their own treatments.
+- [x] Desktop/mobile and both themes remain readable with no page-wide overflow.
+- [x] Regeneration retains the shared styles; source validation and browser review pass.
+
+Assigned sequentially: Design — numbered chapter panels and restrained subtopic markers; FE — scoped styles using existing themes; Ops — shared versioned asset inclusion; QA — responsive/theme review, exact content preservation and generation checks. BE — n/a, no data/API changes.
+
+Status: complete. Design, FE, Ops and QA finished sequentially. Baseline committed as 9b19612 before implementation.
+
+Validation: all 20 teaching articles match the pre-change snapshot exactly, including code/comments, links and anchors. Every lesson includes one versioned topic stylesheet, and repeated generation is stable. Source validation passes 284 snippets and 128 glossary terms. Browser review confirms numbered major panels, subordinate markers, unchanged display typefaces and an unaffected nested tokenizer title. Desktop and narrow mobile layouts have no page-wide overflow; both light and dark themes retain readable topic contrast. Original theme, viewport and completion records were restored, and a preview screenshot was saved outside the repository.
+
+Shipped: consistent topic panels, smaller subtopic dividers and clearer spacing across all published lessons, integrated into repeatable generation. No teaching content, story, map or progress changes; no deployment requested.
