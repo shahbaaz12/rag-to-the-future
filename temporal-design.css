@@ -1,0 +1,174 @@
+/* The temporal design layer follows theme overrides and leaves teaching panels intact. */
+:root {
+  --temporal-accent: #76e2ff;
+  --temporal-text: #e7f1f5;
+  --temporal-muted: #a6bdce;
+  --temporal-panel: #101e2b;
+  --temporal-border: #486375;
+  --temporal-mono: "Share Tech Mono", "DM Mono", monospace;
+}
+body[data-era="two"] { --temporal-accent: #f4c471; }
+body[data-era="three"] { --temporal-accent: #efad79; }
+body.temporal-map[data-era="two"] { background: radial-gradient(ellipse at 85% 8%, #5d442630, transparent 36rem), linear-gradient(120deg, #040a13, #102234 70%, #060e19); }
+body.temporal-map[data-era="three"] { background: radial-gradient(ellipse at 80% 10%, #996a3730, transparent 34rem), linear-gradient(120deg, #110f0e, #151d22 70%, #0b0d11); }
+:root[data-theme="light"] {
+  --temporal-accent: #006b8c;
+  --temporal-text: #183c54;
+  --temporal-muted: #48677d;
+  --temporal-panel: #f5f9fc;
+  --temporal-border: #a1b7c6;
+}
+:root[data-theme="light"] body[data-era="two"] { --temporal-accent: #83530a; }
+:root[data-theme="light"] body[data-era="three"] { --temporal-accent: #954328; }
+:root[data-theme="light"] body.temporal-map[data-era="two"] { background: radial-gradient(ellipse at 85% 8%, #ffedcf, transparent 36rem), linear-gradient(120deg, #fffdf8, #eff6fb); }
+:root[data-theme="light"] body.temporal-map[data-era="three"] { background: radial-gradient(ellipse at 80% 10%, #f8e7cf, transparent 34rem), linear-gradient(120deg, #fffdf7, #f2eee6); }
+.temporal-label { margin: 0; color: var(--temporal-accent); font: .7rem/1.5 var(--temporal-mono); letter-spacing: .12em; }
+.era-route {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 1160px; margin: 1.8rem auto 0; padding: 0 1.3rem;
+  gap: 0; justify-content: stretch; text-transform: none;
+}
+.era-route a {
+  display: flex; align-items: center; gap: .8rem; padding: .9rem 1.1rem;
+  color: var(--temporal-muted); border-bottom: 1px solid var(--temporal-border);
+  text-decoration: none; font-family: var(--temporal-mono); min-width: 0;
+}
+.era-route a + a { border-left: 1px solid var(--temporal-border); }
+.era-route a[aria-current] { color: var(--temporal-accent); border-bottom: 3px solid var(--temporal-accent); background: var(--temporal-panel); }
+.era-route a > span:last-child { margin-left: auto; }
+.era-route__number { font-size: .8rem; opacity: .65; }
+.era-route b { display: block; font-size: 1rem; font-weight: 400; letter-spacing: .1em; }
+.era-route small { display: block; margin-top: .25rem; font-size: .65rem; line-height: 1.3; letter-spacing: .02em; }
+.era-route a:hover { color: var(--temporal-accent); background: var(--temporal-panel); }
+.temporal-map-hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem); align-items: center;
+  min-height: 0; max-width: 1240px; padding: 4rem 2.5rem 3.5rem;
+}
+.temporal-map-hero h1 { font-size: clamp(2.8rem, 4.8vw, 5rem); line-height: 1; transform: none; }
+.temporal-map-hero .lede { font-size: 1.05rem; }
+.workshop-stage {
+  position: relative; min-width: 0; padding: .65rem;
+  background: linear-gradient(145deg, #8d9ca7, #263744 18%, #10202e 70%, #637889);
+  border: 1px solid #8b9caa; border-radius: 3px;
+  box-shadow: 0 20px 45px #0005, inset 0 0 0 4px #091723;
+  color: #e7f1f5;
+}
+.workshop-stage::before, .workshop-stage::after {
+  content: ""; position: absolute; width: 8px; height: 8px; top: .35rem;
+  background: linear-gradient(90deg, transparent 3px, #b4c5cf 3px 5px, transparent 5px), linear-gradient(transparent 3px, #b4c5cf 3px 5px, transparent 5px);
+}
+.workshop-stage::before { left: .22rem; }
+.workshop-stage::after { right: .22rem; }
+.workshop-stage > img { display: block; width: 100%; height: auto; border: 1px solid #506576; }
+.workshop-stage__plate { display: flex; align-items: center; justify-content: space-between; padding: .7rem .9rem; font: .62rem var(--temporal-mono); letter-spacing: .12em; }
+.workshop-stage__plate b { color: #f6cb83; font-size: 1rem; font-weight: 400; }
+.workshop-stage__caption { display: flex; justify-content: space-between; gap: .75rem; padding: .85rem .8rem; border-bottom: 1px solid #43596b; }
+.workshop-stage__caption span { font: .55rem/1.4 var(--temporal-mono); color: #b7cad8; max-width: 12rem; }
+.workshop-stage__caption strong { font-size: .82rem; font-weight: 500; text-align: right; }
+.workshop-stage__instrument { display: grid; grid-template-columns: 75px 1fr; gap: .9rem; align-items: center; padding: .75rem .8rem; }
+.workshop-stage__instrument > img { width: 75px; height: auto; opacity: .8; }
+.workshop-subsystems { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .9rem .8rem .2rem; }
+.workshop-subsystems dt { color: #b7cad8; font: .55rem var(--temporal-mono); letter-spacing: .07em; }
+.workshop-subsystems dd { margin: .4rem 0 0; color: #b7cad8; font: .65rem var(--temporal-mono); }
+.workshop-subsystems dd::before { content: "○ "; color: #8ba4b5; }
+.workshop-subsystems dd[data-ready="true"] { color: #8cedb0; }
+.workshop-subsystems dd[data-ready="true"]::before { content: "● "; color: #8cedb0; }
+.charge-meter { min-width: 0; color: var(--temporal-text); }
+.charge-meter__label { display: flex; justify-content: space-between; gap: .75rem; font: .62rem/1.5 var(--temporal-mono); letter-spacing: .04em; }
+.charge-meter__label b { white-space: nowrap; color: var(--temporal-accent); font-weight: 400; }
+.charge-meter__track { height: 7px; margin-top: .6rem; background: #8295a325; border: 1px solid var(--temporal-border); }
+.charge-meter__track i { display: block; height: 100%; width: var(--charge, 0%); background: var(--temporal-accent); transition: width .25s ease; }
+.charge-meter p { margin: .55rem 0 0; color: var(--temporal-muted); font-size: .65rem; line-height: 1.4; }
+.workshop-stage .charge-meter { --temporal-text: #e7f1f5; --temporal-muted: #b7cad8; --temporal-accent: #76e2ff; --temporal-border: #526c7e; }
+body[data-era="two"] .workshop-stage .charge-meter { --temporal-accent: #f4c471; }
+body[data-era="three"] .workshop-stage .charge-meter { --temporal-accent: #efad79; }
+.temporal-circuit {
+  display: grid; grid-template-columns: 1fr .8fr 1.2fr; gap: 1.4rem; align-items: center;
+  margin-top: 2.3rem; padding: 1.1rem 1.3rem; border: 1px solid var(--temporal-border);
+  background: var(--temporal-panel); box-shadow: inset 0 2px 0 #fff1;
+}
+.temporal-circuit__readout > span, .temporal-circuit__position > span { display: block; color: var(--temporal-muted); font: .6rem/1.5 var(--temporal-mono); letter-spacing: .07em; }
+.temporal-circuit__readout strong { display: inline-block; margin-top: .3rem; padding: .15rem .65rem; color: #ff6b53; background: #160b0a; border: 1px solid #71453b; font: 1.8rem/1.2 var(--temporal-mono); letter-spacing: .15em; }
+.temporal-circuit__position b { display: block; margin-top: .45rem; color: var(--temporal-accent); font: .8rem var(--temporal-mono); }
+.temporal-lesson .hero { padding-top: 2.7rem; padding-bottom: 3rem; }
+.temporal-lesson h1 { font-size: clamp(2.6rem, 5vw, 4.5rem); font-style: normal; line-height: 1.05; text-shadow: none; transform: none; color: var(--paper); }
+/* Reading sizes are scoped to lessons so instruments and display headings stay stable. */
+.temporal-lesson { --lesson-reading-size: 1.375rem; }
+.temporal-lesson #lesson { font-size: var(--lesson-reading-size); line-height: 1.8; }
+.temporal-lesson #lesson > :is(p, ul, ol, blockquote) { max-width: 68ch; }
+.temporal-lesson #lesson > p { margin-block: 1.15em; }
+.temporal-lesson #lesson li { margin-block: .45em; }
+.temporal-lesson #lesson .snippet-explanation { font-size: var(--lesson-reading-size); line-height: 1.8; }
+.temporal-lesson #lesson .snippet-explanation :is(.snippet-prose, .snippet-result) { font-size: inherit; line-height: inherit; }
+.temporal-lesson #lesson .snippet-prose { max-width: 64ch; }
+.temporal-lesson #lesson :is(p, li, td) { overflow-wrap: break-word; }
+.temporal-lesson #lesson :is(p, li, td) code { overflow-wrap: anywhere; }
+.lesson-completion { display: flex; justify-content: space-between; gap: 1.5rem; align-items: center; max-width: 858px; margin: -3rem auto 4rem; padding: 1.4rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); }
+.lesson-completion p { margin: .4rem 0 0; color: var(--temporal-text); font-size: 1.2rem; }
+.lesson-completion label, .course-card__completion { display: flex; align-items: center; gap: .65rem; cursor: pointer; color: var(--temporal-text); font-size: .85rem; }
+.lesson-completion small { display: block; margin-top: .5rem; color: var(--temporal-muted); font-size: .65rem; }
+[data-complete] { width: 1.1rem; height: 1.1rem; accent-color: var(--temporal-accent); cursor: pointer; }
+.course-card__body { display: flex; flex-direction: column; flex: 1; color: inherit; text-decoration: none; }
+.course-card__completion { margin-top: 1.3rem; padding-top: 1rem; border-top: 1px solid var(--temporal-border); }
+.course-card.is-complete, .lesson-completion.is-complete { border-left: 3px solid var(--temporal-accent); }
+.temporal-home .hero-logo { margin: 1.5rem 0 1.6rem; transform: none; width: min(520px, 100%); }
+.temporal-home .hero h1 { font-size: clamp(2.7rem, 4.5vw, 4.6rem); line-height: 1; }
+.temporal-home .hero { padding-top: 4rem; min-height: 0; overflow: clip; }
+.temporal-atlas { max-width: 1240px; padding: 3.5rem 1.3rem; margin: 0 auto 2rem; }
+.temporal-atlas__header { display: flex; justify-content: space-between; gap: 2rem; align-items: end; margin-bottom: 1.8rem; }
+.temporal-atlas h2 { margin: .6rem 0 0; font: 600 clamp(2rem, 4vw, 3.7rem)/1.05 "Oswald", sans-serif; text-transform: uppercase; }
+.atlas-selector { display: flex; flex-wrap: wrap; gap: .5rem; }
+.atlas-selector button { border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-muted); padding: .75rem .9rem; font: .7rem var(--temporal-mono); min-height: 44px; }
+.atlas-selector button[aria-pressed="true"] { color: var(--temporal-accent); border-color: var(--temporal-accent); }
+.atlas-view { margin: 0; padding: .6rem; border: 1px solid #8599a8; background: linear-gradient(145deg, #627889, #101e2b 20%, #101e2b 80%, #627889); }
+.atlas-view img { width: 100%; height: auto; display: block; max-height: 520px; object-fit: cover; }
+.atlas-view figcaption { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem .7rem .5rem; color: #d6e8f2; font: .7rem/1.5 var(--temporal-mono); }
+.atlas-view a { color: #76e2ff; text-decoration: underline; text-underline-offset: 3px; }
+.temporal-atlas .era-route { padding: 0; margin-top: 1rem; max-width: none; }
+.temporal-atlas > .charge-meter { margin-top: 1.5rem; }
+.temporal-map .course-grid { gap: 1rem; }
+.temporal-map .course-card { border-left: 3px solid var(--temporal-accent); }
+.temporal-map[data-era="two"] .course-card { background-image: linear-gradient(135deg, #a9843512, transparent); }
+.temporal-map[data-era="three"] .course-card { background-image: repeating-linear-gradient(0deg, transparent 0 27px, #af84510a 28px 29px); }
+.temporal-map .mission { padding-top: 3rem; }
+.temporal-map .repair.is-complete .repair-title strong { text-decoration: none; }
+.temporal-map .repair-detail[hidden] { display: none; }
+.temporal-map .topbar nav, .temporal-lesson .topbar nav { flex-wrap: wrap; align-items: center; }
+.temporal-home .time-machine .machine-top .eyebrow { color: #f6cb83; }
+.temporal-home .time-machine .circuit-labels, .temporal-home .time-machine .machine-bottom, .temporal-home .time-machine .timeline-note { color: #d1e0e9; }
+.temporal-home .time-machine { min-width: 0; }
+.temporal-home #syllabus-dialog { max-width: min(1100px, 94vw); }
+:is(.era-route a, .atlas-selector button, .atlas-view a, [data-complete]):focus-visible { outline: 3px solid var(--temporal-accent); outline-offset: 4px; }
+@media (max-width: 900px) {
+  .temporal-map-hero { padding: 2.8rem 1.3rem; gap: 2rem; }
+  .temporal-map-hero h1 { font-size: clamp(2.7rem, 5vw, 4.5rem); }
+  .temporal-home .hero { grid-template-columns: 1fr; padding: 3rem 1.3rem 5rem; }
+  .temporal-home .time-machine { justify-self: start; max-width: 620px; }
+  .temporal-atlas__header { align-items: start; flex-direction: column; }
+}
+@media (max-width: 700px) {
+  .temporal-map-hero { grid-template-columns: 1fr; }
+  .era-route { padding: 0 1rem; margin-top: 1rem; }
+  .era-route a { gap: .4rem; padding: .75rem .45rem; }
+  .era-route__number, .era-route a > span:last-child { display: none; }
+  .era-route b { font-size: .9rem; }
+  .era-route small { font-size: .58rem; }
+  .temporal-circuit { grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1rem; }
+  .temporal-circuit .charge-meter { grid-column: 1 / -1; }
+  .lesson-completion { margin: -3rem 1rem 3rem; align-items: start; flex-direction: column; }
+  .workshop-stage__caption span { font-size: .5rem; }
+  .atlas-view figcaption { flex-direction: column; }
+  .temporal-home .topbar { display: flex; flex-wrap: wrap; padding: .65rem 1rem; gap: .75rem; }
+  .temporal-home .topbar nav { flex-wrap: wrap; justify-content: start; gap: .85rem; }
+  .temporal-home .header-label { display: none; }
+  .temporal-home .hero-logo { max-width: 430px; }
+  .temporal-home .hero h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
+}
+@media (max-width: 650px) {
+  .temporal-lesson { --lesson-reading-size: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

@@ -46,10 +46,10 @@ Use an almost-black background and warm off-white text by default. Blue is the m
 | Role | Typeface | Treatment |
 |---|---|---|
 | Interface and body | `DM Sans` | Clear, calm, human. Use for explanations and controls. |
-| Instrumentation | `DM Mono` | Uppercase labels, metadata, code-adjacent details, timestamps, status. Track out slightly. |
-| Story and display | `Playfair Display` | Reserve for major page statements, professor quotations, and a few pivotal emphasis words. |
+| Instrumentation | `Share Tech Mono`, with `DM Mono` as fallback | Uppercase labels, metadata, timestamps, status. Track out slightly. |
+| Act and display | `Oswald` | Poster-style act names and major map statements. Technical lesson titles use a calmer upright treatment. |
 
-Use display type sparingly. The contrast between the practical sans and literary serif is what gives the story weight. Keep body copy at a comfortable reading size and 1.6–1.75 line height. Avoid all-caps for paragraphs; it belongs to instrumentation labels only.
+Use display type sparingly. Let the practical body face and analogue instrumentation provide contrast. Keep body copy at a comfortable reading size and 1.6–1.75 line height. Avoid all-caps for paragraphs; it belongs to instrumentation labels and display titles only.
 
 ### Texture and depth
 
@@ -194,6 +194,18 @@ Avoid generic course language such as “master,” “unlock your potential,”
 - Support `prefers-reduced-motion` and do not auto-play audio.
 - Dialogs trap focus, return focus to their trigger on close, and provide an explicit close control.
 - Keep labels concise and specific: `Open all 24 lessons`, not `Click here`.
+
+## Implemented temporal design layer
+
+The shared layer in `temporal-design.css` follows the existing theme styles. Its scoped tokens give light and dark reading surfaces equivalent contrast. Preserve the current destinations: 1985, 2045, and an unspecified frontier. Timeline and story revisions belong to a separate content pass.
+
+- `assets/workshop-analogue.svg`, `workshop-future.svg`, and `workshop-frontier.svg` show the same original clocktower square and mobile workshop. Architecture remains recognisable as service bays, transit routes, and railways change around it. Keep setting artwork on maps and the home atlas.
+- Every lesson has a three-part route and compact time instrument outside its teaching article. Keep lesson prose, source snippets, copy controls, and glossary unchanged by visual updates.
+- Reading prose uses DM Sans at 22px on desktop and 20px on mobile, with 1.8 line height. Lists, table cells, and snippet explanations share this scale. Keep display headings and instrument labels at their existing sizes; do not shrink explanations back to the old 16px panel default.
+- Map panels use a silver instrument housing, a dark viewfinder, labelled subsystem lamps, and a completion meter. `PENDING` and `RECORDED` describe learner-reported progress; a filled lamp is not an assessment result.
+- The shared progress record covers 20 published lessons, preserves original Part I records, supports undo, and uses browser storage. Four planned lessons remain labelled in the syllabus. Do not add the numbered lesson-route strip; it was removed by user request. Never lock published lessons based on completion.
+- `scripts/temporal_design.py` supplies repeatable static components; the lesson renderer calls it on every build. Do not hand-insert instruments into the teaching Markdown.
+- No new story scenes, automatic sound, or departure animation are part of this pass. Keep the opening-scene proposal separate until the story work begins.
 
 ## Build checklist
 

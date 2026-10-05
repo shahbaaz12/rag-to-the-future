@@ -42,6 +42,23 @@ function setPart(partId) {
   destinationLink.href = part.link;
   destinationLink.textContent = part.linkText;
   if (controlDeck) controlDeck.dataset.activePart = partId;
+  document.body.dataset.era = partId;
+  updateAtlas(partId, part.link);
+}
+
+function updateAtlas(partId, link) {
+  const views = {
+    one: ["analogue", "1985 / ANALOGUE WORKSHOP"],
+    two: ["future", "2045 / FUTURE WORKSHOP"],
+    three: ["frontier", "FRONTIER / YEAR UNCONFIRMED"],
+  };
+  const [asset, label] = views[partId];
+  const image = document.getElementById("atlas-image");
+  if (!image) return;
+  image.src = `assets/workshop-${asset}.svg`;
+  image.alt = `The clocktower square in the ${asset} workshop setting`;
+  document.getElementById("atlas-label").textContent = label;
+  document.getElementById("atlas-link").href = link;
 }
 
 function openSyllabus() {
@@ -67,7 +84,8 @@ document.querySelectorAll("[data-part]").forEach((control) => {
 document.querySelectorAll("[data-preview-part]").forEach((button) => {
   button.addEventListener("click", () => {
     setPart(button.dataset.previewPart);
-    controlDeck?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const behavior = matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+    controlDeck?.scrollIntoView({ behavior, block: "center" });
   });
 });
 

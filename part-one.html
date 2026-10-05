@@ -1,113 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Out of Time: the first eight repairs in the RAG to the Future AI systems journey." />
-    <title>Out of Time · RAG to the Future</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Oswald:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="part-one.css" />
-  <link rel="stylesheet" href="theme-toggle.css"/><script src="theme-toggle.js"></script></head>
-  <body>
-    <div class="site-noise" aria-hidden="true"></div>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="RAG to the Future home">
-        <img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="180" height="90" />
-      </a>
-      <nav aria-label="Primary navigation">
-        <a href="index.html">← Timeline</a>
-        <a href="#repairs">Repairs</a>
-        <a href="https://github.com/shahbaaz12/rag-to-the-future" target="_blank" rel="noreferrer">GitHub ↗</a>
-      </nav>
-    </header>
-
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <p class="eyebrow"><span></span> DESTINATION TIME: OCT 26 1985 · PART I OF III</p>
-          <p class="chapter-number">01 / OUT OF TIME</p>
-          <h1 id="page-title">Go back.<br /><em>Learn what matters.</em></h1>
-          <p class="lede">Everyone else has moved to AI. The professor offers a way back: repair the unfinished navigation intelligence in his first workshop, one essential system at a time.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#repairs">Enter the workshop <span>↓</span></a>
-            <a class="button button-quiet" href="#mission">Read the mission</a>
-          </div>
-        </div>
-        <aside class="status-panel" aria-label="Flux Capacitor Part I status">
-          <div class="panel-top"><span>FLUX CAPACITOR</span><b>PART I ACTIVE</b></div>
-          <div class="flux-diagram"><img src="assets/flux-capacitor.svg" alt="Glowing Y-shaped flux capacitor" /></div>
-          <dl class="system-readout">
-            <div><dt>VOICE</dt><dd>OFFLINE</dd></div>
-            <div><dt>MEMORY</dt><dd>FRAGMENTED</dd></div>
-            <div><dt>ARCHIVE</dt><dd>UNREADABLE</dd></div>
-          </dl>
-          <div class="power"><span>FLUX POWER</span><div><i></i></div><b>33%</b></div>
-        </aside>
-      </section>
-
-      <section id="mission" class="mission" aria-labelledby="mission-title">
-        <p class="eyebrow">THE PROFESSOR'S BRIEF</p>
-        <div class="mission-grid">
-          <h2 id="mission-title">Teach the machine enough<br />to find <em>the way home.</em></h2>
-          <div>
-            <p>The navigation intelligence invents destinations, forgets prior instructions, and cannot understand the professor’s journals. Your repairs turn a raw model connection into the Professor’s Archive Assistant.</p>
-            <blockquote>“You haven’t run out of time. You’ve been starting in the wrong place.”<cite>— THE PROFESSOR</cite></blockquote>
-          </div>
-        </div>
-      </section>
-
-      <section class="repair-header" aria-labelledby="repairs-title">
-        <div><p class="eyebrow">WORKSHOP LOG · EIGHT REPAIRS</p><h2 id="repairs-title">Restore the navigation intelligence.</h2></div>
-        <p class="progress" aria-live="polite"><strong data-progress-count>0</strong> / 8 repairs stabilised</p>
-      </section>
-
-      <section id="repairs" class="repairs" aria-label="Part I lessons">
-        <article class="repair" data-lesson="1">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-1"><span class="lesson-id">01</span><span class="repair-title"><small>THE FIRST SIGNAL</small><strong>Is Anybody There?</strong></span><span class="skill">LLM foundations</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-1" hidden><div><p class="story-label">Story moment</p><p>The machine speaks for the first time. It is impressive, unpredictable, and incapable of knowing what it does not know.</p></div><div><p class="story-label">You learn</p><p>AI terminology, LLM applications, chat models, and local project setup.</p><a class="lesson-link" href="lesson-1.html">Open lesson 1 →</a></div><label class="completion"><input type="checkbox" data-complete="1" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="2">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-2"><span class="lesson-id">02</span><span class="repair-title"><small>FIRST CONNECTION</small><strong>Connect a Chat Model</strong></span><span class="skill">Providers &amp; models</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-2" hidden><div><p class="story-label">Story moment</p><p>The first reply reaches the console, but its route and limitations are unclear.</p></div><div><p class="story-label">You learn</p><p>Calling Groq and Gemini through LangChain, changing models, and comparing provider trade-offs.</p><a class="lesson-link" href="lesson-2.html">Open lesson 2 →</a></div><label class="completion"><input type="checkbox" data-complete="2" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="3">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-3"><span class="lesson-id">03</span><span class="repair-title"><small>ONE INTERFACE, MANY MODELS</small><strong>Change the Route, Not the App</strong></span><span class="skill">LangChain &amp; settings</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-3" hidden><div><p class="story-label">Story moment</p><p>The console needs a stable control panel even when its model route changes.</p></div><div><p class="story-label">You learn</p><p>LangChain, provider switching, temperature, and output-token limits.</p><a class="lesson-link" href="lesson-3.html">Open lesson 3 →</a></div><label class="completion"><input type="checkbox" data-complete="3" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="4">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-4"><span class="lesson-id">04</span><span class="repair-title"><small>READ THE SIGNAL</small><strong>Responses and Prompts</strong></span><span class="skill">Tokens &amp; templates</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-4" hidden><div><p class="story-label">Story moment</p><p>The console replies, but its hidden measurements and instructions need reading.</p></div><div><p class="story-label">You learn</p><p>Responses, tokens, model names, static prompts, and prompt templates.</p><a class="lesson-link" href="lesson-4.html">Open lesson 4 →</a></div><label class="completion"><input type="checkbox" data-complete="4" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="5">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-5"><span class="lesson-id">05</span><span class="repair-title"><small>MORE THAN ONE ANSWER</small><strong>Keep the Conversation Moving</strong></span><span class="skill">Responses &amp; messages</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-5" hidden><div><p class="story-label">Story moment</p><p>The workshop speaks in fragments, and the professor marks each message so its rules and questions stay clear.</p></div><div><p class="story-label">You learn</p><p>Streaming, batching, structured output, and labelled messages.</p><a class="lesson-link" href="lesson-5.html">Open lesson 5 →</a></div><label class="completion"><input type="checkbox" data-complete="5" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="6">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-6"><span class="lesson-id">06</span><span class="repair-title"><small>CONVERSATION MEMORY</small><strong>Remember the Right Things</strong></span><span class="skill">History &amp; checkpoints</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-6" hidden><div><p class="story-label">Story moment</p><p>The console remembers Ada only because the workshop carries the right conversation record forward.</p></div><div><p class="story-label">You learn</p><p>Manual history, summaries, checkpointers, and separate conversations by thread ID.</p><a class="lesson-link" href="lesson-6.html">Open lesson 6 →</a></div><label class="completion"><input type="checkbox" data-complete="6" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="7">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-7"><span class="lesson-id">07</span><span class="repair-title"><small>TOOL CONTROL</small><strong>Let the App Take Action</strong></span><span class="skill">Tool execution loops</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-7" hidden><div><p class="story-label">Story moment</p><p>The console identifies a useful function, but waits for the workshop to approve the action.</p></div><div><p class="story-label">You learn</p><p>Tools, structured tool calls, allow-lists, and controlled execution loops.</p><a class="lesson-link" href="lesson-7.html">Open lesson 7 →</a></div><label class="completion"><input type="checkbox" data-complete="7" /> <span>Repair stabilised</span></label></div>
-        </article>
-        <article class="repair" data-lesson="8">
-          <button class="repair-trigger" type="button" aria-expanded="false" aria-controls="lesson-8"><span class="lesson-id">08</span><span class="repair-title"><small>WORKING WITH AGENTS</small><strong>Choose the Right Tool</strong></span><span class="skill">Agents &amp; tools</span><span class="toggle" aria-hidden="true">+</span></button>
-          <div class="repair-detail" id="lesson-8" hidden><div><p class="story-label">Story moment</p><p>The repaired console chooses from its approved workshop tools to answer an inventory request.</p></div><div><p class="story-label">You learn</p><p>Agents, one-tool and multi-tool flows, and inspecting an agent run.</p><a class="lesson-link" href="lesson-8.html">Open lesson 8 →</a></div><label class="completion"><input type="checkbox" data-complete="8" /> <span>Repair stabilised</span></label></div>
-        </article>
-      </section>
-
-      <section class="arrival" aria-labelledby="arrival-title">
-        <p class="eyebrow">WHEN THE EIGHTH REPAIR HOLDS</p>
-        <h2 id="arrival-title">You return with the<br /><em>Professor’s Archive Assistant.</em></h2>
-        <p>It can speak, remember, search, and show its evidence. The future has just begun to call.</p>
-        <a class="button button-quiet" href="index.html#journeys">Return to the timeline <span>→</span></a>
-      </section>
-    </main>
-
-    <footer><a class="brand" href="index.html"><img src="assets/rag-to-the-future-logo.png" alt="RAG to the Future" width="150" height="75" /></a><a href="index.html">← Back to all time jumps</a></footer>
-    <script src="part-one.js"></script>
-  </body>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Out of Time: the first eight repairs in the RAG to the Future AI systems journey." name="description"/>
+<title>Out of Time · RAG to the Future</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="part-one.css" rel="stylesheet"/>
+<link href="theme-toggle.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="temporal-design.css?v=0eb89fc3db" rel="stylesheet"/><script defer="True" src="course-progress.js?v=59cdfeaf72"></script><script defer="True" src="temporal-ui.js?v=26edff2bdd"></script></head>
+<body class="temporal-map" data-era="one">
+<div aria-hidden="true" class="site-noise"></div>
+<header class="topbar">
+<a aria-label="RAG to the Future home" class="brand" href="index.html">
+<img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/>
+</a>
+<nav aria-label="Primary navigation">
+<a href="index.html">← Timeline</a>
+<a href="#repairs">Repairs</a>
+<a href="https://github.com/shahbaaz12/rag-to-the-future" rel="noreferrer" target="_blank">GitHub ↗</a>
+</nav>
+</header>
+<main>
+<nav aria-label="Three-part journey" class="era-route" data-temporal-component=""><a aria-current="page" href="part-one.html"><span class="era-route__number">01</span><span><b>1985</b><small>Analogue workshop</small></span><span aria-hidden="true">↗</span></a><a href="part-two.html"><span class="era-route__number">02</span><span><b>2045</b><small>Future workshop</small></span><span aria-hidden="true">↗</span></a><a href="part-three.html"><span class="era-route__number">03</span><span><b>????</b><small>Frontier workshop</small></span><span aria-hidden="true">↗</span></a></nav><section aria-labelledby="page-title" class="hero temporal-map-hero">
+<div class="hero-copy">
+<p class="eyebrow"><span></span> DESTINATION TIME: OCT 26 1985 · PART I OF III</p>
+<p class="chapter-number">01 / OUT OF TIME</p>
+<h1 id="page-title">Go back.<br/><em>Learn what matters.</em></h1>
+<p class="lede">Everyone else has moved to AI. The professor offers a way back: repair the unfinished navigation intelligence in his first workshop, one essential system at a time.</p>
+<div class="hero-actions">
+<a class="button button-primary" href="#repairs">Enter the workshop <span>↓</span></a>
+<a class="button button-quiet" href="#mission">Read the mission</a>
+</div>
+</div>
+<aside aria-label="Analogue workshop setting" class="workshop-stage" data-temporal-component="">
+<div class="workshop-stage__plate"><span>WORKSHOP / 01</span><b>1985</b></div>
+<img alt="The same clocktower square in the analogue workshop, with a time machine and service bay" fetchpriority="high" height="520" src="assets/workshop-analogue.svg" width="960"/>
+<div class="workshop-stage__caption"><span>FIXED POINT / CLOCKTOWER SQUARE</span><strong>Analogue workshop</strong></div>
+<dl class="workshop-subsystems"><div><dt>VOICE</dt><dd data-subsystem="1,2,3">PENDING</dd></div><div><dt>MEMORY</dt><dd data-subsystem="4,5,6">PENDING</dd></div><div><dt>TOOLS</dt><dd data-subsystem="7,8">PENDING</dd></div></dl>
+<div class="workshop-stage__instrument"><img alt="" height="320" src="assets/flux-capacitor.svg" width="360"/><div class="charge-meter" data-course-meter="" data-end="8" data-start="1">
+<div class="charge-meter__label"><span>REPAIRS RECORDED</span><b><span data-meter-count="">0</span> / 8</b></div>
+<div aria-label="Recorded lesson completion" aria-valuemax="8" aria-valuemin="0" aria-valuenow="0" class="charge-meter__track" role="progressbar"><i></i></div>
+<p data-save-note="">Saved on this browser · self-reported</p></div></div></aside></section>
+<section aria-labelledby="mission-title" class="mission" id="mission">
+<p class="eyebrow">THE PROFESSOR'S BRIEF</p>
+<div class="mission-grid">
+<h2 id="mission-title">Teach the machine enough<br/>to find <em>the way home.</em></h2>
+<div>
+<p>The navigation intelligence invents destinations, forgets prior instructions, and cannot understand the professor’s journals. Your repairs turn a raw model connection into the Professor’s Archive Assistant.</p>
+<blockquote>“You haven’t run out of time. You’ve been starting in the wrong place.”<cite>— THE PROFESSOR</cite></blockquote>
+</div>
+</div>
+</section>
+<section aria-labelledby="repairs-title" class="repair-header">
+<div><p class="eyebrow">WORKSHOP LOG · EIGHT REPAIRS</p><h2 id="repairs-title">Restore the navigation intelligence.</h2></div>
+<p aria-live="polite" class="progress"><strong data-progress-count="">0</strong> / 8 repairs stabilised</p>
+</section>
+<section aria-label="Part I lessons" class="repairs" id="repairs">
+<article class="repair" data-lesson="1">
+<button aria-controls="lesson-1" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">01</span><span class="repair-title"><small>THE FIRST SIGNAL</small><strong>Is Anybody There?</strong></span><span class="skill">LLM foundations</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-1"><div><p class="story-label">Story moment</p><p>The machine speaks for the first time. It is impressive, unpredictable, and incapable of knowing what it does not know.</p></div><div><p class="story-label">You learn</p><p>AI terminology, LLM applications, chat models, and local project setup.</p><a class="lesson-link" href="lesson-1.html">Open lesson 1 →</a></div><label class="completion"><input data-complete="1" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="2">
+<button aria-controls="lesson-2" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">02</span><span class="repair-title"><small>FIRST CONNECTION</small><strong>Connect a Chat Model</strong></span><span class="skill">Providers &amp; models</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-2"><div><p class="story-label">Story moment</p><p>The first reply reaches the console, but its route and limitations are unclear.</p></div><div><p class="story-label">You learn</p><p>Calling Groq and Gemini through LangChain, changing models, and comparing provider trade-offs.</p><a class="lesson-link" href="lesson-2.html">Open lesson 2 →</a></div><label class="completion"><input data-complete="2" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="3">
+<button aria-controls="lesson-3" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">03</span><span class="repair-title"><small>ONE INTERFACE, MANY MODELS</small><strong>Change the Route, Not the App</strong></span><span class="skill">LangChain &amp; settings</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-3"><div><p class="story-label">Story moment</p><p>The console needs a stable control panel even when its model route changes.</p></div><div><p class="story-label">You learn</p><p>LangChain, provider switching, temperature, and output-token limits.</p><a class="lesson-link" href="lesson-3.html">Open lesson 3 →</a></div><label class="completion"><input data-complete="3" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="4">
+<button aria-controls="lesson-4" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">04</span><span class="repair-title"><small>READ THE SIGNAL</small><strong>Responses and Prompts</strong></span><span class="skill">Tokens &amp; templates</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-4"><div><p class="story-label">Story moment</p><p>The console replies, but its hidden measurements and instructions need reading.</p></div><div><p class="story-label">You learn</p><p>Responses, tokens, model names, static prompts, and prompt templates.</p><a class="lesson-link" href="lesson-4.html">Open lesson 4 →</a></div><label class="completion"><input data-complete="4" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="5">
+<button aria-controls="lesson-5" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">05</span><span class="repair-title"><small>MORE THAN ONE ANSWER</small><strong>Keep the Conversation Moving</strong></span><span class="skill">Responses &amp; messages</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-5"><div><p class="story-label">Story moment</p><p>The workshop speaks in fragments, and the professor marks each message so its rules and questions stay clear.</p></div><div><p class="story-label">You learn</p><p>Streaming, batching, structured output, and labelled messages.</p><a class="lesson-link" href="lesson-5.html">Open lesson 5 →</a></div><label class="completion"><input data-complete="5" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="6">
+<button aria-controls="lesson-6" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">06</span><span class="repair-title"><small>CONVERSATION MEMORY</small><strong>Remember the Right Things</strong></span><span class="skill">History &amp; checkpoints</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-6"><div><p class="story-label">Story moment</p><p>The console remembers Ada only because the workshop carries the right conversation record forward.</p></div><div><p class="story-label">You learn</p><p>Manual history, summaries, checkpointers, and separate conversations by thread ID.</p><a class="lesson-link" href="lesson-6.html">Open lesson 6 →</a></div><label class="completion"><input data-complete="6" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="7">
+<button aria-controls="lesson-7" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">07</span><span class="repair-title"><small>TOOL CONTROL</small><strong>Let the App Take Action</strong></span><span class="skill">Tool execution loops</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-7"><div><p class="story-label">Story moment</p><p>The console identifies a useful function, but waits for the workshop to approve the action.</p></div><div><p class="story-label">You learn</p><p>Tools, structured tool calls, allow-lists, and controlled execution loops.</p><a class="lesson-link" href="lesson-7.html">Open lesson 7 →</a></div><label class="completion"><input data-complete="7" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+<article class="repair" data-lesson="8">
+<button aria-controls="lesson-8" aria-expanded="false" class="repair-trigger" type="button"><span class="lesson-id">08</span><span class="repair-title"><small>WORKING WITH AGENTS</small><strong>Choose the Right Tool</strong></span><span class="skill">Agents &amp; tools</span><span aria-hidden="true" class="toggle">+</span></button>
+<div class="repair-detail" hidden="" id="lesson-8"><div><p class="story-label">Story moment</p><p>The repaired console chooses from its approved workshop tools to answer an inventory request.</p></div><div><p class="story-label">You learn</p><p>Agents, one-tool and multi-tool flows, and inspecting an agent run.</p><a class="lesson-link" href="lesson-8.html">Open lesson 8 →</a></div><label class="completion"><input data-complete="8" type="checkbox"/> <span>Repair stabilised</span></label></div>
+</article>
+</section>
+<section aria-labelledby="arrival-title" class="arrival">
+<p class="eyebrow">WHEN THE EIGHTH REPAIR HOLDS</p>
+<h2 id="arrival-title">You return with the<br/><em>Professor’s Archive Assistant.</em></h2>
+<p>It can speak, remember, search, and show its evidence. The future has just begun to call.</p>
+<a class="button button-quiet" href="index.html#journeys">Return to the timeline <span>→</span></a>
+</section>
+</main>
+<footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><a href="index.html">← Back to all time jumps</a></footer>
+<script src="part-one.js?v=23146980aa"></script>
+</body>
 </html>

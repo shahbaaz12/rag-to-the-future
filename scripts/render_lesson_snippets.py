@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup, NavigableString
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
+from temporal_design import apply_design
 
 ROOT = Path(__file__).resolve().parents[1]
 DRAFTS = ROOT / "code/Docs/Lessons/Part1"
@@ -484,6 +485,7 @@ def render(lesson):
     for script in original.find_all("script", src="lesson-glossary.js"):
         script.decompose()
     original.body.append(original.new_tag("script", src="lesson-glossary.js", defer=True))
+    apply_design(original, 1 if lesson <= 8 else 2 if lesson <= 16 else 3, lesson)
     page_path.write_text(str(original), encoding="utf-8")
     print(f"Lesson {lesson}: {len(cards)} explained snippets")
 
