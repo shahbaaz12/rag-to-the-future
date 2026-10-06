@@ -8,7 +8,7 @@
 
 A model can write a very convincing answer about the current weather, your order status, or a course module. That does not mean it has actually checked any of them.
 
-Tools let the model request information or an action from the outside world. The important word is *request*. The model does not get to run random code on its own. Our application stays in charge.
+**Tools** let the model request information or an action from the outside world. The important word is *request*. The model does not get to run random code on its own. Our application stays in charge.
 
 ## What you will be able to do
 
@@ -71,7 +71,7 @@ groq_model = init_chat_model(
 
 ## What is a tool?
 
-A tool is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorized.
+**A tool** is simply a function thats it, a function that the application makes available to a model. It has a clear name, description, inputs, and output. A tool might read a database, look up a delivery status, search approved documents, or perform an action the user authorized.
 
 For the first example, we use a tiny local lookup. It keeps the focus on the flow rather than adding another API key.
 
@@ -116,7 +116,7 @@ course_tools contains the allowed tools. tools_by_name maps each tool's name to 
 
 **Result:** Our application has an explicit lookup for permitted tools.
 
-The docstring matters. It helps the model understand when the tool is useful and what its input means.
+**The docstring** matters. It helps the model understand when the tool is useful and what its input means.
 
 ---
 
@@ -169,7 +169,9 @@ We invoke the model and inspect tool_calls. Each requested call describes a tool
 
 The response may contain `tool_calls`. That is structured data describing the function the model wants to use and the arguments it proposes. It is not proof that the tool ran.
 
-Our application then finds the requested tool in its allow-list, executes it, and returns a `ToolMessage` with the result.
+Our application then finds the requested tool in its allow-list and executes it.
+
+**ToolMessage** carries the result back to the model.
 
 ### Save the model's request
 
@@ -206,7 +208,9 @@ for tool_call in model_message.tool_calls:
 
 **What happens here**
 
-We look up the requested name in tools_by_name. A recognized tool runs with the proposed arguments; an unknown name receives a fallback. ToolMessage carries the result with the original call ID so the model can match it to the request.
+We look up the requested name in tools_by_name. A recognized tool runs with the proposed arguments; an unknown name receives a fallback.
+
+**ToolMessage** carries the result with the original call ID so the model can match it to the request.
 
 **Result:** The history now contains the tool result for each request. This small example checks the tool name; real applications also need argument and permission checks.
 

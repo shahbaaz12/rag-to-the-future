@@ -26,7 +26,8 @@ def add_connection(model, call, environment):
         sources = args[0] if isinstance(args[0], list) else [args[0]]
         if isinstance(args[0], list):
             model["joins"].append([sources, args[1]])
-        model["edges"].extend([[source, args[1], "wait for both" if len(sources) > 1 else "next"] for source in sources])
+        label = "wait for all" if len(sources) > 2 else "wait for both" if len(sources) == 2 else "next"
+        model["edges"].extend([[source, args[1], label] for source in sources])
     else:
         for label, target in args[2].items():
             model["edges"].append([args[0], target, label])

@@ -8,13 +8,27 @@ Our workflow prepares a sample request, pauses, and waits for approval or reject
 
 ## What we are building
 
-The request is a ₹5,000 refund for a damaged item in order ORD-102. A reviewer sees the details and supplies True or False.
+We will build a refund review workflow for order ORD-102: a customer requests ₹5,000 because an item arrived damaged. The graph prepares the request, pauses so a person can review the details, then follows the approval or rejection path. The demo records the outcome in local state; no actual money moves, and this notebook uses ordinary Python nodes without a model call.
 
-Approve continues to the demo refund function. Reject records the decision and ends without running that function. No actual money moves, and no model API is needed for this example.
+<div data-graph-preview="builder"></div>
 
-Three pieces work together: interrupt exposes the request and pauses; a checkpointer stores progress; Command(resume=...) supplies the decision using the same thread ID.
+**The idea behind it** is to add a person's decision to the graph design we have learned. Our earlier lessons gave model nodes the ability to write answers and request information. An intelligent workflow can also need a person to decide whether the next step should run. Here we focus on that pause and decision using a small Python example.
 
-On resume, the interrupted node starts again from its beginning. Keep actions that should happen only once out of the code before interrupt. The refund step belongs after the approval branch.
+We already know how a conditional edge chooses a path from state. The new piece is waiting for a decision that is not available yet. The graph saves its progress, exposes the request for review, and continues after we supply the person's response.
+
+**Our workflow** has three stages:
+
+1. `prepare` checks the amount and marks the request as awaiting review.
+2. `review` pauses with the order, amount, and reason. We resume the saved request with `True` for approval or `False` for rejection.
+3. The conditional edge selects `process` or `reject`. The selected node records its outcome, then the graph ends.
+
+**interrupt** exposes the review details and pauses execution inside the review node.
+
+**A checkpointer** stores progress while the workflow waits.
+
+**Command(resume=...)** supplies the decision using the same thread ID. On resume, the interrupted node starts again from its beginning, so actions that should happen only once belong outside the code before `interrupt`. Our processing step sits after the approval branch.
+
+**The result** is a workflow whose next action depends on a recorded human decision. We will try both outcomes: `refund processed` after approval and `refund rejected` after rejection.
 
 ### Import the graph helpers
 
@@ -28,7 +42,9 @@ from langgraph.types import interrupt, Command
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries.
 
 **Result:** The helpers are ready; no graph has run.
 

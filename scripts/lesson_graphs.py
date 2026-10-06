@@ -33,9 +33,6 @@ def positions(model):
     nodes = ["START", *model["nodes"], "END"]
     edges = model["edges"]
     backwards = back_edges(nodes, edges)
-    if model["kind"] == "execution":
-        points = {"START": (100, 100), "Run ready nodes": (330, 100), "Merge updates": (570, 100), "More work?": (570, 250), "END": (800, 250)}
-        return points, 900, 400, backwards, "execution"
     simple = not backwards and len(edges) == len(nodes) - 1 and all(sum(e[0] == n for e in edges) <= 1 for n in nodes)
     if simple and len(nodes) <= 4:
         return {node: (110 + i * 220, 90) for i, node in enumerate(nodes)}, 220 * len(nodes), 180, backwards, True
@@ -55,9 +52,7 @@ def positions(model):
 def edge_shape(source, target, points, width, backwards, horizontal, index):
     x, y = points[source]
     tx, ty = points[target]
-    if horizontal == "execution" and (source, target) in backwards:
-        return f"M {x} {y+30} L {x} 350 L {tx} 350 L {tx} {ty+30}", (x+tx)/2, 337
-    if horizontal and (horizontal != "execution" or y == ty):
+    if horizontal:
         return f"M {x+86} {y} L {tx-86} {ty}", (x+tx)/2, y-45
     if (source, target) in backwards:
         side = -1 if x < tx else 1
@@ -65,7 +60,7 @@ def edge_shape(source, target, points, width, backwards, horizontal, index):
         start_y, end_y = (y-14, ty+14) if source == target else (y, ty)
         label_y = y-48 if source == target else (y+ty)/2-8
         return f"M {x+side*95} {start_y} C {lane} {start_y-45}, {lane} {end_y+45}, {tx+side*95} {end_y}", lane-side*10, label_y
-    if horizontal != "execution" and ty-y > 145:
+    if ty-y > 145:
         lane = 35+index%3*18
         return f"M {x} {y+30} L {x} {y+65} L {lane} {y+65} L {lane} {ty-65} L {tx} {ty-65} L {tx} {ty-30}", (x+lane)/2, y+55
     mid = (y+ty)/2
@@ -89,7 +84,7 @@ def graph_svg(model, identity, title):
     for index, (source, target, label) in enumerate(model["edges"]):
         path, x, y = edge_shape(source, target, points, width, backwards, horizontal, index)
         label = "no tool calls" if label == "END" else label
-        conditional = label not in ("next", "input", "wait for both", "initial state", "returned updates", "updated state", "tool result")
+        conditional = label not in ("next", "input", "wait for both", "wait for all", "initial state", "returned updates", "updated state", "tool result")
         label_half_width = len(label) * 4.8
         x = max(label_half_width + 12, min(x, width - label_half_width - 12))
         routes.append(f'<path class="graph-edge{ " graph-edge--choice" if conditional else ""}" d="{path}" marker-end="url(#{identity}-arrow)"/><text class="graph-edge-label" x="{x}" y="{y}" text-anchor="middle">{escape(label)}</text>')
@@ -102,17 +97,10 @@ def connections(model):
     return f'<details class="lesson-graph__connections"><summary>Graph connections in text</summary><ul>{"".join(items)}</ul>{"".join(joins)}</details>'
 
 
-def panel(model, identity, title, caption, extra=""):
-    kind = {"agent": "CONCEPTUAL AGENT FLOW", "execution": "EXECUTION FLOW"}.get(model["kind"], "GRAPH STRUCTURE")
+def panel(model, identity, title, caption):
+    kind = "CONCEPTUAL AGENT FLOW" if model["kind"] == "agent" else "GRAPH STRUCTURE"
     saved = '<span class="lesson-graph__storage">Checkpointer attached · storage outside the node path</span>' if model["checkpoint"] else ""
-    return f'<figure class="lesson-graph" data-lesson-graph="{identity}" aria-labelledby="{identity}-title"><div class="lesson-graph__header"><span>{kind}</span><h4 id="{identity}-title">{escape(title)}</h4></div>{extra}<p class="lesson-graph__hint">Scroll sideways to explore the diagram →</p><div class="lesson-graph__canvas" tabindex="0" role="region" aria-label="{escape(title)} diagram; scroll horizontally on narrow screens">{graph_svg(model, identity, title)}</div><figcaption><p>{escape(caption)}</p>{saved}</figcaption>{connections(model)}</figure>'
-
-
-def execution_panel():
-    model = {"kind": "execution", "nodes": ["Run ready nodes", "Merge updates", "More work?"], "edges": [["START", "Run ready nodes", "initial state"], ["Run ready nodes", "Merge updates", "returned updates"], ["Merge updates", "More work?", "updated state"], ["More work?", "Run ready nodes", "yes: next round"], ["More work?", "END", "no"]], "joins": [], "checkpoint": False}
-    steps = '<ol class="lesson-graph__stages"><li><b>01 · Define</b><span>State schema, nodes and edges</span></li><li><b>02 · Compile</b><span>Check structure; create a runnable graph</span></li><li><b>03 · Invoke</b><span>Supply input and start execution</span></li></ol>'
-    caption = "Compilation prepares the graph; invocation runs it. In each super-step, ready nodes read state and return updates. Each field's reducer combines those updates before the next round. The runtime follows the registered edges until no work remains. This is a conceptual execution cycle, not an extra routing node to add to your code."
-    return panel(model, "graph-execution", "From definition to execution", caption, steps)
+    return f'<figure class="lesson-graph" data-lesson-graph="{identity}" aria-labelledby="{identity}-title"><div class="lesson-graph__header"><span>{kind}</span><h4 id="{identity}-title">{escape(title)}</h4></div><p class="lesson-graph__hint">Scroll sideways to explore the diagram →</p><div class="lesson-graph__canvas" tabindex="0" role="region" aria-label="{escape(title)} diagram; scroll horizontally on narrow screens">{graph_svg(model, identity, title)}</div><figcaption><p>{escape(caption)}</p>{saved}</figcaption>{connections(model)}</figure>'
 
 
 def add_graph_visuals(page, lesson):
@@ -123,10 +111,13 @@ def add_graph_visuals(page, lesson):
         key = f'{lesson}:{model["name"]}'
         title, caption = CAPTIONS[key]
         identity = f'graph-{lesson}-{model["name"].replace("_", "-")}'
-        figure.insert_after(BeautifulSoup(panel(model, identity, title, caption), "html.parser"))
-    if lesson == 9:
-        heading = next(h for h in article.select("h2") if h.get_text() == "What happens behind the scenes?")
-        anchor = heading
-        while anchor.find_next_sibling() and anchor.find_next_sibling().name != "h2":
-            anchor = anchor.find_next_sibling()
-        anchor.insert_after(BeautifulSoup(execution_panel(), "html.parser"))
+        anchor = article.find(attrs={"data-graph-preview": model["name"]})
+        if anchor is None:
+            anchor = figure
+        if lesson == 9 and model["name"] == "builder":
+            anchor = next(h for h in article.select("h2") if h.get_text() == "What we are building")
+            for sibling in anchor.find_next_siblings():
+                if sibling.name == "h2":
+                    break
+                anchor = sibling
+        anchor.insert_after(BeautifulSoup(panel(model, identity, title, caption), "html.parser"))

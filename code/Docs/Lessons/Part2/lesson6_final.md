@@ -10,11 +10,23 @@ The student does not repeat the topic names in every question. Our application c
 
 ## What we are building
 
-A study assistant with five state fields: student_id, level, topics, messages, and last_answer.
+We will build a Python study assistant that can continue a student's conversation. The student chooses lists and tuples, then asks, “Explain the first one with an example.” Later questions refer to “the second one” and “both.” The assistant needs the earlier topics and messages to understand those references.
 
-A checkpointer saves the graph state. The same thread_id continues that conversation; a different ID starts a separate one. InMemorySaver keeps this data only while the current Python process remains alive.
+<div data-graph-preview="builder"></div>
 
-For each later turn we send the new message. The graph restores the earlier state; we do not rebuild and resend the whole history ourselves.
+**The idea behind it** is to give our intelligent graph memory between requests. We have already learned how state carries information through one graph run and how a node sends that information to a model. Now we save the state so a later run can continue with the same student's context.
+
+The execution path stays simple: `START → tutor → END`. We attach storage to the graph rather than adding a memory node to that path. The tutor reads the restored context, makes a model call, and returns its new reply.
+
+**A checkpointer** saves the graph state: the student ID, learning level, selected topics, conversation messages, and latest answer.
+
+**thread_id** identifies which saved conversation to continue. Reusing the same ID restores that student's context; a different ID keeps another conversation separate.
+
+**InMemorySaver** is the checkpointer we use here. It keeps the saved state while the current Python process remains alive.
+
+**Our conversation** starts by supplying the student's details and first question. For each follow-up, we send only the new message with the same thread ID. The graph restores the earlier state and supplies it to the tutor. In our sample, “the first one” refers to lists for one student and loops for another because their saved topics differ.
+
+**The result** is an assistant that can use earlier context to answer a follow-up. The application provides that context by saving and restoring state; the model receives it in each request.
 
 ### Import the graph helpers
 
@@ -28,7 +40,9 @@ from langgraph.graph import StateGraph, START, END
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
 **Result:** The helpers are ready; no graph has run.
 
@@ -62,7 +76,9 @@ model = init_chat_model(
 
 **What happens here**
 
-load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
+load_dotenv makes the API key available.
+
+**init_chat_model** creates our reusable model object; it has not generated an answer yet.
 
 **Result:** The model is ready. Running its node will make a provider request.
 
@@ -207,7 +223,11 @@ get_state reads the saved snapshot. Student1 has eight messages from four exchan
 
 ## Updating selected topics
 
-A student can choose a new topic. A topics update replaces that ordinary list. A messages update merges into the history. The two fields deliberately behave differently.
+A student can choose a new topic.
+
+**A topics update** replaces that ordinary list.
+
+**A messages update** merges into the history. The two fields deliberately behave differently.
 
 ### Change topics without discarding the conversation
 
@@ -229,7 +249,7 @@ The selected topics become dictionaries. The earlier messages remain, and this e
 
 ## Why add_messages is more than list addition
 
-A new message ID appends a message. Returning a message with an existing ID replaces that message instead. This is useful when correcting a stored reply.
+**A new message ID** appends a message. Returning a message with an existing ID replaces that message instead. This is useful when correcting a stored reply.
 
 ### Demonstrate an update by message ID
 

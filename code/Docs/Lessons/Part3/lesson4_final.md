@@ -8,9 +8,13 @@ Our supplied catalog already has a structure: **category → subcategory → pro
 
 ## What we are building
 
-We build two indexes. The detail index contains product and variant Documents. The summary index contains one complete overview per subcategory. The model classifies the question as DETAIL or SUMMARY, the graph retrieves at that level, and the model writes the answer.
+We build two indexes.
 
-This is a small hierarchical retrieval example. It is not GraphRAG over extracted entities and relationships, and it does not traverse every level of a tree. We are choosing between two useful information levels.
+**The detail index** contains product and variant Documents.
+
+**The summary index** contains one complete overview per subcategory. The model classifies the question as DETAIL or SUMMARY, the graph retrieves at that level, and the model writes the answer.
+
+**Hierarchical retrieval** chooses the information level that fits the question. This example uses two indexes to do that. It is not GraphRAG over extracted entities and relationships, and it does not traverse every level of a tree. We are choosing between two useful information levels.
 
 ## What does global mean here?
 
@@ -34,7 +38,9 @@ from langchain_openai import OpenAIEmbeddings
 
 **What happens here**
 
-Document pairs a piece of text with metadata about its source. InMemoryVectorStore keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
+**Document** pairs a piece of text with metadata about its source.
+
+**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
 
 **Result:** The building blocks are available; importing them makes no provider request.
 
@@ -206,7 +212,9 @@ class CatalogState(TypedDict):
 
 **What happens here**
 
-RouteChoice reuses structured output from Part I. Literal limits the route to two labels. CatalogState keeps four fields: the question, chosen route, retrieved evidence, and answer. The fields use replacement, and each node returns only its updates.
+RouteChoice reuses structured output from Part I. Literal limits the route to two labels.
+
+**CatalogState** keeps four fields: the question, chosen route, retrieved evidence, and answer. The fields use replacement, and each node returns only its updates.
 
 **Result:** The graph has a clear record, and the model's classification has a small validated shape.
 

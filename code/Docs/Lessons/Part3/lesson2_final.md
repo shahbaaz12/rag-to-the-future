@@ -8,7 +8,9 @@ We already know how to keep messages. Now we need to use that history before ret
 
 ## What we are building
 
-We use the supplied fables. First rewrite a follow-up as a standalone question, then retrieve story chunks, generate an answer, and save the new turn. The rewrite is a search question, not an answer.
+We use the supplied fables. First rewrite a follow-up as a standalone question, then retrieve story chunks, generate an answer, and save the new turn.
+
+**A standalone question** includes the context needed to understand the follow-up on its own. The rewrite is a search question, not an answer.
 
 Our path is **history + question → standalone question → retrieve → answer → save history**. We use one notebook conversation; a production application would keep a separate history for each conversation, as we did with thread IDs in Part II.
 
@@ -30,7 +32,9 @@ from langchain_openai import OpenAIEmbeddings
 
 **What happens here**
 
-Document pairs a piece of text with metadata about its source. InMemoryVectorStore keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
+**Document** pairs a piece of text with metadata about its source.
+
+**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
 
 **Result:** The building blocks are available; importing them makes no provider request.
 

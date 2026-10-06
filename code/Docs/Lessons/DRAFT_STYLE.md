@@ -35,8 +35,12 @@ Adapt this structure to the lesson; do not add sections that do not help.
 ## Editing rules
 
 - Preserve the learner-facing rhythm: short paragraphs, direct questions, and intentional emphasis.
+- Introduce a concept before using it to explain another concept. Start a distinct concept introduction in its own paragraph and bold its opening term or short phrase, for example `**LangGraph** helps us...`. Keep related elaboration together; do not bold every paragraph or split every sentence. This reading emphasis is separate from first-use glossary highlights and must never change exact code/comments.
 - Polish grammar and clarity without removing the author's personality or replacing their point of view.
 - Use Markdown headings, lists, tables, and code blocks only when they make the teaching easier to scan.
 - Keep claims proportionate. Prefer “can”, “may”, and “often” where behavior depends on a provider, model, or application design.
 - Reference the exact associated notebook or code file when the lesson discusses it.
 - Show each constructed graph beside its construction code, including branch labels, explicit joins and return loops. The shared graph component derives topology from displayed Python snippets; add its concise title/caption to `lesson-graphs.json`. Label framework-managed agent flows as conceptual, and keep checkpointer storage separate from execution nodes. Preserve all source code/comments when adding visuals.
+- Lesson 9's first graph is an exception: preview it directly below the What we are building explanation, before the code walkthrough. Keep deriving its topology from the construction snippets.
+- Lesson 10 previews each of its four independent graphs directly below that topic's What we are building explanation. Use a `data-graph-preview` marker naming the builder; keep deriving topology from the construction snippets.
+- Lessons 11–16 also preview their target graph below What we are building, before the code. Explain the practical project and the idea behind it, connecting each new capability to the state, nodes, and edges already learned. Use the `data-graph-preview` marker and derive the diagram from the construction snippets.

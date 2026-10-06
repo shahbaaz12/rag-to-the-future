@@ -10,9 +10,21 @@ We will expose one function, get_leave_balance. The model requests it; our appli
 
 ## What we are building
 
-The sample employee is EMP101: allowance 20 days, used 14, remaining 6.
+We will build a small leave-balance assistant. An employee asks, “How many paid leave days do I have left?” Our application supplies the employee ID, and the assistant can look up that employee's record before writing an answer. For our sample employee, EMP101, the allowance is 20 days and 14 have been used, leaving 6.
 
-Our graph asks the model what it needs, runs one leave lookup if requested, then asks the model to explain the result. That is one tool round, normally involving a model request before and after the lookup.
+<div data-graph-preview="builder"></div>
+
+**The idea behind it** is to give the intelligent graph access to information through a tool. In Lesson 11, we added an LLM call to the graph design we had learned. Now we connect that model node to a Python function that reads a local leave record. The model understands the question and can request the lookup; our application executes the function and returns its result.
+
+The state, nodes, and edges still have the same jobs. State carries the employee details and conversation. Nodes ask the model, execute the lookup, and write the answer. A conditional edge checks whether the model requested a tool and chooses the next step.
+
+**Our workflow** has one tool round:
+
+1. `ask_model` receives the question and selected employee ID. The model can request `get_leave_balance`.
+2. If it requests the lookup, `tools` executes the function and adds the returned record to the conversation.
+3. `answer` uses that record to explain the balance, then the graph ends. A model reply without a tool request can end directly from `ask_model`.
+
+**The result** can be an answer such as “You have 6 paid leave days remaining.” The balance comes from our sample record. The model's role is to request the information and explain it in words.
 
 ### Import the graph helpers
 
@@ -26,7 +38,9 @@ from langgraph.graph import StateGraph, START, END
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
 **Result:** The helpers are ready; no graph has run.
 
@@ -60,7 +74,9 @@ model = init_chat_model(
 
 **What happens here**
 
-load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
+load_dotenv makes the API key available.
+
+**init_chat_model** creates our reusable model object; it has not generated an answer yet.
 
 **Result:** The model is ready. Running its node will make a provider request.
 

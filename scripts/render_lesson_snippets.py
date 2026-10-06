@@ -332,6 +332,10 @@ def add_learning_aids(page, article, lesson):
     explanation_nodes = article.select(".snippet-prose, .snippet-result, .snippet-source")
     if lesson in ADVANCED_LESSONS:
         explanation_nodes = [node for node in article.select("p, li, td, .snippet-source") if not node.find_parent(class_="code-explorer__panel") and not node.find_parent(class_="snippet-source-comments") and not node.find_parent("pre")]
+    if lesson == 9:
+        # Keep this introductory topic consistent; glossary markers begin afterward.
+        explanation_nodes = [node for node in explanation_nodes if not (
+            node.find_previous("h2").get_text(strip=True) == "The words we need")]
     for text_node in explanation_nodes:
         for node in list(text_node.descendants):
             if not isinstance(node, NavigableString):
@@ -404,6 +408,8 @@ def render(lesson):
         return f"\n\n@@RENDERED_SNIPPET_{len(cards)-1}@@\n\n"
     markdown = NOTE.sub(substitute, markdown)
     markdown = markdown.replace('<!-- interactive: tokenizer-playground -->', '\n\n@@RENDERED_TOKENIZER@@\n\n')
+    markdown = re.sub(r'<div data-graph-preview="([A-Za-z_]\w*)"></div>',
+                      r'\n\n@@GRAPH_PREVIEW_\1@@\n\n', markdown)
     assert "```" not in markdown, f"Unannotated block in lesson {lesson}"
     body = mistune.create_markdown(plugins=["table"])(markdown)
     body = re.sub(r"<h1>.*?</h1>\n", "", body, count=1)
@@ -411,6 +417,8 @@ def render(lesson):
     for i, content in enumerate(cards):
         body = body.replace(f"<p>@@RENDERED_SNIPPET_{i}@@</p>", content)
     body = body.replace('<p>@@RENDERED_TOKENIZER@@</p>', tokenizer_playground())
+    body = re.sub(r'<p>@@GRAPH_PREVIEW_([A-Za-z_]\w*)@@</p>',
+                  r'<div data-graph-preview="\1"></div>', body)
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")
     body = body.replace("../../../Part%20II%20Connecting%20the%20dots/", "code/Part%20II%20Connecting%20the%20dots/")
     body = body.replace("../../../Part%20III%20Give%20the%20model%20something%20to%20read/", "code/Part%20III%20Give%20the%20model%20something%20to%20read/")

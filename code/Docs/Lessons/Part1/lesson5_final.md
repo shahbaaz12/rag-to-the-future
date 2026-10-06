@@ -72,7 +72,9 @@ groq_model = init_chat_model("openai/gpt-oss-120b", model_provider="groq")
 
 ### Streaming
 
-Normally, `invoke` waits until the complete response is ready. Streaming lets our application receive small chunks while the model is still generating.
+Normally, `invoke` waits until the complete response is ready.
+
+**Streaming** lets our application receive small chunks while the model is still generating.
 
 ### Choose the streaming prompt
 
@@ -120,7 +122,7 @@ It makes a long answer feel more responsive because the user can start reading i
 
 ### Batching
 
-Batching is for requests that do not depend on one another.
+**Batching** is for requests that do not depend on one another.
 
 ### Prepare independent prompts
 
@@ -152,7 +154,9 @@ for prompt, batch_response in zip(batch_prompts, batch_responses):
 
 **What happens here**
 
-`batch` submits the list through LangChain. zip pairs each original prompt with its response so our prints remain easy to follow.
+`batch` submits the list through LangChain.
+
+**zip** pairs each original prompt with its response so our prints remain easy to follow.
 
 **Result:** We see a prompt and answer for every batch item. Provider limits still apply.
 
@@ -162,7 +166,9 @@ It is useful when processing a list of records, prompts, or tests. It is not con
 
 ## Structured output: ask for data, not just prose
 
-Models are good at writing paragraphs. Applications often need a predictable shape instead: fields we can put in a UI, store in a database, or pass to another function. **Structured output** tells the model and LangChain what shape our response needs.
+Models are good at writing paragraphs. Applications often need a predictable shape instead: fields we can put in a UI, store in a database, or pass to another function.
+
+**Structured output** tells the model and LangChain what shape our response needs.
 
 Let’s use a Pokédex. A normal prompt might return a nice paragraph about Pikachu. That is pleasant for a person to read, but our code cannot safely rely on the order of facts inside it. We want a name, type, level, and evolutions in named places.
 
@@ -219,7 +225,7 @@ groq_model = init_chat_model(
 
 ### Pydantic: a validated Python object
 
-A Pydantic model describes the expected fields. `Field(description=...)` is useful because it explains each field to the model as well as to the reader of our code.
+**A Pydantic model** describes the expected fields. `Field(description=...)` is useful because it explains each field to the model as well as to the reader of our code.
 
 ### Describe one Pokémon
 
@@ -351,11 +357,11 @@ We loop through pokedex.pokemons and access each object's name, type, and evolut
 
 **Result:** We can use every entry in the same predictable way.
 
-`PokemonList` is the outer box. Its `pokemons` field is a list, and every item in that list must have the `Pokemon` shape. This is called a nested structured output. It is useful whenever one response contains a collection of repeated items: products in an order, people in a team, or search results.
+**`PokemonList`** is the outer box. Its `pokemons` field is a list, and every item in that list must have the `Pokemon` shape. This is called a nested structured output. It is useful whenever one response contains a collection of repeated items: products in an order, people in a team, or search results.
 
 ### TypedDict: the lighter option
 
-`TypedDict` describes the same kind of keys and value types using Python's typing tools. It is useful when we only need a normal dictionary and do not need Pydantic's object features or runtime validation.
+**`TypedDict`** describes the same kind of keys and value types using Python's typing tools. It is useful when we only need a normal dictionary and do not need Pydantic's object features or runtime validation.
 
 ### Describe dictionary keys
 
@@ -372,7 +378,9 @@ class PokemonDict(TypedDict):
 
 **What happens here**
 
-PokemonDict declares the keys and expected value types. TypedDict describes the shape for tooling and the structured-output schema; it does not perform Pydantic-style runtime validation on its own.
+PokemonDict declares the keys and expected value types.
+
+**TypedDict** describes the shape for tooling and the structured-output schema; it does not perform Pydantic-style runtime validation on its own.
 
 **Result:** We have a schema for a regular Python dictionary.
 
@@ -427,7 +435,7 @@ The complete examples are in [5-Structured-Outputs.ipynb](../../../Part%20I%20Un
 
 ## Messages give a conversation structure
 
-A message is just **text plus a label saying who said it**.
+**A message** is just **text plus a label saying who said it**.
 
 ### Inspect a human message
 
@@ -494,7 +502,11 @@ SystemMessage carries the chef instruction, while HumanMessage carries the quest
 
 Now the model can treat the system message as “this is how I should behave” and the human message as “this is what the user wants.”
 
-Think of a new employee. The **system message** is the manager’s day-one rule: “Be polite and keep replies short.” The **human message** is a customer’s question. The employee follows the manager’s rules for every customer without making the customer repeat them.
+Think of a new employee.
+
+**The system message** is the manager’s day-one rule: “Be polite and keep replies short.”
+
+**The human message** is a customer’s question. The employee follows the manager’s rules for every customer without making the customer repeat them.
 
 Messages also let us carry a chat history forward by adding an `AIMessage` for an earlier reply:
 

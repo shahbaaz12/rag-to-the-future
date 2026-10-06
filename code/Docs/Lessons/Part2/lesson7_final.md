@@ -6,13 +6,29 @@
 
 Waiting for the whole answer can make an application feel frozen. Sometimes we want to see which step finished. Sometimes we want to start reading while the model is still writing.
 
-Those are two different kinds of progress. A node update reports the fields a completed node returned. Message chunks reveal the model's answer as it is generated.
+Those are two different kinds of progress.
+
+**A node update** reports the fields a completed node returned.
+
+**Message chunks** reveal the model's answer as it is generated.
 
 ## What we are building
 
-**Prepare the request → write the recipe.** The first node uses ordinary Python to organize the ingredients. The second makes a model call.
+We will build a recipe assistant that shows progress while it works. We supply rice, peas, and carrots and ask for a quick vegetarian dinner for two people. One Python node prepares the request; a second node asks the model to write a short recipe with numbered steps.
 
-Our state keeps ingredients, servings, the prepared request, the recipe, and the status. We will try updates streaming and messages streaming in separate runs. Each demonstration makes its own model call; they are not two views of one shared request.
+<div data-graph-preview="builder"></div>
+
+**The idea behind it** is to make the work inside our intelligent graph visible as it happens. We already know how to connect sequential nodes and put an LLM call inside a node. Now we change how our application receives the output so a user can see completed steps or start reading while the model is still writing.
+
+The graph still follows `START → prepare_request → write_recipe → END`. State carries the ingredients, servings, prepared request, recipe, and status. Streaming changes when we receive progress; the node order stays the same.
+
+**updates streaming** shows the fields returned by completed nodes. We first see that the ingredients have been prepared, then receive the finished recipe after the model node completes.
+
+**messages streaming** shows chunks of the model's text as they arrive. This lets us display the recipe gradually during generation. A chunk may contain part of a word or several words, so we print the arriving text as supplied.
+
+**Our experiment** runs the same recipe workflow twice: once to inspect completed node updates and once to display arriving model text. Each run makes its own model call, so the recipe wording can differ between runs.
+
+**The result** is a clear distinction between “this step has finished” and “the answer is still being written.” We can choose the kind of progress that helps the user of our application.
 
 ### Import the graph helpers
 
@@ -24,7 +40,9 @@ from langgraph.graph import StateGraph, START, END
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries.
 
 **Result:** The helpers are ready; no graph has run.
 
@@ -58,7 +76,9 @@ model = init_chat_model(
 
 **What happens here**
 
-load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
+load_dotenv makes the API key available.
+
+**init_chat_model** creates our reusable model object; it has not generated an answer yet.
 
 **Result:** The model is ready. Running its node will make a provider request.
 

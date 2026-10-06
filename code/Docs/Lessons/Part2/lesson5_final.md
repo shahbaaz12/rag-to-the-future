@@ -6,15 +6,25 @@
 
 One lookup gives us route IDs. Another gives us prices and durations for those routes. The model needs the first result before it can request details for the returned IDs.
 
-This is where a tool-execution loop becomes useful. After receiving a result, the model decides whether to request more information or give its answer.
+**A tool-execution loop** lets the model request another tool after seeing a result. After receiving a result, the model decides whether to request more information or give its answer.
 
 ## What we are building
 
-find_routes returns TRAIN-01 and FLIGHT-01. get_route_details reads each route's sample record. Our sample train costs ₹900 and flight ₹4,500; these are teaching values, not current fares.
+We will build a travel comparison assistant for a Mumbai-to-Goa trip with a ₹2,000 budget. It first needs to find available routes, then read their prices and durations before comparing them. Our local sample train costs ₹900 and takes 10 hours; the flight costs ₹4,500 and takes 1.5 hours. These are teaching values, not current fares.
 
-The model may request several route details together or in separate rounds. The graph permits another tool round instead of forcing a fixed number of lookups.
+<div data-graph-preview="builder"></div>
 
-ReAct is often expanded as reasoning and acting. Here we inspect the observable decisions and tool results, rather than hidden reasoning.
+**The idea behind it** is to let the intelligent graph use a result to decide what information it needs next. In Lesson 12, a tool lookup led to a final answer step. Here, we add a backward edge from `tools` to `assistant`. That familiar loop connection gives the model another turn with the latest tool results in state.
+
+We still define the available tools and graph connections. On each visit, the model can request a tool or write its final answer. Our application executes requested functions and adds their results to the conversation. The next model call can use those results.
+
+**A typical comparison** follows these steps:
+
+1. The assistant requests `find_routes`, which returns `TRAIN-01` and `FLIGHT-01`.
+2. After seeing those IDs, it requests `get_route_details` for the returned routes. The model may request both details together or in separate rounds.
+3. With the prices and durations available, it can compare the options and explain that the sample train fits the budget while the flight exceeds it. A reply without tool requests reaches `END`.
+
+**ReAct** is often expanded as reasoning and acting. In this example, we can inspect the model's tool requests, the application's returned results, and the final answer. The new capability comes from revisiting the model node after each tool round.
 
 ### Import the graph helpers
 
@@ -28,7 +38,9 @@ from langgraph.graph import StateGraph, START, END
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries. Annotated attaches add_messages to the messages field, giving message updates their own merge rule.
 
 **Result:** The helpers are ready; no graph has run.
 
@@ -62,7 +74,9 @@ model = init_chat_model(
 
 **What happens here**
 
-load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
+load_dotenv makes the API key available.
+
+**init_chat_model** creates our reusable model object; it has not generated an answer yet.
 
 **Result:** The model is ready. Running its node will make a provider request.
 

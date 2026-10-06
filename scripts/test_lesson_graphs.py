@@ -51,6 +51,37 @@ result = builder.compile(checkpointer=memory).invoke(input)
         self.assertIn(["done", "END", "next"], model["edges"])
         self.assertTrue(model["checkpoint"])
 
+    def test_three_way_join_waits_for_all(self):
+        model = self.models('''
+builder = StateGraph(State)
+builder.add_node("weather", work)
+builder.add_node("flights", work)
+builder.add_node("hotels", work)
+builder.add_node("combine", work)
+builder.add_edge(["weather", "flights", "hotels"], "combine")
+builder.compile()
+''')[0]
+        self.assertEqual(model["joins"], [[["weather", "flights", "hotels"], "combine"]])
+        self.assertTrue(all(edge[2] == "wait for all" for edge in model["edges"]))
+
+    def test_lesson_ten_previews_precede_their_code(self):
+        page = BeautifulSoup((ROOT / "lesson-10.html").read_text(encoding="utf-8"), "html.parser")
+        article = page.select_one("#lesson")
+        add_graph_visuals(page, 10)
+        self.assertEqual(len(article.select("[data-graph-preview]")), 4)
+        source_ids = {
+            "sequential_builder": "pizza-state", "parallel_builder": "trip-state",
+            "conditional_builder": "ticket-state", "loop_builder": "otp-state",
+        }
+        for marker in article.select("[data-graph-preview]"):
+            preview = marker.find_next_sibling()
+            self.assertTrue(preview.has_attr("data-lesson-graph"))
+            self.assertTrue(marker.find_previous_sibling("p").get_text(strip=True).startswith("We will"))
+            first_snippet = preview.find_next("figure", class_="snippet-card")
+            self.assertIsNotNone(first_snippet)
+            self.assertTrue(first_snippet["data-source"].endswith(
+                "#p2-2-" + source_ids[marker["data-graph-preview"]]))
+
     def test_agent_tools_are_choices_not_a_fixed_chain(self):
         model = self.models('agent = create_agent(model=model, tools=[stock, price])')[0]
         self.assertEqual(model["kind"], "agent")
@@ -78,8 +109,8 @@ result = builder.compile(checkpointer=memory).invoke(input)
             add_graph_visuals(page, lesson)
             self.assertEqual(first, str(page))
             self.assertEqual(originals, [node.get_text() for node in article.select(".code-explorer__source")])
-            self.assertEqual(len(article.select("[data-lesson-graph]")), len(models) + (lesson == 9))
-        self.assertEqual(counts, {"graph": 17, "agent": 3})
+            self.assertEqual(len(article.select("[data-lesson-graph]")), len(models))
+        self.assertEqual(counts, {"graph": 13, "agent": 3})
         self.assertEqual(keys, set(CAPTIONS))
 
 

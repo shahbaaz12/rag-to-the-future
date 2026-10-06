@@ -36,7 +36,9 @@ from langchain.messages import SystemMessage, HumanMessage, AIMessage
 
 **What happens here**
 
-We import the model constructor and three message types. SystemMessage holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.
+We import the model constructor and three message types.
+
+**SystemMessage** holds instructions, HumanMessage holds our question, and AIMessage represents a model reply.
 
 **Result:** The names we need are available for the next snippets.
 
@@ -73,7 +75,7 @@ init_chat_model creates the Groq model object. The model name selects the hosted
 
 ## 1. Manual memory
 
-The simplest memory is a Python list. Our application keeps the messages and sends them again on each turn.
+**Manual history** is the simplest form of conversation memory: a Python list. Our application keeps the messages and sends them again on each turn.
 
 ### Start the conversation
 
@@ -137,7 +139,7 @@ len(messages) counts message objects, rather than tokens. We have one instructio
 
 ## 2. Manual memory with summarization
 
-A growing history becomes more input on every call. Here we replace older details with a short summary. This example starts its own history list.
+**Summarized history** replaces older details with a short summary, keeping a growing conversation from becoming more input on every call. This example starts its own history list.
 
 ### Prepare a sample history
 
@@ -212,7 +214,7 @@ We append a new question and send the instruction, summary, and question togethe
 
 ## 3. Checkpointer
 
-A checkpointer stores and restores conversation state for a named thread. We use create_agent with no tools here as a simple conversation wrapper; the tools and agents lessons will explain it further.
+**A checkpointer** stores and restores conversation state for a named thread. We use create_agent with no tools here as a simple conversation wrapper; the tools and agents lessons will explain it further.
 
 ### Import the conversation wrapper and storage
 
@@ -224,7 +226,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 **What happens here**
 
-create_agent builds the conversation wrapper. InMemorySaver supplies a place to store its state inside this Python process.
+**create_agent** builds the conversation wrapper.
+
+**InMemorySaver** supplies a place to store its state inside this Python process.
 
 **Result:** The imports are ready. This storage will disappear when the process ends.
 

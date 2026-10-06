@@ -26,7 +26,7 @@ By the end of this lesson, you can:
 
 
 
-LangChain is a convenient set of tools for connecting to LLMs and building applications around them. One of its most useful ideas is a provider-agnostic interface: you can use a similar piece of application code with different model providers.
+**LangChain** is a convenient set of tools for connecting to LLMs and building applications around them. One of its most useful ideas is a provider-agnostic interface: you can use a similar piece of application code with different model providers.
 
 That does not mean every provider supports the same models, parameters, tools, or response fields. It means LangChain gives us a common starting point for the things that are shared.
 
@@ -187,7 +187,7 @@ The calling pattern stays familiar. That is the win. But changing the model is s
 
 ## Temperature: how much variation should we allow?
 
-Temperature is a parameter that controls the randomness of a language model’s output. It influences how predictable or how varied the responses are.
+**Temperature** is a parameter that controls the randomness of a language model’s output. It influences how predictable or how varied the responses are.
 
 Lower values make the model more likely to choose the most probable next tokens. Higher values let it explore less likely choices more often. It is not a “truth” dial and it cannot fix a weak prompt or missing context.
 
@@ -273,7 +273,9 @@ Start with the task, not with a fashionable number. If you need reliable structu
 
 ## Max tokens: how much may the model say?
 
-Models generate output in tokens. `max_tokens` or a provider-specific equivalent limits the amount of output the model may produce in one response.
+Models generate output in tokens.
+
+**`max_tokens`** or a provider-specific equivalent limits the amount of output the model may produce in one response.
 
 This matters for three practical reasons:
 

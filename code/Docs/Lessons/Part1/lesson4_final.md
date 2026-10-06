@@ -145,7 +145,9 @@ We print the provider and reported model name so a later comparison can identify
 
 **Result:** We have identifying information alongside the usage counts.
 
-The metadata can tell us which model actually responded. Usage metadata can report input, output, and total tokens. Providers do not all report exactly the same fields, so use `.get(...)` or a fallback when reading optional metadata.
+The metadata can tell us which model actually responded.
+
+**Usage metadata** can report input, output, and total tokens. Providers do not all report exactly the same fields, so use `.get(...)` or a fallback when reading optional metadata.
 
 Follow the complete example in [3-Responses-and-Prompts.ipynb](../../../Part%20I%20Understanding%20the%20Basics/3-Responses-and-Prompts.ipynb).
 
@@ -153,7 +155,9 @@ Follow the complete example in [3-Responses-and-Prompts.ipynb](../../../Part%20I
 
 ## Tokens: what are they?
 
-Before a model can work with text, it breaks that text into **tokens**. A token is a small piece of text. It can be a whole word, part of a word, punctuation, a space, or even a line break.
+Before a model can work with text, it breaks that text into **tokens**.
+
+**A token** is a small piece of text. It can be a whole word, part of a word, punctuation, a space, or even a line break.
 
 For example, the sentence below is one Python string to us:
 
@@ -180,7 +184,7 @@ The playground is an illustration. The exact token split changes from one model 
 
 Models need a fixed set of small pieces that they can turn into numbers and work with consistently. Whole strings are too open-ended: there are endlessly many possible sentences, names, URLs, spelling mistakes, and made-up words. Whole words are also awkward because a model would need to know every word in every language before it could read a sentence.
 
-Tokens are the practical middle ground. They are small enough to handle a new or unusual word by splitting it into pieces, but large enough that the model does not have to process every character one at a time. That is why we write strings in Python, while the model internally reads and generates tokens.
+**Tokens** are the practical middle ground. They are small enough to handle a new or unusual word by splitting it into pieces, but large enough that the model does not have to process every character one at a time. That is why we write strings in Python, while the model internally reads and generates tokens.
 
 ### Why should an application developer care?
 
@@ -236,7 +240,9 @@ The identifier is like ordering a specific item from a menu. `Groq` is the resta
 
 ### What does `120b` mean?
 
-The `b` means **billion**. In `gpt-oss-120b`, `120b` is the rounded size label for a model with roughly 120 billion **parameters**. Parameters are the learned numbers inside a model: during training, the model adjusts them to capture patterns in language, code, and other data.
+The `b` means **billion**. In `gpt-oss-120b`, `120b` is the rounded size label for a model with roughly 120 billion **parameters**.
+
+**Parameters** are the learned numbers inside a model: during training, the model adjusts them to capture patterns in language, code, and other data.
 
 It is included in the name to distinguish this model from smaller variants, such as `gpt-oss-20b`. It gives developers a quick hint about the model family and scale when choosing a model to host or compare. A larger parameter count can mean more capacity to represent learned patterns, but it does **not** automatically mean a better answer for every task.
 
@@ -252,9 +258,9 @@ Record the name returned in the response metadata when you test an application. 
 
 ## What is a prompt?
 
-A prompt is everything we provide to guide a model’s response: instructions, a question, examples, formatting requirements, and any context we include. In a chat application, the prompt can be spread across system, user, and previous assistant messages.
+**A prompt** is everything we provide to guide a model’s response: instructions, a question, examples, formatting requirements, and any context we include. In a chat application, the prompt can be spread across system, user, and previous assistant messages.
 
-A **static prompt** stays fixed:
+**A static prompt** stays fixed:
 
 ### Send a static prompt
 
@@ -270,7 +276,7 @@ static_prompt is a fixed string. We send it directly and print the answer, with 
 
 **Result:** The model answers the Pikachu question.
 
-A **dynamic prompt** adds values known only while the application is running:
+**A dynamic prompt** adds values known only while the application is running:
 
 ### Build a prompt from a changing question
 
@@ -294,7 +300,9 @@ Dynamic prompts are how an application personalizes an answer, inserts a user qu
 
 ## Use a prompt template
 
-You can absolutely build a prompt with a normal Python string or an f-string. For a one-off prompt, that is often the simplest thing to do. `PromptTemplate` becomes useful when the same prompt appears in several places or needs a clearer contract for its values.
+You can absolutely build a prompt with a normal Python string or an f-string. For a one-off prompt, that is often the simplest thing to do.
+
+**`PromptTemplate`** becomes useful when the same prompt appears in several places or needs a clearer contract for its values.
 
 ### Import PromptTemplate
 

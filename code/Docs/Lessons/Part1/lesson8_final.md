@@ -21,7 +21,7 @@ That is exactly the right way to understand the flow. But writing that loop agai
 
 ## What is an agent?
 
-An agent is a small system made from three main parts:
+**An agent** is a small system made from three main parts:
 
 ### Identify the agent's parts
 
@@ -36,7 +36,9 @@ The model reasons about the request, instructions guide its behavior, and allowe
 
 **Result:** The framework can coordinate these parts as an agent.
 
-The model reads the user request and decides whether a tool can help. The agent framework runs the approved tool, adds its result to the conversation, and asks the model to produce the final answer.
+**The model** reads the user request and decides whether a tool can help.
+
+**The agent framework** runs the approved tool, adds its result to the conversation, and asks the model to produce the final answer.
 
 An agent is not a magical employee that can do anything. It can only use the tools we give it, with the permissions and checks we build around those tools.
 
@@ -281,7 +283,9 @@ The model requests a tool. The application executes an allowed call and returns 
 
 **Result:** Tool execution happens in the application or framework.
 
-In Lesson 7, we wrote each step ourselves. With `create_agent`, LangChain manages the standard loop. We still own the parts that matter most: the tool definitions, data access, permissions, error handling, and what the user is allowed to ask the system to do.
+In Lesson 7, we wrote each step ourselves.
+
+**create_agent** lets LangChain manage the standard loop. We still own the parts that matter most: the tool definitions, data access, permissions, error handling, and what the user is allowed to ask the system to do.
 
 Start with [8-Agents.ipynb](../../../Part%20I%20Understanding%20the%20Basics/8-Agents.ipynb). It contains both the one-tool and multi-tool inventory examples.
 

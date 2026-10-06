@@ -13,6 +13,7 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 
 - Give each example a meaningful state with at least 3–5 fields; use more when the workflow needs them.
 - Part II Lesson 1 is an author-requested exception: preserve its original simple Step1/Step2 graph with a messages-only state.
+- Part II Lesson 2 is an author-requested exception: teach sequential, parallel, conditional, and loop connections with four independent plain-Python projects. Keep only the state fields each project needs, reuse a built-in reducer for parallel updates, and omit custom reducer demonstrations and a combined capstone.
 - Explain which fields each node reads and returns. Show partial and full returns, including how reducers apply to every returned key.
 - For parallel work, show simultaneous updates, a safe partial return, and why copying the whole state can cause conflicts or duplicate accumulated values.
 - Cover replacement, list and numeric addition, dictionary merging, a custom reducer, message updates by ID, and deliberate overwrites where they help the lesson. Reducers are functions, so these are common behaviors rather than an exhaustive list.

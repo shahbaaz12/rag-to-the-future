@@ -34,7 +34,7 @@ The machine can generate language. It still needs software around it to decide w
 
 ## Why is AI suddenly everywhere?
 
-AI is not new; it is more than seventy years old. For most of that time, it was a research-lab thing. Decades of progress mattered, but doing anything useful usually required a PhD, a university, expensive hardware, and years of work. Two shifts changed what developers can do with it.
+**AI** is not new; it is more than seventy years old. For most of that time, it was a research-lab thing. Decades of progress mattered, but doing anything useful usually required a PhD, a university, expensive hardware, and years of work. Two shifts changed what developers can do with it.
 
 | Period | What changed | Why it matters to a developer |
 |---|---|---|
@@ -86,7 +86,9 @@ Statistics, probability, linear algebra, and optimization matter if you want to 
 
 ## What is an LLM?
 
-LLM stands for **large language model**. Strip away the hype and it does one thing unbelievably well: it predicts the next token from the context it receives. A token is a small unit of text; it may be a whole word, part of a word, punctuation, or whitespace.
+**LLM** stands for **large language model**. Strip away the hype and it does one thing unbelievably well: it predicts the next token from the context it receives.
+
+**A token** is a small unit of text; it may be a whole word, part of a word, punctuation, or whitespace.
 
 That simple mechanism can produce many useful behaviors:
 
@@ -103,7 +105,7 @@ It is important to keep the limit in view: fluent output is not proof of truth. 
 
 ## What is a chat model?
 
-A chat model is an LLM designed for conversational use cases. Instead of only supplying one string of text, an application usually sends a sequence of messages with different roles. Depending on the provider and model, it can also accept images or other media alongside text.
+**A chat model** is an LLM designed for conversational use cases. Instead of only supplying one string of text, an application usually sends a sequence of messages with different roles. Depending on the provider and model, it can also accept images or other media alongside text.
 
 ### Read the message roles
 

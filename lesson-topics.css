@@ -1,5 +1,11 @@
 /* Major topics and subtopics share a hierarchy while prose stays in open space. */
 .temporal-lesson #lesson { counter-reset: lesson-topic; }
+.temporal-lesson #lesson > p > strong:first-child {
+  color: var(--temporal-accent);
+  font-weight: 700;
+}
+.temporal-lesson #lesson .snippet-prose + .snippet-prose { margin-top: .9rem; }
+.temporal-lesson #lesson .snippet-prose > strong:first-child { font-weight: 700; }
 .temporal-lesson #lesson > h2 {
   counter-increment: lesson-topic;
   counter-reset: lesson-subtopic;

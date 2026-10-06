@@ -8,7 +8,13 @@ We could paste the whole file into every prompt. That works for a small note, bu
 
 ## What is RAG?
 
-RAG stands for **Retrieval-Augmented Generation**. Retrieval means finding relevant information. Augmented means adding that information to the model's input. Generation is the answer the model writes from that input.
+**RAG** stands for **Retrieval-Augmented Generation**.
+
+**Retrieval** means finding relevant information.
+
+**Augmented** means adding that information to the model's input.
+
+**Generation** is the answer the model writes from that input.
 
 Think of an open-book question. We find the relevant page, place it beside the question, and ask the model to explain the answer. The book is outside the model; we are giving it something to read for this request.
 
@@ -29,13 +35,19 @@ This does not make every answer correct. We may retrieve the wrong piece, miss a
 | Retriever | Find candidate pieces for a question. |
 | Prompt and chat model | Combine the question with retrieved context and write an answer. |
 
-An embedding is not a compressed paragraph that we send to the chat model. We use the vectors for searching, then send the retrieved **text** to the chat model. Similar vectors suggest related text; they are not a measure of truth.
+**An embedding** is not a compressed paragraph that we send to the chat model. We use the vectors for searching, then send the retrieved **text** to the chat model. Similar vectors suggest related text; they are not a measure of truth.
 
-There are two phases. During preparation, we load, split, embed, and index our material. During a question, we retrieve text and generate an answer. Our four sample notes are already short, so each can be one searchable Document. We will split longer files in the next lesson.
+There are two phases.
+
+**Preparation** means loading, splitting, embedding, and indexing our material.
+
+**A question** triggers retrieval of useful text and generation of an answer. Our four sample notes are already short, so each can be one searchable Document. We will split longer files in the next lesson.
 
 ## How does the LLM fit in?
 
-The chat model is the writer. It receives a question plus the context selected by our application. The embedding model and retriever handle the search. These jobs can use different providers.
+**The chat model** is the writer. It receives a question plus the context selected by our application.
+
+**The embedding model and retriever** handle the search. These jobs can use different providers.
 
 For this example, we reuse Groq for answers and use OpenAI for embeddings. Live runs need both GROQ_API_KEY and OPENAI_API_KEY in .env. Embedding calls use their provider's API allowance; answer calls use Groq's. Run the notebook from its directory. From the code project, uv sync installs the declared dependencies.
 
@@ -59,7 +71,9 @@ from langchain_openai import OpenAIEmbeddings
 
 **What happens here**
 
-Document pairs a piece of text with metadata about its source. InMemoryVectorStore keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
+**Document** pairs a piece of text with metadata about its source.
+
+**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
 
 **Result:** The building blocks are available; importing them makes no provider request.
 

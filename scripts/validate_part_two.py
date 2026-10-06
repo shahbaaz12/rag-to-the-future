@@ -15,7 +15,8 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, AIMessageChunk, HumanMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult
 import nbformat
-from langgraph.errors import InvalidUpdateError
+from langgraph.errors import GraphRecursionError
+from threading import Barrier
 from unittest import TestCase
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -88,34 +89,59 @@ def verify(lesson, scope):
             "Another start", "Step 1 completed.", "Step 2 completed.",
         ]
     elif lesson == 2:
-        assert scope["sequential_result"]["order"]["address"] == "12 Park Road"
-        assert scope["sequential_result"]["status"] == "validated"
-        assert scope["parallel_result"]["checks"] == {"restaurant": True, "rider": True}
-        logs = scope["parallel_result"]["logs"]
-        assert len(logs) == 3 and logs[-1] == "Both checks finished."
-        assert scope["full_result"]["logs"] == ["Existing entry.", "Existing entry."]
-        with case.assertRaises(InvalidUpdateError):
-            scope["unsafe_graph"].invoke(scope["prepared_order"])
-        assert scope["open_result"]["status"] == "rider found"
-        assert scope["closed_result"]["status"] == "restaurant closed"
-        assert "Rider checked." not in scope["closed_result"]["logs"]
-        assert scope["loop_result"]["attempts"] == 2 and scope["loop_result"]["status"] == "confirmed"
-        assert scope["exhausted_result"]["attempts"] == 3 and scope["exhausted_result"]["status"] == "no rider available"
-        third_order = {**scope["prepared_order"]["order"], "rider_responses": [False, False, True]}
-        third = scope["loop_graph"].invoke({**scope["prepared_order"], "order": third_order})
-        assert third["attempts"] == 3 and third["status"] == "confirmed"
-        assert scope["dispatch_result"]["attempts"] == 0 and scope["dispatch_result"]["status"] == "confirmed"
-        busy_order = {**scope["sample_order"]["order"], "preferred_rider": "Ravi"}
-        busy = scope["dispatch_graph"].invoke({**scope["sample_order"], "order": busy_order})
-        assert busy["attempts"] == 2 and busy["status"] == "confirmed"
-        closed = scope["dispatch_graph"].invoke({**scope["sample_order"], "order": scope["closed_order"]})
-        assert closed["status"] == "restaurant closed" and closed["attempts"] == 0
-        assert scope["reset_result"]["logs"] == []
-        assert scope["reset_result"]["checks"] == scope["parallel_result"]["checks"]
-        assert scope["merge_checks"]({"restaurant": True}, {"rider": False}) == {"restaurant": True, "rider": False}
-        assert scope["merge_checks"]({"rider": True}, {"rider": False}) == {"rider": False}
-        assert scope["keep_larger"](3, 1) == 3
-        assert scope["keep_larger"](2, 3) == 3
+        assert scope["pizza_result"]["total"] == 540
+        assert scope["pizza_result"]["status"] == "Confirmed at INR 540"
+        for items in ([], ["Unknown pizza"]):
+            with case.assertRaises(ValueError):
+                scope["pizza_graph"].invoke({**scope["pizza_input"], "items": items})
+        # Swapping calculation and discount loses the discount.
+        reversed_state = {**scope["pizza_input"], **scope["apply_coupon"](scope["pizza_input"])}
+        reversed_state.update(scope["calculate_total"](reversed_state))
+        assert reversed_state["total"] == 600
+
+        trip = scope["trip_result"]
+        assert len(trip["messages"]) == 4
+        assert all(word in trip["report"] for word in ("Planning", "Weather", "Flights", "Hotels"))
+        # The barrier requires all three lookups to be active together.
+        barrier = Barrier(3)
+        with patch("time.sleep", side_effect=lambda seconds: barrier.wait(timeout=5)):
+            joined = scope["trip_graph"].invoke(scope["trip_input"])
+        assert len(joined["messages"]) == 4 and joined["report"].count("Goa") == 4
+        assert scope["trip_input"]["messages"] == []
+
+        for text, category, handler in (
+            ("Urgent: the site is down", "urgent", "urgent_handler"),
+            ("My bill is incorrect", "billing", "billing_handler"),
+            ("How do I change my name?", "general", "general_handler"),
+            ("Urgent: my bill is incorrect", "urgent", "urgent_handler"),
+        ):
+            trace = io.StringIO()
+            with contextlib.redirect_stdout(trace):
+                ticket = scope["ticket_graph"].invoke({"text": text, "type": "", "response": ""})
+            assert ticket["type"] == category and ticket["response"]
+            assert trace.getvalue().splitlines() == [f"classify -> {category}", handler]
+
+        assert scope["otp_result"]["tries"] == 2 and scope["otp_result"]["status"] == "verified"
+        assert scope["locked_result"]["tries"] == 3 and scope["locked_result"]["status"] == "locked"
+        for entries, attempts in ((["123456"], 1), (["000000", "111111", "123456"], 3)):
+            result = scope["otp_graph"].invoke({**scope["otp_input"], "entries": entries})
+            assert result["tries"] == attempts and result["verified"] is True
+            assert result["status"] == "verified"
+        assert scope["otp_input"]["tries"] == 0
+        # Reproduce the optional missing-limit experiment with a fresh graph.
+        unbounded = scope["StateGraph"](scope["OtpState"])
+        for name in ("ask_otp", "verify", "success", "locked"):
+            unbounded.add_node(name, scope[name])
+        unbounded.add_edge(scope["START"], "ask_otp")
+        unbounded.add_edge("ask_otp", "verify")
+        unbounded.add_conditional_edges(
+            "verify", lambda state: "correct" if state["verified"] else "retry",
+            {"correct": "success", "retry": "ask_otp", "locked": "locked"},
+        )
+        unbounded.add_edge("success", scope["END"])
+        unbounded.add_edge("locked", scope["END"])
+        with case.assertRaises(GraphRecursionError):
+            unbounded.compile().invoke(scope["locked_input"], {"recursion_limit": 6})
     elif lesson == 3:
         assert scope["response"]["status"] == "draft ready"
         assert scope["response"]["email"] == scope["email_input"]["email"]

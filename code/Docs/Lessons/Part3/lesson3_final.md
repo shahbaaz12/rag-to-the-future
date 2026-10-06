@@ -4,15 +4,19 @@
 
 “My robot's brush is jammed” and “What does E922 mean?” can point to the same product guide. One question describes the problem; the other gives us an exact code.
 
-Vector search is useful for related meaning. Keyword search is useful when a particular code or product ID matters. Let’s give both a vote instead of expecting one search method to handle every question equally well.
+**Vector search** is useful for related meaning.
+
+**Keyword search** is useful when a particular code or product ID matters. Let’s give both a vote instead of expecting one search method to handle every question equally well.
 
 ## What we are building
 
 We search the supplied Nexa product guides twice, combine the ranked results, and send the selected text to the model. This is hybrid retrieval: **vector results + keyword results → one ranked list → answer**.
 
-BM25 is a keyword-ranking method. It rewards matching terms while accounting for how common they are and the document's length. Our tokenizer makes words lowercase and keeps hyphenated IDs together. These are search terms, not the chat model's billing tokens.
+**BM25** is a keyword-ranking method. It rewards matching terms while accounting for how common they are and the document's length. Our tokenizer makes words lowercase and keeps hyphenated IDs together. These are search terms, not the chat model's billing tokens.
 
-The two methods return different kinds of scores. We will use reciprocal rank fusion, or RRF, which combines their positions rather than pretending the raw scores are interchangeable. A document ranked highly by both methods receives two contributions.
+The two methods return different kinds of scores.
+
+**Reciprocal rank fusion**, or RRF, combines their positions rather than pretending the raw scores are interchangeable. A document ranked highly by both methods receives two contributions.
 
 Run the notebook from its directory. Live runs use the same Groq and OpenAI keys; rank-bm25 and langchain-text-splitters are declared in the project. We use the provided text guides rather than their PDF companions.
 
@@ -30,7 +34,9 @@ from langchain_openai import OpenAIEmbeddings
 
 **What happens here**
 
-Document pairs a piece of text with metadata about its source. InMemoryVectorStore keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
+**Document** pairs a piece of text with metadata about its source.
+
+**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
 
 **Result:** The building blocks are available; importing them makes no provider request.
 

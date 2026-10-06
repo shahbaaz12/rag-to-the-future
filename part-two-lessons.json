@@ -10,8 +10,8 @@
     "local": 2,
     "number": 10,
     "filename": "2-working-with-edges.ipynb",
-    "title": "Choose the path: food delivery",
-    "lead": "Ordered steps, independent availability checks, a clear open/closed branch, and a bounded rider search."
+    "title": "Four ways to connect a graph",
+    "lead": "Pizza orders, trip lookups, support routing, and OTP retries — four small graphs with plain Python nodes."
   },
   {
     "local": 3,

@@ -161,7 +161,7 @@ This is where we will work through the notebooks in the repository. Start with [
 
 ## Get a model key
 
-An API key identifies your application to a model provider. Under the hood, your code makes an authenticated HTTP request to that provider’s API. The key tells the provider who is making the request and lets it apply the correct account permissions and limits.
+**An API key** identifies your application to a model provider. Under the hood, your code makes an authenticated HTTP request to that provider’s API. The key tells the provider who is making the request and lets it apply the correct account permissions and limits.
 
 For these first examples, create a key from **Groq**. You can also create a key from **Gemini** and run the Gemini example in the notebook. Both are useful for learning because they offer ways to get started without committing to a paid OpenAI or Anthropic account.
 
@@ -248,7 +248,9 @@ groq_client = OpenAI(
 
 **What happens here**
 
-We give the client our Groq key and endpoint. `os.getenv` reads the settings; the endpoint has a fallback if the URL is absent from .env.
+We give the client our Groq key and endpoint.
+
+**`os.getenv`** reads the settings; the endpoint has a fallback if the URL is absent from .env.
 
 **Result:** groq_client points at Groq's API.
 
@@ -363,7 +365,9 @@ We print the output_text from the interaction response. The exact wording is gen
 
 **Result:** The answer appears in the notebook.
 
-Groq is compatible with the OpenAI API format, so we can comfortably use OpenAI-style APIs to call Groq-hosted models. Gemini has its own SDK and call shape. The important part is the same in both cases:
+**Groq** is compatible with the OpenAI API format, so we can comfortably use OpenAI-style APIs to call Groq-hosted models.
+
+**Gemini** has its own SDK and call shape. The important part is the same in both cases:
 
 ### Follow a direct call
 

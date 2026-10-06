@@ -10,9 +10,21 @@ Until now, our nodes performed work written entirely in Python. This time, one n
 
 ## What we are building
 
-**START → draft_reply → END.** One node makes one model call and stores the draft for review. It does not send an email.
+We will build a small workflow that drafts a reply to an office email. We give it our colleague's request to move Thursday's project review to Friday afternoon and ask for a friendly, concise tone. It returns a draft that acknowledges the request and asks what time on Friday they prefer.
 
-The state holds the original email, the requested tone, the draft, and the status. This makes it easy to see what went into the call and what came back.
+<div data-graph-preview="builder"></div>
+
+**The idea behind it** is that we are adding intelligence to the graph design we have already learned. We keep the familiar building blocks: state, nodes, and edges. In Lesson 10, our Python functions calculated a pizza total or looked up sample trip information. Here, we put an LLM call inside the `draft_reply` node so the model can understand the email request and write a reply. The node still follows the same pattern: read state, perform work, return an update.
+
+The graph controls when the node runs. The model supplies the wording. Our Python code supplies the writing instructions and stores the result. We keep just one working node so you can focus on how the model call fits into that familiar pattern.
+
+**Our path** is `START → draft_reply → END`:
+
+1. We start with the original email and the requested tone in state.
+2. `draft_reply` reads those values and makes one model call. Its instructions ask for an acknowledgement and a preferred time.
+3. The node returns the generated text in `draft` and sets `status` to `draft ready`. The graph preserves the original email and tone, then finishes.
+
+**The result** is a draft for us to review. For example: “Thanks for letting me know. What time on Friday afternoon would you prefer?” The wording can vary. We have not checked a calendar, so the instructions tell the model to avoid confirming availability. Sending the email remains our decision.
 
 ### Import the graph helpers
 
@@ -24,7 +36,9 @@ from langgraph.graph import StateGraph, START, END
 
 **What happens here**
 
-TypedDict describes our state fields. StateGraph builds the workflow, while START and END mark its boundaries.
+**TypedDict** describes our state fields.
+
+**StateGraph** builds the workflow, while START and END mark its boundaries.
 
 **Result:** The helpers are ready; no graph has run.
 
@@ -58,7 +72,9 @@ model = init_chat_model(
 
 **What happens here**
 
-load_dotenv makes the API key available. init_chat_model creates our reusable model object; it has not generated an answer yet.
+load_dotenv makes the API key available.
+
+**init_chat_model** creates our reusable model object; it has not generated an answer yet.
 
 **Result:** The model is ready. Running its node will make a provider request.
 
