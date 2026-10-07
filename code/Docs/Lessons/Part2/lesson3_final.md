@@ -1,13 +1,5 @@
 # Part II · Lesson 3 — Draft an office email reply
 
-## A note from me
-
-A colleague writes: “Can we move Thursday's project review to Friday afternoon?”
-
-We want a friendly acknowledgement that asks for their preferred time. We have not checked our calendar, so the draft should not confirm availability.
-
-Until now, our nodes performed work written entirely in Python. This time, one node asks a model to help write something. The surrounding pattern stays familiar: receive state, perform the work, return an update.
-
 ## What we are building
 
 We will build a small workflow that drafts a reply to an office email. We give it our colleague's request to move Thursday's project review to Friday afternoon and ask for a friendly, concise tone. It returns a draft that acknowledges the request and asks what time on Friday they prefer.

@@ -1,30 +1,24 @@
 # Part II · Lesson 5 — Compare travel options with a tool loop
 
-## A note from me
-
-“Compare the available trains and flights from Mumbai to Goa. Which option fits a ₹2,000 budget?”
-
-One lookup gives us route IDs. Another gives us prices and durations for those routes. The model needs the first result before it can request details for the returned IDs.
-
-**A tool-execution loop** lets the model request another tool after seeing a result. After receiving a result, the model decides whether to request more information or give its answer.
-
 ## What we are building
 
 We will build a travel comparison assistant for a Mumbai-to-Goa trip with a ₹2,000 budget. It first needs to find available routes, then read their prices and durations before comparing them. Our local sample train costs ₹900 and takes 10 hours; the flight costs ₹4,500 and takes 1.5 hours. These are teaching values, not current fares.
 
 <div data-graph-preview="builder"></div>
 
-**The idea behind it** is to let the intelligent graph use a result to decide what information it needs next. In Lesson 12, a tool lookup led to a final answer step. Here, we add a backward edge from `tools` to `assistant`. That familiar loop connection gives the model another turn with the latest tool results in state.
+**The idea behind it** is simple: the model can ask for more information after reading a tool's result. Finding a train and a flight is only the first step. It still needs their prices before it can tell us which one fits our budget.
 
-We still define the available tools and graph connections. On each visit, the model can request a tool or write its final answer. Our application executes requested functions and adds their results to the conversation. The next model call can use those results.
+In Lesson 12, the lookup was followed by a final answer. Here, we connect `tools` back to `assistant`. This sends the tool's result back to the model. The model can then ask for another lookup or give its answer.
 
-**A typical comparison** follows these steps:
+We choose which tools are available. The model requests a tool; our Python code runs it and adds the result to the conversation for the model to read.
 
-1. The assistant requests `find_routes`, which returns `TRAIN-01` and `FLIGHT-01`.
-2. After seeing those IDs, it requests `get_route_details` for the returned routes. The model may request both details together or in separate rounds.
-3. With the prices and durations available, it can compare the options and explain that the sample train fits the budget while the flight exceeds it. A reply without tool requests reaches `END`.
+**Our travel example** can work like this:
 
-**ReAct** is often expanded as reasoning and acting. In this example, we can inspect the model's tool requests, the application's returned results, and the final answer. The new capability comes from revisiting the model node after each tool round.
+1. **Find the options.** The model requests `find_routes`. Our application returns `TRAIN-01` and `FLIGHT-01`, the IDs for our sample train and flight.
+2. **Get their details.** The model requests `get_route_details` using those IDs. Our application returns each option's price and travel time.
+3. **Compare and answer.** The model can now explain that the ₹900 train fits our ₹2,000 budget, while the ₹4,500 flight costs too much.
+
+**ReAct** combines reasoning and acting. Here, the model decides what information to ask for, our application runs the tool, and the model reads the result before deciding what to do next. This cycle can repeat. When the model replies without requesting another tool, the graph reaches `END`.
 
 ### Import the graph helpers
 

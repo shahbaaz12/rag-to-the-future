@@ -24,3 +24,21 @@
   .temporal-lesson .lesson-graph__hint { display: block; padding: .75rem 1rem; margin: 0; color: var(--temporal-accent); font: .85rem/1.5 var(--temporal-mono); border-bottom: 1px solid var(--temporal-border); }
   .lesson-graph__header, .lesson-graph figcaption, .lesson-graph__connections { padding-left: 1rem; padding-right: 1rem; }
 }
+
+.temporal-lesson .rag-flow { margin: 2rem 0; padding: 1.4rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); }
+.rag-flow > figcaption { margin-bottom: 1.2rem; font: 600 1.4rem/1.4 var(--temporal-sans, sans-serif); }
+.rag-flow__phases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem; }
+.rag-flow h4 { margin: 0; color: var(--temporal-accent); font: 600 1.15rem/1.5 var(--temporal-sans, sans-serif); }
+.rag-flow .rag-flow__timing { margin: .35rem 0 1.1rem; font-size: .9rem; }
+.rag-flow .rag-flow__steps { list-style: none; padding: 0; margin: 0; }
+.temporal-lesson #lesson .rag-flow__steps > li { position: relative; display: flex; align-items: flex-start; gap: .7rem; margin: 0 0 2.1rem; padding: .9rem; border: 1px solid var(--temporal-border); border-left: 3px solid var(--temporal-accent); overflow-wrap: anywhere; }
+.rag-flow__steps > li:not(:last-child)::after { content: "↓"; position: absolute; left: 50%; bottom: -1.9rem; transform: translateX(-50%); color: var(--temporal-accent); font-size: 1.5rem; line-height: 1.8rem; }
+.temporal-lesson #lesson .rag-flow__steps > li:last-child { margin-bottom: 0; }
+.rag-flow__number { flex: 0 0 1.6rem; height: 1.6rem; text-align: center; border-radius: 50%; background: var(--temporal-accent); color: var(--temporal-panel); font: 700 .9rem/1.6rem var(--temporal-sans, sans-serif); }
+.rag-flow__steps strong { font-size: 1rem; }
+.rag-flow__steps p { margin: .35rem 0 .5rem; font-size: .95rem; line-height: 1.55; }
+.rag-flow__steps small { display: block; font-size: .85rem; line-height: 1.5; }
+@media (max-width: 800px) {
+  .rag-flow__phases { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .temporal-lesson .rag-flow { padding: 1rem; }
+}

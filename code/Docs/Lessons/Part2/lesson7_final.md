@@ -1,17 +1,5 @@
 # Part II · Lesson 7 — Watch a recipe appear
 
-## A note from me
-
-“Suggest a quick vegetarian dinner using rice, peas, and carrots.”
-
-Waiting for the whole answer can make an application feel frozen. Sometimes we want to see which step finished. Sometimes we want to start reading while the model is still writing.
-
-Those are two different kinds of progress.
-
-**A node update** reports the fields a completed node returned.
-
-**Message chunks** reveal the model's answer as it is generated.
-
 ## What we are building
 
 We will build a recipe assistant that shows progress while it works. We supply rice, peas, and carrots and ask for a quick vegetarian dinner for two people. One Python node prepares the request; a second node asks the model to write a short recipe with numbered steps.

@@ -408,6 +408,7 @@ def render(lesson):
         return f"\n\n@@RENDERED_SNIPPET_{len(cards)-1}@@\n\n"
     markdown = NOTE.sub(substitute, markdown)
     markdown = markdown.replace('<!-- interactive: tokenizer-playground -->', '\n\n@@RENDERED_TOKENIZER@@\n\n')
+    markdown = markdown.replace('<!-- visual: rag-flow -->', '\n\n@@RENDERED_RAG_FLOW@@\n\n')
     markdown = re.sub(r'<div data-graph-preview="([A-Za-z_]\w*)"></div>',
                       r'\n\n@@GRAPH_PREVIEW_\1@@\n\n', markdown)
     assert "```" not in markdown, f"Unannotated block in lesson {lesson}"
@@ -417,6 +418,9 @@ def render(lesson):
     for i, content in enumerate(cards):
         body = body.replace(f"<p>@@RENDERED_SNIPPET_{i}@@</p>", content)
     body = body.replace('<p>@@RENDERED_TOKENIZER@@</p>', tokenizer_playground())
+    if '<p>@@RENDERED_RAG_FLOW@@</p>' in body:
+        body = body.replace('<p>@@RENDERED_RAG_FLOW@@</p>',
+                            (ROOT / 'assets/lesson-17-rag-flow.html').read_text(encoding='utf-8'))
     body = re.sub(r'<p>@@GRAPH_PREVIEW_([A-Za-z_]\w*)@@</p>',
                   r'<div data-graph-preview="\1"></div>', body)
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")

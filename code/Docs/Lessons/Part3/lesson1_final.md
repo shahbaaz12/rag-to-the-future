@@ -16,40 +16,62 @@ We could paste the whole file into every prompt. That works for a small note, bu
 
 **Generation** is the answer the model writes from that input.
 
-Think of an open-book question. We find the relevant page, place it beside the question, and ask the model to explain the answer. The book is outside the model; we are giving it something to read for this request.
+Suppose we ask, “What does RAG do?” and the answer is in our course notes. Our application finds the useful note and sends it to the model along with the question. The model reads that note and uses it to write an answer. This is the basic idea of RAG: **find useful text, then ask the model to answer using it.**
 
 ## Why RAG?
 
-A model's training does not automatically include our private files or the latest version of our notes. RAG lets the application search material we choose and include useful extracts at question time. If the notes change, we can update the index without retraining the chat model.
+A model may not know what is in our private files or recently updated notes. RAG gives it the relevant text when we ask a question. When our notes change, we can update the searchable collection without retraining the chat model.
 
-This does not make every answer correct. We may retrieve the wrong piece, miss a useful passage, or receive an answer that goes beyond the text. That is why we inspect the retrieved documents and ask the model to say when the context is insufficient.
+The answer still depends on what we find and how the model uses it. If we find the wrong passage, the answer may be wrong too. We should check the retrieved text and ask the model to say when that text does not contain the answer.
 
 ## Components of a RAG system
 
+**A chunk** is a small piece of a document. We split long documents into chunks so we can search for a useful passage instead of sending the entire document to the model.
+
+**A vector** is a list of numbers, such as `[0.2, -0.5, 0.8]`. In RAG, we use vectors to represent text and compare it with other text. These three numbers are only an illustration; real vectors usually have many more numbers.
+
+**An embedding model** turns text into a vector. That vector is called an **embedding**. We use the same embedding model for the document chunks and the question so their vectors can be compared.
+
+**A vector store** keeps each chunk's text, vector, and source details together. This lets us search using vectors and get back the matching text. A vector database serves this purpose too; our small example uses an in-memory vector store.
+
+### How RAG works, step by step
+
+First, we prepare the documents. Then, whenever a question arrives, we search the prepared collection and give the useful text to the chat model. Follow the arrows down each phase.
+
+<!-- visual: rag-flow -->
+
+**Steps 1–4: prepare the documents.** Load the documents, split long ones into chunks, create a vector for each chunk, and store each vector with the text it came from. We do this before answering questions, and update the collection when the documents change.
+
+**Step 5: turn the question into a vector.** We usually embed the whole question as one piece of text. We do not split it into document-style chunks. The original question is kept for the final prompt.
+
+**Steps 6–7: search and retrieve.** Compare the question's vector with the stored chunk vectors. Select similar chunks, then return their original text and source details. A retriever is the helper that performs this search and returns the selected documents.
+
+**Steps 8–9: build the prompt and answer.** Put the original question and retrieved text into a prompt. The chat model reads that prompt and writes an answer. It receives the **text**, not the vectors.
+
+Similar vectors help us find related passages. They do not tell us whether a passage is true or whether it contains enough information to answer.
+
+### Which piece does each job?
+
 | Piece | Its job in our application |
 |---|---|
-| Source documents | The material we want the application to search. |
-| Splitter | Break long material into manageable chunks. |
-| Embedding model | Represent text as a list of numbers useful for similarity search. |
-| Vector store | Keep those vectors associated with the original text. |
-| Retriever | Find candidate pieces for a question. |
-| Prompt and chat model | Combine the question with retrieved context and write an answer. |
+| Source documents | Our notes, files, or other material containing possible answers. |
+| Splitter | Divide a long document into smaller pieces called chunks. |
+| Embedding model | Turn each chunk and the question into vectors we can compare. |
+| Vector store | Save each chunk's text, vector, and source details together. |
+| Retriever | Search the stored vectors and return the selected chunks as text. |
+| Prompt and chat model | Give the model the question and selected text, then ask it to write an answer. |
 
-**An embedding** is not a compressed paragraph that we send to the chat model. We use the vectors for searching, then send the retrieved **text** to the chat model. Similar vectors suggest related text; they are not a measure of truth.
-
-There are two phases.
-
-**Preparation** means loading, splitting, embedding, and indexing our material.
-
-**A question** triggers retrieval of useful text and generation of an answer. Our four sample notes are already short, so each can be one searchable Document. We will split longer files in the next lesson.
+**In this lesson**, our four sample notes are already short. Each note can be one searchable Document, so we skip splitting. In the next lesson, we will split longer files into chunks. The rest of the flow stays the same.
 
 ## How does the LLM fit in?
 
-**The chat model** is the writer. It receives a question plus the context selected by our application.
+**The chat model** writes the answer in Step 9. Our application gives it the original question, the retrieved text, and instructions for answering from that text.
 
-**The embedding model and retriever** handle the search. These jobs can use different providers.
+**The embedding model** creates the vectors in Steps 3 and 5. It helps us search; it does not write the final answer. The retriever uses the vector store to find useful text before we call the chat model.
 
-For this example, we reuse Groq for answers and use OpenAI for embeddings. Live runs need both GROQ_API_KEY and OPENAI_API_KEY in .env. Embedding calls use their provider's API allowance; answer calls use Groq's. Run the notebook from its directory. From the code project, uv sync installs the declared dependencies.
+For this example, OpenAI creates the embeddings and Groq supplies the chat model that writes answers. These are separate jobs, so we can use different providers.
+
+To run the notebook, put GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. From the code folder, run uv sync to install the dependencies, then run the notebook from its own directory. Creating and searching embeddings makes OpenAI API calls; generating an answer makes a Groq API call.
 
 ## What we are building
 

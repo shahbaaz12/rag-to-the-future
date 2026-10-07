@@ -1,13 +1,5 @@
 # Part II · Lesson 6 — Remember a student's selected topics
 
-## A note from me
-
-A student says, “I'm a beginner learning Python. I want to understand lists and tuples.”
-
-Then: “Explain the first one with an example.” Later: “How is it different from the second one?” And finally: “Give me three practice questions on both.”
-
-The student does not repeat the topic names in every question. Our application carries the earlier conversation so the model can understand first one, second one, and both.
-
 ## What we are building
 
 We will build a Python study assistant that can continue a student's conversation. The student chooses lists and tuples, then asks, “Explain the first one with an example.” Later questions refer to “the second one” and “both.” The assistant needs the earlier topics and messages to understand those references.

@@ -1,13 +1,5 @@
 # Part II · Lesson 4 — Look up an employee's leave balance
 
-## A note from me
-
-An employee asks: “How many paid leave days do I have left?”
-
-The model understands the question, but the answer lives in our company's records. Knowing how leave works is different from knowing this employee's balance.
-
-We will expose one function, get_leave_balance. The model requests it; our application runs it and returns the result. Notice who actually executes the function.
-
 ## What we are building
 
 We will build a small leave-balance assistant. An employee asks, “How many paid leave days do I have left?” Our application supplies the employee ID, and the assistant can look up that employee's record before writing an answer. For our sample employee, EMP101, the allowance is 20 days and 14 have been used, leaving 6.

@@ -1,11 +1,5 @@
 # Part II · Lesson 8 — Approve or reject a refund
 
-## A note from me
-
-Preparing a refund request is different from issuing the refund. Before money moves, we want a person to inspect the order, amount, and reason.
-
-Our workflow prepares a sample request, pauses, and waits for approval or rejection. That pause gives the next step a clear reason to wait.
-
 ## What we are building
 
 We will build a refund review workflow for order ORD-102: a customer requests ₹5,000 because an item arrived damaged. The graph prepares the request, pauses so a person can review the details, then follows the approval or rejection path. The demo records the outcome in local state; no actual money moves, and this notebook uses ordinary Python nodes without a model call.
