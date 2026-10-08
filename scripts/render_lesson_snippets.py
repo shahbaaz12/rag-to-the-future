@@ -500,7 +500,7 @@ def render(lesson):
         table.wrap(wrapper)
     add_learning_aids(original, article, lesson)
     for asset in ("lesson-code-explorer.css", "lesson-snippets.css", "lesson-glossary.css"):
-        if not original.find("link", href=asset):
+        if not any(link['href'].split('?')[0] == asset for link in original.select('link[href]')):
             original.head.append(original.new_tag("link", rel="stylesheet", href=asset))
     if not original.find("script", src="lesson-code-explorer.js"):
         original.body.append(original.new_tag("script", src="lesson-code-explorer.js", defer=True))

@@ -1,0 +1,66 @@
+/* A quieter reading surface for the Lesson 21 design review. */
+.temporal-lesson[data-reading-layout="clear"] { --lesson-reading-size: 1.25rem; }
+.temporal-lesson[data-reading-layout="clear"] .site-noise { display: none; }
+.temporal-lesson[data-reading-layout="clear"] .hero .eyebrow { display: none; }
+.temporal-lesson[data-reading-layout="clear"] .hero h1 { max-width: 24ch; font-size: 3.25rem; letter-spacing: -.02em; text-wrap: balance; }
+.temporal-lesson[data-reading-layout="clear"] .hero { padding-bottom: 2rem; }
+.temporal-lesson[data-reading-layout="clear"] .hero .button,
+.temporal-lesson[data-reading-layout="clear"] .hero .button:hover { background: var(--temporal-accent); color: var(--temporal-panel); }
+.temporal-lesson[data-reading-layout="clear"] #lesson { line-height: 1.7; }
+.temporal-lesson[data-reading-layout="clear"] #lesson > :is(p, ul, ol, blockquote) { max-width: 68ch; color: var(--temporal-text); }
+.temporal-lesson[data-reading-layout="clear"] #lesson > p { margin-block: 1em; }
+.temporal-lesson[data-reading-layout="clear"] #lesson > h2 {
+  margin: 3.5rem 0 1.25rem; padding: 1.25rem 0 0;
+  border: 0; border-top: 1px solid var(--temporal-border);
+  background: none; box-shadow: none;
+  font: 700 1.75rem/1.3 var(--sans); letter-spacing: -.015em; text-transform: none; text-wrap: balance;
+}
+.temporal-lesson[data-reading-layout="clear"] #lesson > h2:first-child { margin-top: 1rem; border-top: 0; }
+.temporal-lesson[data-reading-layout="clear"] #lesson > h2::before,
+.temporal-lesson[data-reading-layout="clear"] #lesson > h3::before { content: none; }
+.temporal-lesson[data-reading-layout="clear"] #lesson > h3 {
+  margin: 2.25rem 0 .85rem; padding: 0; border: 0; background: none;
+  color: var(--temporal-text); font: 600 1.25rem/1.4 var(--sans); letter-spacing: 0; text-transform: none;
+}
+.temporal-lesson[data-reading-layout="clear"] #lesson > p > strong:first-child { color: inherit; font-weight: 600; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-card { border-radius: 8px; box-shadow: none; }
+.temporal-lesson[data-reading-layout="clear"] #lesson .snippet-explanation { line-height: 1.7; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-card .code-explorer__lines { font-size: .9375rem; line-height: 1.7; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-card :is(.code-explorer__title, .code-explorer__language) { font-size: .8125rem; letter-spacing: 0; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-explanation .snippet-label { font-size: .875rem; letter-spacing: 0; text-transform: none; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-explanation .snippet-source { font-size: .8125rem; }
+.temporal-lesson[data-reading-layout="clear"] .snippet-source-comments { border-left-width: 1px; }
+.temporal-lesson[data-reading-layout="clear"] #lesson table { font-size: 1.125rem; line-height: 1.65; }
+.temporal-lesson[data-reading-layout="clear"] #lesson th { font: 600 1rem/1.5 var(--sans); letter-spacing: 0; text-transform: none; color: var(--temporal-text); }
+.temporal-lesson[data-reading-layout="clear"] #lesson :is(th, td) { border: 0; border-bottom: 1px solid var(--temporal-border); padding: 1rem .75rem; }
+.temporal-lesson[data-reading-layout="clear"] #lesson td { color: var(--temporal-text); }
+.temporal-lesson[data-reading-layout="clear"] .topbar nav { font: 500 .875rem/1.5 var(--sans); letter-spacing: 0; text-transform: none; }
+.temporal-lesson[data-reading-layout="clear"] .lesson-index { border: 0; box-shadow: none; }
+.temporal-lesson[data-reading-layout="clear"] .lesson-index :is(summary, nav) { font-size: .9375rem; }
+.temporal-lesson[data-reading-layout="clear"] .temporal-circuit__readout > span,
+.temporal-lesson[data-reading-layout="clear"] .temporal-circuit__position > span { font: 500 .8125rem/1.5 var(--sans); letter-spacing: 0; }
+.temporal-lesson[data-reading-layout="clear"] :is(.lesson-pagination span, .lesson-completion small) { font-size: .875rem; letter-spacing: 0; }
+.temporal-lesson[data-reading-layout="clear"] .era-route :is(small, .era-route__count) { font-size: .8125rem; }
+.temporal-lesson[data-reading-layout="clear"] .route-progress__fill { box-shadow: none; }
+.temporal-lesson[data-reading-layout="clear"] ::selection { background: var(--temporal-accent); color: var(--temporal-panel); }
+@media(min-width:1200px) {
+  .temporal-lesson[data-reading-layout="clear"] .glossary-toggle { left: 1rem; right: auto; top: auto; bottom: 1rem; }
+  .temporal-lesson[data-reading-layout="clear"] .glossary-panel { left: 230px; right: auto; }
+}
+@media(max-width:780px) {
+  .temporal-lesson[data-reading-layout="clear"] { --lesson-reading-size: 1.125rem; }
+  .temporal-lesson[data-reading-layout="clear"] .hero h1 { font-size: 2.5rem; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson > h2 { font-size: 1.5rem; margin-top: 2.75rem; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson > h3 { font-size: 1.1875rem; }
+  .temporal-lesson[data-reading-layout="clear"] .snippet-card .code-explorer__lines { font-size: .875rem; }
+}
+@media(max-width:650px) {
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table { overflow: visible; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table thead { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table :is(table, tbody, tr, td) { display: block; width: 100%; min-width: 0; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table tr { padding: 1.25rem 0; border-top: 1px solid var(--temporal-border); }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table td { padding: .5rem 0; border: 0; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table td::before { content: attr(data-label); display: block; margin-bottom: .25rem; color: var(--temporal-muted); font-size: .875rem; font-weight: 600; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table td:first-child { font-size: 1.25rem; font-weight: 600; }
+  .temporal-lesson[data-reading-layout="clear"] #lesson .snippet-table td:first-child::before { content: none; }
+}

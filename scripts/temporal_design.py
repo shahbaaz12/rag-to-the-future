@@ -73,8 +73,11 @@ def versioned(source):
 
 
 def assets(page):
-    for link in page.select('link[href^="lesson-glossary.css"]'):
-        link["href"] = versioned("lesson-glossary.css")
+    glossary_styles = page.select('link[href^="lesson-glossary.css"]')
+    if glossary_styles:
+        glossary_styles[0]['href'] = versioned('lesson-glossary.css')
+        for duplicate in glossary_styles[1:]:
+            duplicate.decompose()
     styles = [link for link in page.select("link[href]") if link["href"].split("?")[0] == "temporal-design.css"]
     for link in styles:
         link.decompose()
@@ -105,6 +108,10 @@ def assets(page):
         node.decompose()
     if page.select_one('.catalog-index-visual'):
         page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-catalog.css')))
+    for node in page.select('link[href^="lesson-reading.css"]'):
+        node.decompose()
+    if page.body.get('data-reading-layout') == 'clear':
+        page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-reading.css')))
     for source in ("course-progress.js", "temporal-ui.js", "lesson-reading.js"):
         scripts = [script for script in page.select("script[src]") if script["src"].split("?")[0] == source]
         for script in scripts:
@@ -156,6 +163,15 @@ def apply_design(page, part=None, lesson=None):
         old.decompose()
     if part == 1 and not lesson:
         part_one_cards(page)
+    if lesson == 21:
+        page.body['data-reading-layout'] = 'clear'
+        for table in page.select('#lesson table'):
+            labels = [cell.get_text(' ', strip=True) for cell in table.select('thead th')]
+            for row in table.select('tbody tr'):
+                for cell, label in zip(row.select('td'), labels):
+                    cell['data-label'] = label
+    else:
+        page.body.attrs.pop('data-reading-layout', None)
     assets(page)
     page.body.append(fragment(route(part or 0, lesson)))
     if part is None:
