@@ -8,12 +8,18 @@ import contextlib
 import hashlib
 import io
 import json
+import math
 import os
 import re
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import nbformat
+from chromadb.config import Settings
+from langchain_chroma import Chroma
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage
@@ -26,7 +32,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class OfflineEmbeddings(Embeddings):
     """Stable lexical vectors for exercising the real vector-store implementation."""
+    def __init__(self):
+        self.document_calls = 0
+
     def embed_documents(self, texts):
+        self.document_calls += 1
         return [self.embed_query(text) for text in texts]
 
     def embed_query(self, text):
@@ -38,7 +48,8 @@ class OfflineEmbeddings(Embeddings):
             vector[index] += 3 if word in {"grasshopper", "aerotherm", "e922", "rag"} else 1
         if not any(vector):
             vector[0] = 1
-        return vector
+        length = math.sqrt(sum(value * value for value in vector))
+        return [value / length for value in vector]
 
 
 class OfflineChat(BaseChatModel):
@@ -75,7 +86,31 @@ class OfflineChat(BaseChatModel):
 
 
 def verify(lesson, scope):
-    if lesson == 1:
+    if lesson == 0:
+        assert len(scope['reader'].pages) == 11
+        assert len(scope['chunks']) > len(scope['documents'])
+        assert len(scope['stored_vector']) == 256  # Offline fixture dimensions.
+        assert scope['saved_record']['ids'] == scope['chunk_ids'][:1]
+        for name, page in [('grasshopper_matches', 4), ('lion_matches', 5), ('crow_matches', 8)]:
+            matches = scope[name]
+            assert len(matches) == 3
+            assert any(doc.metadata['page'] == page for doc, _ in matches)
+            distances = [distance for _, distance in matches]
+            assert distances == sorted(distances)
+            assert all(-1e-5 <= distance <= 2.00001 for distance in distances)
+        assert scope['reopened_matches']
+        # Check the reported distance against the cosine calculation on actual saved vectors.
+        embeddings = scope['embeddings']
+        query = embeddings.embed_query('a mouse helping a lion')
+        doc, distance = scope['vector_store'].similarity_search_with_score('a mouse helping a lion', k=1)[0]
+        vector = scope['vector_store'].get(ids=[doc.id], include=['embeddings'])['embeddings'][0]
+        expected = 1 - sum(a * b for a, b in zip(query, vector))
+        assert abs(distance - expected) < 1e-5
+        calls = embeddings.document_calls
+        guard_cell = next(cell for cell in scope['notebook_cells'] if cell.id == 'p3-pdf-step-07')
+        exec(guard_cell.source, scope)
+        assert embeddings.document_calls == calls, 'Repeated setup must reuse the indexed PDF'
+    elif lesson == 1:
         result = scope["result"]
         assert result["needs_retrieval"] and len(result["documents"]) == 2
         assert any(doc.metadata["source"] == "course-note-2" for doc in result["documents"])
@@ -122,19 +157,79 @@ def verify(lesson, scope):
         assert all(doc.metadata["level"] == "summary" for doc in whole_catalog["documents"])
 
 
-def main():
+def check_saved_collections(lesson, scope, embeddings, database_root):
+    if lesson == 1:
+        return []
+    if lesson == 0:
+        groups = [(scope['vector_store'], 'classic_fables_cosine', scope['chunks'], scope['chunk_ids'])]
+    elif lesson in (2, 3):
+        groups = [(scope["vector_store"], "fables" if lesson == 2 else "hybrid", scope["chunks"],
+                   [doc.metadata["chunk_id"] for doc in scope["chunks"]])]
+    else:
+        groups = [
+            (scope["detail_store"], "detail_documents", scope["detail_documents"], scope["detail_ids"]),
+            (scope["summary_store"], "summary_documents", scope["summary_documents"],
+             [f"{doc.metadata['category']}:{doc.metadata['subcategory']}" for doc in scope["summary_documents"]]),
+        ]
+    manifest = []
+    for store, collection, documents, ids in groups:
+        assert sorted(store.get()["ids"]) == sorted(ids)
+        # Repeat indexing through the real Chroma API: stable IDs must not duplicate entries.
+        repeated = Chroma.from_documents(
+            documents=documents, embedding=embeddings, ids=ids, collection_name=collection,
+            persist_directory=str(database_root / "chroma_db"),
+            client_settings=Settings(anonymized_telemetry=False),
+        )
+        assert sorted(repeated.get()["ids"]) == sorted(ids)
+        manifest.append({"collection": collection, "ids": sorted(ids), "first_id": ids[0],
+                         "text": documents[0].page_content, "metadata": documents[0].metadata})
+    return manifest
+
+
+def reopen_saved_collections(database_root):
+    manifest = json.loads((database_root / "manifest.json").read_text(encoding="utf-8"))
+    embeddings = OfflineEmbeddings()
+    with patch("socket.create_connection", side_effect=AssertionError("Network access is disabled for this check")):
+        for entry in manifest:
+            store = Chroma(
+                collection_name=entry["collection"], embedding_function=embeddings,
+                persist_directory=str(database_root / "chroma_db"),
+                client_settings=Settings(anonymized_telemetry=False),
+            )
+            assert sorted(store.get()["ids"]) == entry["ids"]
+            saved = store.get(ids=[entry["first_id"]])
+            assert saved["documents"] == [entry["text"]]
+            assert saved["metadatas"] == [entry["metadata"]]
+            hits = store.similarity_search(entry["text"], k=2)
+            assert hits and all(hit.id in entry["ids"] for hit in hits)
+            assert embeddings.document_calls == 0, "Reopening must not re-embed documents"
+            print(f"Chroma {entry['collection']}: reopened in a new process; saved text, metadata and search OK")
+
+
+def main(database_root):
+    class IsolatedChroma(Chroma):
+        """Use real disk storage while keeping validation out of the lesson's database."""
+        def __init__(self, *args, **kwargs):
+            kwargs["persist_directory"] = str(database_root / "chroma_db")
+            kwargs["client_settings"] = Settings(anonymized_telemetry=False)
+            super().__init__(*args, **kwargs)
+
     entries = json.loads((ROOT / "part-three-lessons.json").read_text(encoding="utf-8"))
+    manifest = []
     for entry in entries:
         path = ROOT / "code/Part III Give the model something to read" / entry["filename"]
         book = nbformat.read(path, as_version=4)
         nbformat.validate(book)
-        scope = {"__name__": "__main__"}
-        model = OfflineChat(lesson=entry["local"])
+        fixture_lesson = {'first_rag': 1, 'pdf_retrieval': 0, 'conversational': 2, 'hybrid': 3, 'hierarchical': 4}[entry['kind']]
+        scope = {"__name__": "__main__", 'notebook_cells': book.cells}
+        model = OfflineChat(lesson=fixture_lesson)
+        embeddings = OfflineEmbeddings()
         with contextlib.chdir(path.parent), contextlib.redirect_stdout(io.StringIO()), \
-             patch.dict(os.environ, {"LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false"}), \
+             patch.dict(os.environ, {"LANGSMITH_TRACING": "false", "LANGCHAIN_TRACING_V2": "false", "ANONYMIZED_TELEMETRY": "false"}), \
              patch("dotenv.load_dotenv", return_value=False), \
              patch("langchain.chat_models.init_chat_model", return_value=model), \
-             patch("langchain_openai.OpenAIEmbeddings", return_value=OfflineEmbeddings()), \
+             patch("langchain_openai.OpenAIEmbeddings", return_value=embeddings), \
+             patch("langchain_chroma.Chroma", IsolatedChroma), \
              patch("socket.create_connection", side_effect=AssertionError("Network access is disabled for this check")):
             for cell in book.cells:
                 if cell.cell_type == "markdown":
@@ -143,10 +238,22 @@ def main():
                     tree = ast.parse(cell.source)
                     assert not any(isinstance(node, ast.Try) for node in ast.walk(tree))
                     exec(compile(tree, f"{path.name}:{cell.id}", "exec"), scope)
-            verify(entry["local"], scope)
+            verify(fixture_lesson, scope)
+            manifest.extend(check_saved_collections(fixture_lesson, scope, embeddings, database_root))
         print(f"Part III lesson {entry['local']}: execution, retrieval and flow checks OK")
-    print("All four notebooks passed offline. No provider API calls were made.")
+    (database_root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        database_root = Path(sys.argv[1])
+        if len(sys.argv) > 2 and sys.argv[2] == "--reopen":
+            reopen_saved_collections(database_root)
+        else:
+            main(database_root)
+    else:
+        # Separate processes release Chroma's Windows file handles before cleanup.
+        with tempfile.TemporaryDirectory(prefix="airag-chroma-check-") as database_root:
+            subprocess.run([sys.executable, __file__, database_root], check=True)
+            subprocess.run([sys.executable, __file__, database_root, "--reopen"], check=True)
+        print("All five notebooks and Chroma persistence checks passed offline. No provider API calls were made.")

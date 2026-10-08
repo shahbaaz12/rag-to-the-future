@@ -1,0 +1,18 @@
+<figure class="embedding-demo chunking-demo" aria-labelledby="chunking-title">
+  <figcaption id="chunking-title">One document, four ways to cut it</figcaption>
+  <p class="embedding-demo__badge">Interactive illustration · compare boundaries</p>
+  <h4>The source: a small sample guide</h4>
+  <pre class="chunking-demo__source" data-chunk-source></pre>
+  <div class="embedding-demo__buttons" role="group" aria-label="Choose a chunking strategy">
+    <button type="button" data-chunk-strategy="fixed" aria-pressed="true">Fixed size</button>
+    <button type="button" data-chunk-strategy="recursive" aria-pressed="false">Recursive</button>
+    <button type="button" data-chunk-strategy="semantic" aria-pressed="false">Semantic</button>
+    <button type="button" data-chunk-strategy="structure" aria-pressed="false">Structure-aware</button>
+  </div>
+  <div class="chunking-demo__controls" data-chunk-size-controls><label for="chunk-size">Maximum chunk size: <output data-chunk-size-label>120</output> characters</label><input id="chunk-size" type="range" min="40" max="240" step="1" value="120"/></div>
+  <div class="chunking-demo__controls" data-chunk-overlap-controls><label for="chunk-overlap">Overlap: <output data-chunk-overlap-label>0</output> characters</label><input id="chunk-overlap" type="range" min="0" max="30" step="1" value="0"/><p class="embedding-demo__note">Overlap is shown with fixed-size cuts. Underlined text is repeated from the previous chunk.</p></div>
+  <p data-chunk-notice></p>
+  <p class="chunking-demo__stats" data-chunk-stats aria-live="polite"></p>
+  <div class="chunking-demo__chunks" data-chunk-cards></div>
+  <p class="embedding-demo__note">Fixed cuts and boundary-aware cuts are computed in this browser. Semantic grouping uses simple topic keywords for this sample, not an embedding model. This illustrates the strategies; it is not the LangChain splitter implementation.</p>
+</figure>

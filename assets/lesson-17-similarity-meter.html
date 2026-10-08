@@ -1,0 +1,23 @@
+<figure class="embedding-demo similarity-demo" aria-labelledby="similarity-title">
+  <figcaption id="similarity-title">Try two sentences</figcaption>
+  <p class="embedding-demo__badge">Practice demo · simple word groups</p>
+  <div class="similarity-demo__inputs">
+    <div><label for="similarity-a">Sentence A</label><textarea id="similarity-a" rows="3" maxlength="300">A cat is sleeping on the couch.</textarea></div>
+    <div><label for="similarity-b">Sentence B</label><textarea id="similarity-b" rows="3" maxlength="300">A kitten is napping on the sofa.</textarea></div>
+  </div>
+  <div class="embedding-demo__buttons" role="group" aria-label="Try sentence pairs">
+    <button type="button" data-similarity-preset="synonyms">Synonyms</button>
+    <button type="button" data-similarity-preset="paraphrase">Paraphrase</button>
+    <button type="button" data-similarity-preset="city">Same city, different names</button>
+    <button type="button" data-similarity-preset="related">Related concepts</button>
+    <button type="button" data-similarity-preset="opposite">Opposite statements</button>
+    <button type="button" data-similarity-preset="unrelated">Unrelated</button>
+  </div>
+  <div class="similarity-demo__result" aria-live="polite">
+    <output class="similarity-demo__score" data-similarity-score>—</output><span>cosine similarity of the demo vectors</span>
+    <div class="similarity-demo__track" aria-hidden="true"><div data-similarity-fill></div></div>
+    <p data-similarity-explanation></p>
+  </div>
+  <div class="similarity-demo__vectors"><h4>What are we comparing?</h4><p>Each row shows a word group and its count in each sentence. Words such as cat/kitten share a group. Words the demo does not recognize are counted separately.</p><div class="embedding-demo__scroll" data-similarity-vectors></div></div>
+  <p class="embedding-demo__note">We calculate cosine from these word counts. Because the counts cannot be negative, this demo's scores run from 0 to 1. A trained embedding model may give different results.</p>
+</figure>

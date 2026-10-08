@@ -1,0 +1,39 @@
+<figure class="hybrid-search-visual" aria-labelledby="hybrid-search-title">
+  <figcaption id="hybrid-search-title">Two ways to find useful passages</figcaption>
+  <p class="hybrid-search-visual__note">Illustrative matches from the sample CleanBot guide, not recorded search results.</p>
+  <div class="hybrid-search-visual__question">
+    <span class="hybrid-search-visual__label">The user's question</span>
+    <p>“E922: the brush on my robot vacuum is jammed. How do I fix it?”</p>
+  </div>
+  <svg class="hybrid-search-visual__split" viewBox="0 0 600 55" aria-hidden="true">
+    <path d="M 300 0 V 20 H 150 V 45 M 300 20 H 450 V 45"/>
+    <path d="M 144 38 L 150 46 L 156 38 M 444 38 L 450 46 L 456 38"/>
+  </svg>
+  <div class="hybrid-search-visual__branches">
+    <section class="hybrid-search-visual__branch" aria-labelledby="hybrid-meaning-title">
+      <h4 id="hybrid-meaning-title">Search by meaning</h4>
+      <p>Uses the description: <strong>“the brush is jammed.”</strong></p>
+      <p class="hybrid-search-visual__benefit">Helps find related instructions even when the wording changes.</p>
+      <div class="hybrid-search-visual__match"><span>Possible match · brush care</span><p>“Clean the brush and filter when the maintenance reminder appears.”</p></div>
+      <div class="hybrid-search-visual__match hybrid-search-visual__match--shared"><span>Possible shared match · brush jam</span><p>“E922: Brush jam detected.”</p></div>
+    </section>
+    <section class="hybrid-search-visual__branch" aria-labelledby="hybrid-keyword-title">
+      <h4 id="hybrid-keyword-title">Search by words · BM25</h4>
+      <p>Uses the exact code: <strong>“E922.”</strong></p>
+      <p class="hybrid-search-visual__benefit">Helps find the instructions for that particular error code.</p>
+      <div class="hybrid-search-visual__match hybrid-search-visual__match--shared"><span>Possible shared match · exact code</span><p>“E922: Brush jam detected.”</p></div>
+    </section>
+  </div>
+  <svg class="hybrid-search-visual__join" viewBox="0 0 600 55" aria-hidden="true">
+    <path d="M 150 0 V 20 H 300 V 45 M 450 0 V 20 H 300"/>
+    <path d="M 294 38 L 300 46 L 306 38"/>
+  </svg>
+  <div class="hybrid-search-visual__combined">
+    <span class="hybrid-search-visual__label">Combine the results</span>
+    <p>Choose useful chunks from both lists. If both searches found the same chunk, keep it once.</p>
+    <div class="hybrid-search-visual__evidence"><span>Example passage for the model to read</span><p>“E922: Brush jam detected. Resolution: Turn off the robot and remove hair or thread from the main brush and end caps.”</p><small>Source: NEX-1008_Nexa_CleanBot_S2.txt</small></div>
+  </div>
+  <div class="hybrid-search-visual__down" aria-hidden="true">↓</div>
+  <div class="hybrid-search-visual__answer"><span class="hybrid-search-visual__label">The chat model writes the answer</span><p>It explains the steps using the selected guide text and includes the source filename.</p></div>
+  <p class="hybrid-search-visual__note">Both searches use the same question and chunks. The notebook runs them one after the other.</p>
+</figure>

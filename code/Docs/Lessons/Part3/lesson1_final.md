@@ -18,35 +18,97 @@ We could paste the whole file into every prompt. That works for a small note, bu
 
 Suppose we ask, “What does RAG do?” and the answer is in our course notes. Our application finds the useful note and sends it to the model along with the question. The model reads that note and uses it to write an answer. This is the basic idea of RAG: **find useful text, then ask the model to answer using it.**
 
-## Why RAG?
+## Embeddings: words become coordinates
 
-A model may not know what is in our private files or recently updated notes. RAG gives it the relevant text when we ask a question. When our notes change, we can update the searchable collection without retraining the chat model.
+Before we can search by meaning, we need a way to turn text into numbers.
 
-The answer still depends on what we find and how the model uses it. If we find the wrong passage, the answer may be wrong too. We should check the retrieved text and ask the model to say when that text does not contain the answer.
+**A vector** is a list of numbers. **An embedding** is a vector created by a model to represent a piece of text. Related meanings often produce similar vectors, which helps us find related passages even when the wording differs.
+
+**Keep this in mind:** text → embedding model → list of numbers. We use the numbers to search, then return to the original text.
+
+### Why use embeddings in the first place?
+
+People can express the same idea with different words. You might ask, **“How do I change my password?”**, while a help document says, **“Reset your login credentials.”** A search that only matches exact words may miss that useful passage.
+
+Embeddings help us search for **related meaning**, even when the wording is different. We turn both the question and the document passages into vectors. The application compares these vectors and selects the closest matches.
+
+**Why numbers?** Numbers give the computer a way to calculate similarity and rank passages from a large collection. In RAG, this helps us choose useful text to send to the chat model instead of sending every document. We still check the selected text to see whether it answers the question.
+
+### Imagine a two-dimensional world
+
+Think of a chart with height on one axis and weight on the other. A person becomes a point with two coordinates, such as height 170 cm and weight 65 kg. People with a similar build appear near each other.
+
+Text embeddings use the same general idea of representing something with coordinates, but in many more dimensions. The following diagrams use illustrative points; they are not measured embeddings from a trained model.
+
+<!-- visual: embedding-basics -->
+
+### How many dimensions does a vector have?
+
+**Dimensions** means the number of coordinates in the vector. `[0.2, -0.5, 0.8]` has three dimensions. A vector with 1,536 numbers has 1,536 dimensions.
+
+Different embedding models use different vector sizes. You may see 384, 768, 1,536, or 3,072 dimensions. More dimensions are not automatically better; the model and the retrieval task matter too.
+
+Meaning has many patterns to learn, so two coordinates are usually not enough. But do not imagine that one coordinate is explicitly “topic” and another is “tone.” The model learns its representation, and individual coordinates usually do not have simple names we can read.
+
+### Vector arithmetic: try a few examples
+
+Classic word embeddings can capture relationships that show up in vector arithmetic. A familiar example is **king − man + woman ≈ queen**. The idea is to subtract one relationship and add another. Results from learned embeddings are approximate and depend on the model and vocabulary; this is not a rule every embedding model must follow. The [Word2Vec paper](https://arxiv.org/abs/1301.3781) explores these kinds of relationships.
+
+Pick an equation below. We use small, handmade vectors so you can see every number being subtracted and added. The demo calculates the result and finds the closest point in its toy vocabulary.
+
+<!-- visual: vector-arithmetic -->
+
+### Why this matters for RAG
+
+**For RAG, we do not need word arithmetic.**
+
+We need one practical operation: **compare the question's vector with the passage vectors and find close matches.**
+
+The useful idea is that we can work with meaning through numbers. Vector arithmetic illustrates relationships; vector similarity helps us search. After searching, we give the matching **text** to the chat model.
+
+### See it in 2D — same idea, drawable
+
+Click a relationship on the map. Notice how the two arrows have the same direction and length. In this illustration, the move from **france to paris** matches the move from **india to delhi**: country → capital.
+
+The points are chosen for teaching. They are not real model vectors squeezed into two dimensions. A real embedding has many more coordinates, and drawing it in two dimensions can hide or distort relationships.
+
+<!-- visual: vector-map -->
+
+## Cosine similarity: compare directions
+
+**Cosine similarity** is a score for comparing two vectors. In RAG, we can use it to compare the question's vector with each passage's vector.
+
+Picture two arrows starting at the same point, like the hands of a clock. We compare **where they point**, not how long they are.
+
+| If the arrows point… | The score is… |
+|---|---|
+| In the same direction | **1** |
+| At a right angle to each other | **0** |
+| In opposite directions | **−1** |
 
 ## Components of a RAG system
 
 **A chunk** is a small piece of a document. We split long documents into chunks so we can search for a useful passage instead of sending the entire document to the model.
 
-**A vector** is a list of numbers, such as `[0.2, -0.5, 0.8]`. In RAG, we use vectors to represent text and compare it with other text. These three numbers are only an illustration; real vectors usually have many more numbers.
-
 **An embedding model** turns text into a vector. That vector is called an **embedding**. We use the same embedding model for the document chunks and the question so their vectors can be compared.
 
-**A vector store** keeps each chunk's text, vector, and source details together. This lets us search using vectors and get back the matching text. A vector database serves this purpose too; our small example uses an in-memory vector store.
+**A vector store** keeps each chunk's text, vector, and source details together. This lets us search using vectors and get back the matching text. Chroma is the vector database we will use in the next lesson.
 
 ### How RAG works, step by step
 
-First, we prepare the documents. Then, whenever a question arrives, we search the prepared collection and give the useful text to the chat model. Follow the arrows down each phase.
+First, we prepare the documents. Then, whenever a question arrives, we search the prepared collection and give the useful text to the chat model. Follow the numbered steps and connecting arrows in each phase.
 
 <!-- visual: rag-flow -->
 
-**Steps 1–4: prepare the documents.** Load the documents, split long ones into chunks, create a vector for each chunk, and store each vector with the text it came from. We do this before answering questions, and update the collection when the documents change.
+**Steps 1–4: prepare the documents.** Load the documents, split long ones into chunks, create a vector for each chunk, and store each vector with the text it came from. **Prepare once, query many times:** the saved document vectors can serve many questions. We update the collection when the documents or indexing setup change.
 
-**Step 5: turn the question into a vector.** We usually embed the whole question as one piece of text. We do not split it into document-style chunks. The original question is kept for the final prompt.
+**Step 5: turn the question into a vector.** We usually embed the whole question as one piece of text. We do not split it into document-style chunks. Each new question gets its own vector. The original question is kept for the final prompt.
 
 **Steps 6–7: search and retrieve.** Compare the question's vector with the stored chunk vectors. Select similar chunks, then return their original text and source details. A retriever is the helper that performs this search and returns the selected documents.
 
 **Steps 8–9: build the prompt and answer.** Put the original question and retrieved text into a prompt. The chat model reads that prompt and writes an answer. It receives the **text**, not the vectors.
+
+**The embedding model** creates the vectors for searching; **the LLM (chat model)** uses the retrieved text to write the answer.
 
 Similar vectors help us find related passages. They do not tell us whether a passage is true or whether it contains enough information to answer.
 
@@ -61,288 +123,44 @@ Similar vectors help us find related passages. They do not tell us whether a pas
 | Retriever | Search the stored vectors and return the selected chunks as text. |
 | Prompt and chat model | Give the model the question and selected text, then ask it to write an answer. |
 
-**In this lesson**, our four sample notes are already short. Each note can be one searchable Document, so we skip splitting. In the next lesson, we will split longer files into chunks. The rest of the flow stays the same.
+## Chunking: cut the book into snippets
 
-## How does the LLM fit in?
+**Chunking** means splitting a long document into smaller passages before embedding it. A whole book may exceed an embedding model's input limit. Even when a document fits, one vector for many topics can make it harder to find the specific passage we need.
 
-**The chat model** writes the answer in Step 9. Our application gives it the original question, the retrieved text, and instructions for answering from that text.
+Think of pizza slices: a huge slice is hard to handle, while tiny crumbs lose what makes the slice useful. **Large chunks** can include too much unrelated text. **Very small chunks** can lose context, such as who “she” refers to or which instruction comes next.
 
-**The embedding model** creates the vectors in Steps 3 and 5. It helps us search; it does not write the final answer. The retriever uses the vector store to find useful text before we call the chat model.
+### Four ways to cut the same text
 
-For this example, OpenAI creates the embeddings and Groq supplies the chat model that writes answers. These are separate jobs, so we can use different providers.
+| Strategy | How it chooses a boundary |
+|---|---|
+| Fixed size | Count characters or tokens, then cut. A boundary can land inside a word or sentence. |
+| Recursive | Try larger boundaries first, then smaller ones when the text is still too long. |
+| Semantic | Group nearby sentences by related meaning or changes in topic. |
+| Structure-aware | Follow headings, sections, or other structure already in the document. |
 
-To run the notebook, put GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. From the code folder, run uv sync to install the dependencies, then run the notebook from its own directory. Creating and searching embeddings makes OpenAI API calls; generating an answer makes a Groq API call.
+In the demo, set the size to **80 characters** and compare **Fixed size** with **Recursive**. Then choose **Semantic** and **Structure-aware** to see topic groups and heading boundaries. Semantic grouping here uses a small set of topic keywords to illustrate the idea; it does not run an embedding model.
 
-## What we are building
+<!-- visual: chunking-demo -->
 
-Our path is **decide → retrieve if needed → generate**. It follows the supplied agenticrag reference, with current imports and small partial state updates.
+### Why repeat some text between chunks?
 
-The decision here is a simple Python keyword rule. Although the reference calls this agentic RAG, this example does not ask an autonomous agent to choose its own search strategy. It shows the retrieval branch clearly before adding more moving parts.
+**Overlap** means the end of one chunk also appears at the start of the next. It can keep context around a boundary. In the fixed-size demo, increase overlap and look for the underlined repeated text. Notice that we store more characters because some words appear in multiple chunks.
 
-### Import the document and model helpers
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-01 -->
-```python
-from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.documents import Document
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import OpenAIEmbeddings
-```
-
-**What happens here**
-
-**Document** pairs a piece of text with metadata about its source.
-
-**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
-
-**Result:** The building blocks are available; importing them makes no provider request.
-
-### Connect the two kinds of model
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-02 -->
-```python
-load_dotenv()
-# Groq generates answers; OpenAI creates search embeddings.
-model = init_chat_model(
-    "openai/gpt-oss-120b", model_provider="groq", reasoning_effort="low",
-)
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-```
-
-**What happens here**
-
-Keep GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. The chat model writes answers. OpenAIEmbeddings turns text into vectors for searching; it does not write an answer. Creating these objects is setup. Indexing documents and searching later make embedding requests.
-
-**Result:** We have a chat model and an embedding model, with different jobs.
-
-### Create a tiny knowledge collection
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-03 -->
-```python
-sample_texts = [
-    "LangGraph connects Python functions into a stateful workflow using nodes and edges.",
-    "RAG retrieves relevant documents and adds their text to a prompt before generating an answer.",
-    "A vector store keeps embeddings with their source text so similar material can be searched.",
-    "The application executes tools requested by a model and returns the results to the model.",
-]
-documents = [
-    Document(page_content=text, metadata={"source": f"course-note-{index}"})
-    for index, text in enumerate(sample_texts, start=1)
-]
-```
-
-**What happens here**
-
-These four short notes are the knowledge collection. The source labels are local names for these sample notes. We are not asking the model to browse the web; this application will search only the Documents we put into its index.
-
-**Result:** Each note has text and a source label.
-
-### Make the notes searchable
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-04 -->
-```python
-vector_store = InMemoryVectorStore.from_documents(documents, embeddings)
-retriever = vector_store.as_retriever(search_kwargs={"k": 2})
-```
-
-**What happens here**
-
-from_documents embeds and indexes the notes. search_kwargs passes k to the retriever, so each search returns up to two candidates. We keep this index in memory for a small example. The reference uses FAISS; the same retrieve-then-answer idea works here without adding another database package.
-
-**Result:** The retriever is ready to return the original text selected by vector similarity.
-
-### Describe the four-field state
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-05 -->
-```python
-from typing_extensions import TypedDict
-from langgraph.graph import StateGraph, START, END
-
-class RagState(TypedDict):
-    question: str
-    documents: list[Document]
-    answer: str
-    needs_retrieval: bool
-```
-
-**What happens here**
-
-question is the input. documents holds retrieved evidence, answer holds the reply, and needs_retrieval records our decision. These fields use replacement updates. Each node returns only the fields it changes.
-
-**Result:** Our working record separates the question, evidence, answer, and routing decision.
-
-### Decide whether to search the notes
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-06 -->
-```python
-def decide_retrieval(state: RagState) -> dict:
-    keywords = ["what", "how", "explain", "describe", "tell me"]
-    needs_retrieval = any(word in state["question"].lower() for word in keywords)
-    return {"needs_retrieval": needs_retrieval}
-
-def should_retrieve(state: RagState) -> str:
-    return "retrieve" if state["needs_retrieval"] else "generate"
-```
-
-**What happens here**
-
-The first function updates the decision flag. The second reads that flag and returns a route name. A greeting such as Hello skips retrieval; a question beginning with How takes the retrieval path. This rule is deliberately limited: it can miss a question phrased differently and can retrieve for an unrelated question.
-
-**Result:** We can see which branch runs without hiding the decision inside a model call.
-
-### Retrieve the relevant documents
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-07 -->
-```python
-def retrieve_documents(state: RagState) -> dict:
-    return {"documents": retriever.invoke(state["question"])}
-```
-
-**What happens here**
-
-The retriever searches using the question and returns Documents. It does not generate an answer. Its partial return replaces the documents field while leaving the question and routing flag intact.
-
-**Result:** The generation node can read the retrieved text from state.
-
-### Prepare readable context with source labels
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-08 -->
-```python
-def format_context(documents: list[Document]) -> str:
-    return "\n\n".join(
-        f"[{doc.metadata['source']}]\n{doc.page_content}"
-        for doc in documents
-    )
-```
-
-**What happens here**
-
-We join the retrieved text into the context the chat model will receive. The bracketed filename gives the model a label it can cite. Our application still returns the actual Documents so we can check the supporting text ourselves.
-
-**Result:** A model prompt can include both the evidence and its source names.
-
-### Generate from context or answer directly
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-09 -->
-```python
-def generate_answer(state: RagState) -> dict:
-    if state["needs_retrieval"]:
-        instruction = (
-            "Use only the context. If it is insufficient, say you could not find the answer. "
-            "Cite source labels in brackets.\nContext:\n" + format_context(state["documents"])
-        )
-    else:
-        instruction = "Reply briefly to the user."
-    reply = model.invoke([
-        SystemMessage(instruction), HumanMessage(state["question"]),
-    ])
-    return {"answer": reply.text}
-```
-
-**What happens here**
-
-The retrieval branch supplies the selected text as context and asks for source labels. Even an empty retrieval result stays on this grounded branch; it does not silently turn into an unrestricted factual answer. The direct branch handles the greeting. The model reads the prompt we construct; it does not search the vector store itself.
-
-**Result:** The answer is returned as one state update; retrieved Documents remain available for inspection.
-
-### Register the three working nodes
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-10 -->
-```python
-builder = StateGraph(RagState)
-builder.add_node("decide", decide_retrieval)
-builder.add_node("retrieve", retrieve_documents)
-builder.add_node("generate", generate_answer)
-```
-
-**What happens here**
-
-The graph contains a decision step, a retrieval step, and an answer step. We keep the responsibilities separate so we can inspect what each part does.
-
-**Result:** The nodes are registered; they have not run.
-
-### Connect the retrieval branch
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-11 -->
-```python
-builder.add_edge(START, "decide")
-builder.add_conditional_edges(
-    "decide", should_retrieve,
-    {"retrieve": "retrieve", "generate": "generate"},
-)
-builder.add_edge("retrieve", "generate")
-builder.add_edge("generate", END)
-graph = builder.compile()
-```
-
-**What happens here**
-
-After deciding, we either retrieve and then generate, or go straight to generation. Both paths end after the answer. This is a single retrieval pass, not the repeated model/tool loop from Part II.
-
-**Result:** The graph makes the two possible paths explicit.
-
-### Start each question with fresh state
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-12 -->
-```python
-def ask_question(question: str) -> RagState:
-    return graph.invoke({
-        "question": question, "documents": [],
-        "answer": "", "needs_retrieval": False,
-    })
-```
-
-**What happens here**
-
-Each invocation starts with an empty document list and answer. Evidence from an earlier question is not accidentally reused. This graph has no checkpointer; separate calls are independent.
-
-**Result:** We have a small helper for running either path.
-
-### Inspect a retrieval question
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-13 -->
-```python
-result = ask_question("How does RAG use retrieved documents?")
-print("Retrieved:", result["needs_retrieval"])
-print("Sources:", [doc.metadata["source"] for doc in result["documents"]])
-print("Answer:", result["answer"])
-```
-
-**What happens here**
-
-How triggers retrieval. The printed source labels show which notes were selected; the Documents also contain their actual text. The answer wording can vary. Compare its claims with those returned notes instead of trusting a citation label alone.
-
-**Result:** The retrieval flag is True, with up to two context documents and a generated reply.
-
-### Try the direct path
-
-<!-- snippet: code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-14 -->
-```python
-greeting = ask_question("Hello!")
-print("Retrieved:", greeting["needs_retrieval"])
-print("Documents:", greeting["documents"])
-print("Answer:", greeting["answer"])
-```
-
-**What happens here**
-
-This input contains none of our retrieval keywords. The graph goes directly from decide to generate. The empty document list makes that difference visible.
-
-**Result:** The flag is False and the document list is empty.
+Overlap can help, but it does not guarantee that every answer fits into one chunk. There is no single best chunk size or overlap for every document. Inspect the returned passages and adjust the settings. In Lesson 18, we will apply a real splitter to the fables PDF.
 
 ## Check your understanding
 
-1. Which model searches and which model writes?
-2. Are vectors or retrieved text sent as answer context?
-3. What happens when our keyword rule misses a factual question?
-4. Does a citation label prove the model used the source correctly?
+1. What is the difference between a vector and an embedding?
+2. How many numbers does a 1,536-dimensional vector contain?
+3. Why do the question and chunks use the same embedding model?
+4. Does a high similarity score guarantee that a passage answers the question?
+5. What is sent to the chat model: vectors or retrieved text?
+6. What does the embedding model do, and what does the chat model do?
+7. What can go wrong when chunks are too large or too small?
+8. How does overlap change the text we store?
 
 ## Where we go next
 
-Next we will search longer files and resolve a follow-up such as Who helped him? using the conversation.
+In Lesson 18, we will load Classic_Fables_Collection.pdf, split it into chunks, save embeddings in Chroma, and inspect several searches with their scores.
 
-Complete notebook: [1-first-rag.ipynb](../../../Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb)
-
-Further reading: [LangChain retrieval](https://docs.langchain.com/oss/python/langchain/retrieval) and [OpenAI embeddings](https://developers.openai.com/api/docs/guides/embeddings).
+Further reading: [OpenAI embeddings](https://developers.openai.com/api/docs/guides/embeddings) and [the Word2Vec paper](https://arxiv.org/abs/1301.3781).

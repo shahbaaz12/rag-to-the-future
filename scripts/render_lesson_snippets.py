@@ -387,7 +387,7 @@ def add_learning_aids(page, article, lesson):
     for old in page.select(".glossary-toggle, #lesson-glossary, #lesson-terms"):
         old.decompose()
     glossary = BeautifulSoup(f'''<button class="glossary-toggle" type="button" data-glossary-toggle aria-label="Open lesson glossary" aria-expanded="false" aria-controls="lesson-glossary" title="Lesson glossary">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"/></svg><span class="glossary-badge" aria-hidden="true">{len(ENCOUNTERED)}</span></button>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"/></svg><span class="glossary-label">Glossary</span><span class="glossary-badge" aria-hidden="true">{len(ENCOUNTERED)}</span></button>
 <aside id="lesson-glossary" class="glossary-panel" role="dialog" aria-labelledby="glossary-title" hidden><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button class="glossary-close" type="button" data-glossary-close aria-label="Close glossary">×</button><p class="glossary-intro">Terms introduced through Lesson {lesson}. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input id="glossary-search" type="search" placeholder="e.g. init_chat_model" autocomplete="off"/><p class="glossary-count" data-glossary-count aria-live="polite"></p></div><ul class="glossary-list" data-glossary-list></ul></aside>''', "html.parser")
     page.body.append(glossary)
     data = page.new_tag("script", type="application/json", id="lesson-terms")
@@ -409,6 +409,10 @@ def render(lesson):
     markdown = NOTE.sub(substitute, markdown)
     markdown = markdown.replace('<!-- interactive: tokenizer-playground -->', '\n\n@@RENDERED_TOKENIZER@@\n\n')
     markdown = markdown.replace('<!-- visual: rag-flow -->', '\n\n@@RENDERED_RAG_FLOW@@\n\n')
+    markdown = markdown.replace('<!-- visual: hybrid-search -->', '\n\n@@RENDERED_HYBRID_SEARCH@@\n\n')
+    markdown = markdown.replace('<!-- visual: catalog-indexes -->', '\n\n@@RENDERED_CATALOG_INDEXES@@\n\n')
+    for visual in ('embedding-basics', 'cosine-demo', 'vector-arithmetic', 'vector-map', 'similarity-meter', 'chunking-demo'):
+        markdown = markdown.replace(f'<!-- visual: {visual} -->', f'\n\n@@VISUAL_{visual}@@\n\n')
     markdown = re.sub(r'<div data-graph-preview="([A-Za-z_]\w*)"></div>',
                       r'\n\n@@GRAPH_PREVIEW_\1@@\n\n', markdown)
     assert "```" not in markdown, f"Unannotated block in lesson {lesson}"
@@ -421,6 +425,16 @@ def render(lesson):
     if '<p>@@RENDERED_RAG_FLOW@@</p>' in body:
         body = body.replace('<p>@@RENDERED_RAG_FLOW@@</p>',
                             (ROOT / 'assets/lesson-17-rag-flow.html').read_text(encoding='utf-8'))
+    if '<p>@@RENDERED_HYBRID_SEARCH@@</p>' in body:
+        body = body.replace('<p>@@RENDERED_HYBRID_SEARCH@@</p>',
+                            (ROOT / 'assets/lesson-20-hybrid-search.html').read_text(encoding='utf-8'))
+    if '<p>@@RENDERED_CATALOG_INDEXES@@</p>' in body:
+        body = body.replace('<p>@@RENDERED_CATALOG_INDEXES@@</p>',
+                            (ROOT / 'assets/lesson-21-catalog-indexes.html').read_text(encoding='utf-8'))
+    for visual in ('embedding-basics', 'cosine-demo', 'vector-arithmetic', 'vector-map', 'similarity-meter', 'chunking-demo'):
+        token = f'<p>@@VISUAL_{visual}@@</p>'
+        if token in body:
+            body = body.replace(token, (ROOT / f'assets/lesson-17-{visual}.html').read_text(encoding='utf-8'))
     body = re.sub(r'<p>@@GRAPH_PREVIEW_([A-Za-z_]\w*)@@</p>',
                   r'<div data-graph-preview="\1"></div>', body)
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")

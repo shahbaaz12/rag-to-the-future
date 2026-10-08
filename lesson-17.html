@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 
-<html lang="en-US"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="What RAG is, why we need it, and how a small graph retrieves notes before answering." name="description"/><title>Lesson 17 · Give the model something to read · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/><link href="temporal-design.css?v=56bd37b1b7" rel="stylesheet"/><link href="lesson-story.css?v=66e6199a95" rel="stylesheet"/><link href="lesson-topics.css?v=6df4ec0b7d" rel="stylesheet"/><script defer="True" src="course-progress.js?v=6f2472a680"></script><script defer="True" src="temporal-ui.js?v=89bcf7925f"></script><script defer="True" src="lesson-reading.js?v=65da995312"></script><link href="lesson-graphs.css?v=50b475843c" rel="stylesheet"/></head><body class="temporal-lesson" data-era="three"><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-16.html">← Lesson 16</a><a href="#lesson">Lesson</a><a href="lesson-18.html">Lesson 18 →</a><a href="part-three.html">Part III map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART III · GIVE THE MODEL SOMETHING TO READ · LESSON 01 / COURSE 17</p><h1 id="page-title">Give the model something to read</h1><p class="lede">What RAG is, why we need it, and how a small graph retrieves notes before answering.</p><a class="button" href="#story-opening">Enter the story ↓</a><section aria-label="Current workshop" class="temporal-circuit" data-temporal-component="">
+<html lang="en-US"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Explore RAG, embeddings, vector dimensions, similarity, and chunking with interactive demonstrations." name="description"/><title>Lesson 17 · Give the model something to read · RAG to the Future</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&amp;family=Oswald:wght@500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/><link href="assets/favicon.svg" rel="icon" type="image/svg+xml"/><link href="lesson-final.css" rel="stylesheet"/><link href="lesson-code-explorer.css" rel="stylesheet"/><link href="lesson-snippets.css" rel="stylesheet"/><link href="lesson-glossary.css?v=618783e9c9" rel="stylesheet"/><script src="theme-toggle.js"></script><link href="theme-toggle.css" rel="stylesheet"/><link href="temporal-design.css?v=56bd37b1b7" rel="stylesheet"/><link href="lesson-story.css?v=66e6199a95" rel="stylesheet"/><link href="lesson-topics.css?v=6df4ec0b7d" rel="stylesheet"/><link href="lesson-embeddings.css?v=0d345c2008" rel="stylesheet"/><script defer="True" src="lesson-embeddings.js?v=5fe3aefdf3"></script><script defer="True" src="course-progress.js?v=94ff7af9dd"></script><script defer="True" src="temporal-ui.js?v=52c6cb371c"></script><script defer="True" src="lesson-reading.js?v=65da995312"></script><link href="lesson-graphs.css?v=4bd744f96e" rel="stylesheet"/></head><body class="temporal-lesson" data-era="three"><div aria-hidden="true" class="site-noise"></div><header class="topbar"><a aria-label="RAG to the Future home" class="brand" href="index.html"><img alt="RAG to the Future" height="90" src="assets/rag-to-the-future-logo.png" width="180"/></a><nav aria-label="Lesson navigation"><a href="lesson-16.html">← Lesson 16</a><a href="#lesson">Lesson</a><a href="lesson-18.html">Lesson 18 →</a><a href="part-three.html">Part III map</a></nav></header><main><section aria-labelledby="page-title" class="hero"><p class="eyebrow">PART III · GIVE THE MODEL SOMETHING TO READ · LESSON 01 / COURSE 17</p><h1 id="page-title">Give the model something to read</h1><p class="lede">Explore RAG, embeddings, vector dimensions, similarity, and chunking with interactive demonstrations.</p><a class="button" href="#story-opening">Enter the story ↓</a><section aria-label="Current workshop" class="temporal-circuit" data-temporal-component="">
 <div class="temporal-circuit__readout"><span>DESTINATION / FRONTIER WORKSHOP</span><strong>1885</strong></div>
-<div class="temporal-circuit__position"><span>LESSON 01 / 04</span><b>COURSE 17</b></div>
+<div class="temporal-circuit__position"><span>LESSON 01 / 05</span><b>COURSE 17</b></div>
 </section></section><section aria-labelledby="story-title" class="lesson-story" data-temporal-component="" id="story-opening">
 <figure class="lesson-story__setting"><img alt="" height="520" src="assets/workshop-frontier.svg" width="960"/>
 <figcaption>1885 · Finding the way home</figcaption><p>Original course adventure inspired by the films.</p></figure>
@@ -20,46 +20,236 @@
 <p><strong>Augmented</strong> means adding that information to the model's input.</p>
 <p><strong>Generation</strong> is the answer the model writes from that input.</p>
 <p>Suppose we ask, “What does RAG do?” and the answer is in our course notes. Our application finds the useful note and sends it to the model along with the question. The model reads that note and uses it to write an answer. This is the basic idea of RAG: <strong>find useful text, then ask the model to answer using it.</strong></p>
-<h2 class="snippet-section" data-index-heading="" id="lesson-section-03">Why RAG?</h2>
-<p>A model may not know what is in our private files or recently updated notes. RAG gives it the relevant text when we ask a question. When our notes change, we can update the searchable collection without retraining the chat model.</p>
-<p>The answer still depends on what we find and how the model uses it. If we find the wrong passage, the answer may be wrong too. We should check the retrieved text and ask the model to say when that text does not contain the answer.</p>
-<h2 class="snippet-section" data-index-heading="" id="lesson-section-04">Components of a RAG system</h2>
-<p><strong>A chunk</strong> is a small piece of a <mark class="lesson-term lesson-term--class" data-term="Document" id="term-document" title="LangChain's object pairing page_content text with source metadata.">document</mark>. We split long documents into chunks so we can search for a useful passage instead of sending the entire document to the model.</p>
-<p><strong>A <mark class="lesson-term lesson-term--concept" data-term="vector" id="term-vector" title="A list of numbers used here to represent text for comparison.">vector</mark></strong> is a list of numbers, such as <code>[0.2, -0.5, 0.8]</code>. In RAG, we use vectors to represent text and compare it with other text. These three numbers are only an illustration; real vectors usually have many more numbers.</p>
-<p><strong>An <mark class="lesson-term lesson-term--concept" data-term="embedding" id="term-embedding" title="A vector created by an embedding model to represent text for comparison.">embedding</mark> model</strong> turns text into a vector. That vector is called an <strong>embedding</strong>. We use the same embedding model for the document chunks and the question so their vectors can be compared.</p>
-<p><strong>A <mark class="lesson-term lesson-term--concept" data-term="vector store" id="term-vector-store" title="Stores text together with its vector and source details so a search can return the matching text.">vector store</mark></strong> keeps each chunk's text, vector, and source details together. This lets us search using vectors and get back the matching text. A vector database serves this purpose too; our small example uses an in-memory vector store.</p>
-<h3>How RAG works, step by step</h3>
-<p>First, we prepare the documents. Then, whenever a question arrives, we search the prepared collection and give the useful text to the chat model. Follow the arrows down each phase.</p>
-<figure aria-labelledby="rag-flow-title" class="rag-flow">
-<figcaption id="rag-flow-title">From documents to an answer</figcaption>
-<div class="rag-flow__phases">
-<section aria-labelledby="rag-prepare-title">
-<h4 id="rag-prepare-title">A · Prepare the documents</h4>
-<p class="rag-flow__timing">Before questions arrive</p>
-<ol class="rag-flow__steps">
-<li><span class="rag-flow__number">1</span><div><strong>Load documents</strong><p>Read the notes or files we want to search.</p><small>Input: our course notes</small></div></li>
-<li><span class="rag-flow__number">2</span><div><strong>Split into chunks</strong><p>Break long documents into smaller pieces of text.</p><small>Short notes can stay in one piece.</small></div></li>
-<li><span class="rag-flow__number">3</span><div><strong>Create chunk vectors</strong><p>The embedding model turns each chunk into a list of numbers.</p><small>One chunk → one vector</small></div></li>
-<li><span class="rag-flow__number">4</span><div><strong>Save in the vector store</strong><p>Keep each vector with its original chunk and source details.</p><small>Saved together: vector + text + source</small></div></li>
-</ol>
-</section>
-<section aria-labelledby="rag-answer-title">
-<h4 id="rag-answer-title">B · Answer a question</h4>
-<p class="rag-flow__timing">Repeat for each question that needs retrieval</p>
-<ol class="rag-flow__steps" start="5">
-<li><span class="rag-flow__number">5</span><div><strong>Create the question vector</strong><p>Embed the whole question with the same embedding model.</p><small>“What does RAG do?” → one vector</small></div></li>
-<li><span class="rag-flow__number">6</span><div><strong>Search the saved vectors</strong><p>Compare the question vector with the chunk vectors saved in Step 4.</p><small>Look for similar vectors.</small></div></li>
-<li><span class="rag-flow__number">7</span><div><strong>Retrieve the matching text</strong><p>Return the selected chunks' original text and source details.</p><small>Example text: “RAG retrieves relevant documents…”</small></div></li>
-<li><span class="rag-flow__number">8</span><div><strong>Build the prompt</strong><p>Combine the original question, retrieved text, and answer instructions.</p><small>The chat model receives text.</small></div></li>
-<li><span class="rag-flow__number">9</span><div><strong>Write the answer</strong><p>The chat model reads the prompt and answers using the supplied text.</p><small>Example: “RAG finds useful text before generating an answer.”</small></div></li>
-</ol>
-</section>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-03">Embeddings: words become coordinates</h2>
+<p>Before we can search by meaning, we need a way to turn text into numbers.</p>
+<p><strong>A <mark class="lesson-term lesson-term--concept" data-term="vector" id="term-vector" title="A list of numbers used here to represent text for comparison.">vector</mark></strong> is a list of numbers. <strong>An <mark class="lesson-term lesson-term--concept" data-term="embedding" id="term-embedding" title="A vector created by an embedding model to represent text for comparison.">embedding</mark></strong> is a vector created by a model to represent a piece of text. Related meanings often produce similar vectors, which helps us find related passages even when the wording differs.</p>
+<p><strong>Keep this in mind:</strong> text → embedding model → list of numbers. We use the numbers to search, then return to the original text.</p>
+<h3>Why use embeddings in the first place?</h3>
+<p>People can express the same idea with different words. You might ask, <strong>“How do I change my password?”</strong>, while a help <mark class="lesson-term lesson-term--class" data-term="Document" id="term-document" title="LangChain's object pairing page_content text with source metadata.">document</mark> says, <strong>“Reset your login credentials.”</strong> A search that only matches exact words may miss that useful passage.</p>
+<p>Embeddings help us search for <strong>related meaning</strong>, even when the wording is different. We turn both the question and the document passages into vectors. The application compares these vectors and selects the closest matches.</p>
+<p><strong>Why numbers?</strong> Numbers give the computer a way to calculate similarity and rank passages from a large collection. In RAG, this helps us choose useful text to send to the chat model instead of sending every document. We still check the selected text to see whether it answers the question.</p>
+<h3>Imagine a two-dimensional world</h3>
+<p>Think of a chart with height on one axis and weight on the other. A person becomes a point with two coordinates, such as height 170 cm and weight 65 kg. People with a similar build appear near each other.</p>
+<p>Text embeddings use the same general idea of representing something with coordinates, but in many more <mark class="lesson-term lesson-term--concept" data-term="dimensions" id="term-dimensions" title="The number of coordinates, or numbers, in a vector.">dimensions</mark>. The following diagrams use illustrative points; they are not measured embeddings from a trained model.</p>
+<figure aria-labelledby="embedding-map-title" class="embedding-demo">
+<figcaption id="embedding-map-title">Coordinates let us compare positions</figcaption>
+<div class="embedding-demo__plots">
+<div>
+<h4>Two familiar dimensions</h4>
+<svg aria-label="Illustrative height and weight chart: A at 170 centimeters and 65 kilograms is close to B at 172 and 67, while C at 190 and 95 is farther away." role="img" viewbox="0 0 360 270">
+<path class="embedding-axis" d="M 55 22 V 225 H 335"></path>
+<text class="embedding-label" x="58" y="19">Weight (kg)</text><text class="embedding-label" x="220" y="256">Height (cm)</text>
+<text class="embedding-label" x="18" y="205">60</text><text class="embedding-label" x="18" y="52">100</text><text class="embedding-label" x="75" y="242">160</text><text class="embedding-label" x="288" y="242">190</text>
+<circle class="embedding-dot" cx="160" cy="180" r="7"></circle><text class="embedding-label" x="88" y="166">A · (170, 65)</text>
+<circle class="embedding-dot" cx="175" cy="172" r="7"></circle><text class="embedding-label" x="187" y="178">B · (172, 67)</text>
+<circle class="embedding-dot embedding-dot--other" cx="310" cy="65" r="7"></circle><text class="embedding-label" x="218" y="47">C · (190, 95)</text>
+</svg>
+<p>A and B have a similar build, so their points are close.</p>
+</div>
+<div>
+<h4>A simple picture of related text</h4>
+<svg aria-label="Handmade illustrative map: cat and dog are drawn together, while airplane is drawn farther away. These points are not real model embeddings." role="img" viewbox="0 0 360 270">
+<path class="embedding-axis" d="M 40 25 V 225 H 335"></path>
+<text class="embedding-label" x="42" y="19">Illustrative coordinate 2</text><text class="embedding-label" x="145" y="256">Illustrative coordinate 1</text>
+<ellipse class="embedding-cluster" cx="100" cy="176" rx="57" ry="36"></ellipse>
+<circle class="embedding-dot" cx="80" cy="190" r="7"></circle><text class="embedding-label" x="56" y="215">cat</text>
+<circle class="embedding-dot" cx="120" cy="165" r="7"></circle><text class="embedding-label" x="128" y="151">dog</text>
+<circle class="embedding-dot embedding-dot--other" cx="280" cy="70" r="7"></circle><text class="embedding-label" x="245" y="54">airplane</text>
+</svg>
+<p>Related text can have similar vectors. This map is an illustration.</p>
+</div>
 </div>
 </figure>
-<p><strong>Steps 1–4: prepare the documents.</strong> Load the documents, split long ones into chunks, create a vector for each chunk, and store each vector with the text it came from. We do this before answering questions, and update the collection when the documents change.</p>
-<p><strong>Step 5: turn the question into a vector.</strong> We usually embed the whole question as one piece of text. We do not split it into document-style chunks. The original question is kept for the final prompt.</p>
+<h3>How many dimensions does a vector have?</h3>
+<p><strong>Dimensions</strong> means the number of coordinates in the vector. <code>[0.2, -0.5, 0.8]</code> has three dimensions. A vector with 1,536 numbers has 1,536 dimensions.</p>
+<p>Different embedding models use different vector sizes. You may see 384, 768, 1,536, or 3,072 dimensions. More dimensions are not automatically better; the model and the retrieval task matter too.</p>
+<p>Meaning has many patterns to learn, so two coordinates are usually not enough. But do not imagine that one coordinate is explicitly “topic” and another is “tone.” The model learns its representation, and individual coordinates usually do not have simple names we can read.</p>
+<h3>Vector arithmetic: try a few examples</h3>
+<p>Classic word embeddings can capture relationships that show up in vector arithmetic. A familiar example is <strong>king − man + woman ≈ queen</strong>. The idea is to subtract one relationship and add another. Results from learned embeddings are approximate and depend on the model and vocabulary; this is not a rule every embedding model must follow. The <a href="https://arxiv.org/abs/1301.3781">Word2Vec paper</a> explores these kinds of relationships.</p>
+<p>Pick an equation below. We use small, handmade vectors so you can see every number being subtracted and added. The demo calculates the result and finds the closest point in its toy vocabulary.</p>
+<figure aria-labelledby="arithmetic-title" class="embedding-demo arithmetic-demo">
+<figcaption id="arithmetic-title">Pick an equation and follow the coordinates</figcaption>
+<p class="embedding-demo__badge">Interactive illustration · handmade vectors</p>
+<p aria-live="polite" class="arithmetic-demo__equation" data-equation="">king − man + woman ≈ queen</p>
+<div aria-label="Choose a vector equation" class="embedding-demo__buttons" role="group">
+<button aria-pressed="true" data-equation-key="royalty" type="button">king − man + woman</button>
+<button aria-pressed="false" data-equation-key="india" type="button">paris − france + india</button>
+<button aria-pressed="false" data-equation-key="germany" type="button">tokyo − japan + germany</button>
+<button aria-pressed="false" data-equation-key="tense" type="button">walking − walk + run</button>
+</div>
+<div class="arithmetic-demo__steps" data-equation-steps=""></div>
+<p data-equation-explanation=""></p>
+<p class="embedding-demo__note">These two-dimensional coordinates were chosen to make the relationships easy to see. They are not measured Word2Vec or GloVe outputs.</p>
+</figure>
+<h3>Why this matters for RAG</h3>
+<p><strong>For RAG, we do not need word arithmetic.</strong></p>
+<p>We need one practical operation: <strong>compare the question's vector with the passage vectors and find close matches.</strong></p>
+<p>The useful idea is that we can work with meaning through numbers. Vector arithmetic illustrates relationships; vector similarity helps us search. After searching, we give the matching <strong>text</strong> to the chat model.</p>
+<h3>See it in 2D — same idea, drawable</h3>
+<p>Click a relationship on the map. Notice how the two arrows have the same direction and length. In this illustration, the move from <strong>france to paris</strong> matches the move from <strong>india to delhi</strong>: country → capital.</p>
+<p>The points are chosen for teaching. They are not real model vectors squeezed into two dimensions. A real embedding has many more coordinates, and drawing it in two dimensions can hide or distort relationships.</p>
+<figure aria-labelledby="vector-map-title" class="embedding-demo vector-map-demo">
+<figcaption id="vector-map-title">Vector space mini-map</figcaption>
+<p class="embedding-demo__badge">Interactive illustration · click a relationship</p>
+<div aria-label="Word vector map; scroll horizontally on narrow screens" class="embedding-demo__scroll" role="region" tabindex="0">
+<svg aria-label="Handmade word coordinates with selectable relationship arrows." role="img" viewbox="0 0 700 340">
+<defs><marker id="word-map-arrow" markerheight="6" markerwidth="6" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path></marker></defs>
+<path class="embedding-axis" d="M 45 30 V 300 H 665"></path>
+<text class="embedding-label" x="48" y="20">Illustrative coordinate 2</text>
+<text class="embedding-label" x="430" y="329">Illustrative coordinate 1</text>
+<g data-map-links=""></g><g data-map-points=""></g>
+</svg>
+</div>
+<div aria-label="Choose a map relationship" class="embedding-demo__buttons" role="group">
+<button aria-pressed="false" data-map-pair="royalty" type="button">king → queen / man → woman</button>
+<button aria-pressed="false" data-map-pair="capital" type="button">france → paris / india → delhi</button>
+<button aria-pressed="false" data-map-pair="food" type="button">banana / grape / aeroplane</button>
+<button aria-pressed="true" data-map-pair="clear" type="button">Clear arrows</button>
+</div>
+<p aria-live="polite" data-map-explanation="">Choose a pair to see the relationship between its points.</p>
+<p class="embedding-demo__note">A teaching map, not a projection of a trained model. Real projections into two dimensions can distort distances and directions.</p>
+</figure>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-04">Cosine similarity: compare directions</h2>
+<p><strong><mark class="lesson-term lesson-term--concept" data-term="cosine similarity" id="term-cosine-similarity" title="A comparison of vector directions: larger values mean a smaller angle, not a more reliable answer.">Cosine similarity</mark></strong> is a score for comparing two vectors. In RAG, we can use it to compare the question's vector with each passage's vector.</p>
+<p>Picture two arrows starting at the same point, like the hands of a clock. We compare <strong>where they point</strong>, not how long they are.</p>
+<div aria-label="Lesson comparison table" class="snippet-table" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>If the arrows point…</th>
+<th>The score is…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In the same direction</td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td>At a right angle to each other</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>In opposite directions</td>
+<td><strong>−1</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-05">Components of a RAG system</h2>
+<p><strong>A chunk</strong> is a small piece of a document. We split long documents into chunks so we can search for a useful passage instead of sending the entire document to the model.</p>
+<p><strong>An embedding model</strong> turns text into a vector. That vector is called an <strong>embedding</strong>. We use the same embedding model for the document chunks and the question so their vectors can be compared.</p>
+<p><strong>A <mark class="lesson-term lesson-term--concept" data-term="vector store" id="term-vector-store" title="Stores text together with its vector and source details so a search can return the matching text.">vector store</mark></strong> keeps each chunk's text, vector, and source details together. This lets us search using vectors and get back the matching text. <mark class="lesson-term lesson-term--class" data-term="Chroma" id="term-chroma" title="A vector database that stores text, vectors, and source details; configured here to save collections on disk.">Chroma</mark> is the vector database we will use in the next lesson.</p>
+<h3>How RAG works, step by step</h3>
+<p>First, we prepare the documents. Then, whenever a question arrives, we search the prepared collection and give the useful text to the chat model. Follow the numbered steps and connecting arrows in each phase.</p>
+<figure aria-labelledby="rag-flow-title" class="rag-flow">
+<figcaption id="rag-flow-title">From documents to an answer</figcaption>
+<div class="rag-flow__legend"><span><i class="rag-flow__text-key"></i>Text</span><span><i class="rag-flow__vector-key"></i>Vectors used for search</span></div>
+<p class="rag-flow__hint">On a small screen, scroll sideways to follow the arrows →</p>
+<div aria-label="RAG diagram; scroll horizontally on narrow screens" class="rag-flow__canvas" role="region" tabindex="0">
+<svg aria-labelledby="rag-diagram-title rag-diagram-description" role="img" viewbox="0 0 920 800" xmlns="http://www.w3.org/2000/svg">
+<title id="rag-diagram-title">Nine steps from documents to a RAG answer</title>
+<desc id="rag-diagram-description">Preparation: load documents, split them into chunks, embed the chunks, and store each vector with its text and source. Answering: embed the question, compare its vector with stored vectors, and retrieve matching text. The original question and retrieved text both enter the prompt. The chat model reads that prompt and writes an answer.</desc>
+<defs>
+<marker id="rag-text-arrow" markerheight="7" markerwidth="7" orient="auto" refx="9" refy="5" viewbox="0 0 10 10"><path class="rag-arrow-text" d="M 0 0 L 10 5 L 0 10 z"></path></marker>
+<marker id="rag-vector-arrow" markerheight="7" markerwidth="7" orient="auto" refx="9" refy="5" viewbox="0 0 10 10"><path class="rag-arrow-vector" d="M 0 0 L 10 5 L 0 10 z"></path></marker>
+</defs>
+<text class="rag-phase" x="20" y="30">A · Prepare the documents</text>
+<text class="rag-muted" x="20" y="53">Before questions arrive · update when the documents change</text>
+<g class="rag-box rag-box--text">
+<rect height="155" rx="12" width="170" x="20" y="80"></rect>
+<text class="rag-title" x="35" y="109">1 · Load files</text>
+<path class="rag-icon" d="M 72 128 H 121 L 135 142 V 207 H 72 Z M 121 128 V 142 H 135 M 84 157 H 123 M 84 170 H 123 M 84 183 H 115"></path>
+<text class="rag-muted" text-anchor="middle" x="105" y="224">Course notes</text>
+</g>
+<path class="rag-link-text" d="M 190 160 H 224" marker-end="url(#rag-text-arrow)"></path>
+<g class="rag-box rag-box--text">
+<rect height="155" rx="12" width="175" x="225" y="80"></rect>
+<text class="rag-title" x="240" y="109">2 · Split into chunks</text>
+<rect class="rag-mini" height="36" rx="4" width="141" x="242" y="128"></rect>
+<text class="rag-label" x="252" y="151">“RAG retrieves…”</text>
+<rect class="rag-mini" height="36" rx="4" width="141" x="242" y="176"></rect>
+<text class="rag-label" x="252" y="199">“Tools execute…”</text>
+<text class="rag-muted" text-anchor="middle" x="313" y="224">Smaller pieces of text</text>
+</g>
+<path class="rag-link-text" d="M 400 160 H 434" marker-end="url(#rag-text-arrow)"></path>
+<g class="rag-box rag-box--vector">
+<rect height="155" rx="12" width="190" x="435" y="80"></rect>
+<text class="rag-title" x="450" y="109">3 · Embed each chunk</text>
+<text class="rag-label" x="450" y="143">Embedding model</text>
+<text class="rag-vector-value" x="450" y="173">[0.2, −0.5, …]</text>
+<text class="rag-vector-value" x="450" y="196">[0.7, 0.1, …]</text>
+<text class="rag-muted" x="450" y="224">Illustrative vectors</text>
+</g>
+<path class="rag-link-vector" d="M 625 160 H 669" marker-end="url(#rag-vector-arrow)"></path>
+<g class="rag-box rag-box--store">
+<rect height="155" rx="12" width="230" x="670" y="80"></rect>
+<text class="rag-title" x="685" y="109">4 · Save in the vector store</text>
+<path class="rag-icon" d="M 695 145 C 695 131, 745 131, 745 145 V 183 C 745 197, 695 197, 695 183 Z M 695 145 C 695 159, 745 159, 745 145"></path>
+<text class="rag-label" x="757" y="153">Vector</text>
+<text class="rag-label" x="757" y="176">Original text</text>
+<text class="rag-label" x="757" y="199">Source details</text>
+<text class="rag-muted" x="685" y="224">Keep all three together.</text>
+</g>
+<path class="rag-link-vector" d="M 785 235 V 273 H 463 V 354" marker-end="url(#rag-vector-arrow)"></path>
+<text class="rag-vector-label" x="590" y="263">Stored chunk vectors</text>
+<text class="rag-phase" x="20" y="303">B · Answer a question</text>
+<text class="rag-muted" x="20" y="326">Repeat for each question that needs retrieval</text>
+<g class="rag-box rag-box--vector">
+<rect height="155" rx="12" width="240" x="20" y="355"></rect>
+<text class="rag-title" x="35" y="384">5 · Embed the question</text>
+<text class="rag-label" x="35" y="417">“What does RAG do?”</text>
+<text class="rag-muted" x="35" y="444">Same embedding model</text>
+<text class="rag-vector-value" x="35" y="477">[0.3, −0.4, …]</text>
+<text class="rag-muted" x="35" y="498">One question → one vector</text>
+</g>
+<path class="rag-link-vector" d="M 260 431 H 344" marker-end="url(#rag-vector-arrow)"></path>
+<text class="rag-vector-label" text-anchor="middle" x="302" y="399"><tspan x="302">Question</tspan><tspan dy="18" x="302">vector</tspan></text>
+<g class="rag-box rag-box--vector">
+<rect height="155" rx="12" width="235" x="345" y="355"></rect>
+<text class="rag-title" x="360" y="384">6 · Search saved vectors</text>
+<text class="rag-label" x="360" y="417">Compare the question vector</text>
+<text class="rag-label" x="360" y="440">with the stored chunk vectors.</text>
+<text class="rag-vector-value" x="360" y="477">Find similar vectors</text>
+</g>
+<path class="rag-link-text" d="M 580 431 H 659" marker-end="url(#rag-text-arrow)"></path>
+<text class="rag-muted" text-anchor="middle" x="620" y="407">Get text</text>
+<g class="rag-box rag-box--text">
+<rect height="155" rx="12" width="240" x="660" y="355"></rect>
+<text class="rag-title" x="675" y="384">7 · Retrieve matching text</text>
+<rect class="rag-mini" height="76" rx="5" width="210" x="675" y="402"></rect>
+<text class="rag-label" x="687" y="426">“RAG retrieves relevant</text>
+<text class="rag-label" x="687" y="449">documents…”</text>
+<text class="rag-muted" x="675" y="498">Return text and source details.</text>
+</g>
+<path class="rag-link-text" d="M 780 510 V 560 H 463 V 609" marker-end="url(#rag-text-arrow)"></path>
+<text class="rag-text-label" x="565" y="549">Retrieved text</text>
+<path class="rag-link-text rag-link-original" d="M 140 510 V 685 H 344" marker-end="url(#rag-text-arrow)"></path>
+<text class="rag-text-label" x="155" y="607"><tspan x="155">Keep the original</tspan><tspan dy="21" x="155">question as text.</tspan></text>
+<g class="rag-box rag-box--text">
+<rect height="160" rx="12" width="280" x="345" y="610"></rect>
+<text class="rag-title" x="360" y="639">8 · Build the prompt</text>
+<text class="rag-label" x="360" y="674">Original question</text>
+<text class="rag-label" x="360" y="700">+ Retrieved text</text>
+<text class="rag-label" x="360" y="726">+ Instructions for answering</text>
+<text class="rag-muted" x="360" y="754">Give the model text to read.</text>
+</g>
+<path class="rag-link-text" d="M 625 685 H 669" marker-end="url(#rag-text-arrow)"></path>
+<g class="rag-box rag-box--answer">
+<rect height="160" rx="12" width="230" x="670" y="610"></rect>
+<text class="rag-title" x="685" y="639">9 · Write the answer</text>
+<text class="rag-label" x="685" y="670">The chat model reads the</text>
+<text class="rag-label" x="685" y="693">prompt and writes an answer.</text>
+<text class="rag-muted" x="685" y="727">“RAG finds useful text</text>
+<text class="rag-muted" x="685" y="749">before generating an answer.”</text>
+</g>
+</svg>
+</div>
+<p class="rag-flow__takeaway">Vectors find the passages. The chat model reads the passages as text.</p>
+</figure>
+<p><strong>Steps 1–4: prepare the documents.</strong> Load the documents, split long ones into chunks, create a vector for each chunk, and store each vector with the text it came from. <strong>Prepare once, query many times:</strong> the saved document vectors can serve many questions. We update the collection when the documents or indexing setup change.</p>
+<p><strong>Step 5: turn the question into a vector.</strong> We usually embed the whole question as one piece of text. We do not split it into document-style chunks. Each new question gets its own vector. The original question is kept for the final prompt.</p>
 <p><strong>Steps 6–7: search and retrieve.</strong> Compare the question's vector with the stored chunk vectors. Select similar chunks, then return their original text and source details. A <mark class="lesson-term lesson-term--concept" data-term="retriever" id="term-retriever" title="A component returning candidate Documents for a search question.">retriever</mark> is the helper that performs this search and returns the selected documents.</p>
 <p><strong>Steps 8–9: build the prompt and answer.</strong> Put the original question and retrieved text into a prompt. The chat model reads that prompt and writes an answer. It receives the <strong>text</strong>, not the vectors.</p>
+<p><strong>The embedding model</strong> creates the vectors for searching; <strong>the LLM (chat model)</strong> uses the retrieved text to write the answer.</p>
 <p>Similar vectors help us find related passages. They do not tell us whether a passage is true or whether it contains enough information to answer.</p>
 <h3>Which piece does each job?</h3>
 <div aria-label="Lesson comparison table" class="snippet-table" role="region" tabindex="0"><table>
@@ -96,357 +286,82 @@
 </tr>
 </tbody>
 </table></div>
-<p><strong>In this lesson</strong>, our four sample notes are already short. Each note can be one searchable Document, so we skip splitting. In the next lesson, we will split longer files into chunks. The rest of the flow stays the same.</p>
-<h2 class="snippet-section" data-index-heading="" id="lesson-section-05">How does the LLM fit in?</h2>
-<p><strong>The chat model</strong> writes the answer in Step 9. Our application gives it the original question, the retrieved text, and instructions for answering from that text.</p>
-<p><strong>The embedding model</strong> creates the vectors in Steps 3 and 5. It helps us search; it does not write the final answer. The retriever uses the vector store to find useful text before we call the chat model.</p>
-<p>For this example, OpenAI creates the embeddings and Groq supplies the chat model that writes answers. These are separate jobs, so we can use different providers.</p>
-<p>To run the notebook, put GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. From the code folder, run uv sync to install the dependencies, then run the notebook from its own directory. Creating and searching embeddings makes OpenAI API calls; generating an answer makes a Groq API call.</p>
-<h2 class="snippet-section" data-index-heading="" id="lesson-section-06">What we are building</h2>
-<p>Our path is <strong>decide → retrieve if needed → generate</strong>. It follows the supplied agenticrag reference, with current imports and small partial state updates.</p>
-<p>The decision here is a simple Python keyword rule. Although the reference calls this agentic RAG, this example does not ask an autonomous agent to choose its own search strategy. It shows the retrieval branch clearly before adding more moving parts.</p>
-<h3>Import the document and model helpers</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-01">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 01</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 1" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">from dotenv import load_dotenv
-from langchain.chat_models import init_chat_model
-from langchain_core.documents import Document
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_openai import OpenAIEmbeddings</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
-</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain.chat_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_chat_model</span>
-</span><span class="code-explorer__line" data-line="3"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.documents</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
-</span><span class="code-explorer__line" data-line="4"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMessage</span><span class="p">,</span> <span class="n">HumanMessage</span>
-</span><span class="code-explorer__line" data-line="5"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.vectorstores</span><span class="w"> </span><span class="kn">import</span> <span class="n">InMemoryVectorStore</span>
-</span><span class="code-explorer__line" data-line="6"><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose"><strong>Document</strong> pairs a piece of text with metadata about its source.</p>
-<p class="snippet-prose"><strong><mark class="lesson-term lesson-term--class" data-term="InMemoryVectorStore" id="term-inmemoryvectorstore" title="A vector store held in the current Python process rather than saved to disk.">InMemoryVectorStore</mark></strong> keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.</p>
-<p class="snippet-result"><strong>Result</strong> The building blocks are available; importing them makes no provider request.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb"><mark class="lesson-term lesson-term--file" data-term="1-first-rag.ipynb" id="term-1-first-rag-ipynb" title="The Part III notebook: Give the model something to read.">1-first-rag.ipynb</mark> · p3-1-step-01</a>
-</figcaption></figure>
-<h3>Connect the two kinds of model</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-02">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 02</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 2" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">load_dotenv()
-# Groq generates answers; OpenAI creates search embeddings.
-model = init_chat_model(
-    "openai/gpt-oss-120b", model_provider="groq", reasoning_effort="low",
-)
-embeddings = OpenAIEmbeddings(model="text-embedding-3-small")</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">load_dotenv</span><span class="p">()</span>
-</span><span class="code-explorer__line" data-line="2"><span class="c1"># Groq generates answers; OpenAI creates search embeddings.</span>
-</span><span class="code-explorer__line" data-line="3"><span class="n">model</span> <span class="o">=</span> <span class="n">init_chat_model</span><span class="p">(</span>
-</span><span class="code-explorer__line" data-line="4">    <span class="s2">"openai/gpt-oss-120b"</span><span class="p">,</span> <span class="n">model_provider</span><span class="o">=</span><span class="s2">"groq"</span><span class="p">,</span> <span class="n">reasoning_effort</span><span class="o">=</span><span class="s2">"low"</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="6"><span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"text-embedding-3-small"</span><span class="p">)</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">Keep GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. The chat model writes answers. <mark class="lesson-term lesson-term--class" data-term="OpenAIEmbeddings" id="term-openaiembeddings" title="The LangChain integration calling OpenAI to create text embeddings.">OpenAIEmbeddings</mark> turns text into vectors for searching; it does not write an answer. Creating these objects is setup. Indexing documents and searching later make embedding requests.</p>
-<div class="snippet-source-comments"><span>Source comments</span><p class="snippet-comment"># Groq generates answers; OpenAI creates search embeddings.</p></div>
-<p class="snippet-result"><strong>Result</strong> We have a chat model and an embedding model, with different jobs.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-02</a>
-</figcaption></figure>
-<h3>Create a tiny knowledge collection</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-03">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 03</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 3" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">sample_texts = [
-    "LangGraph connects Python functions into a stateful workflow using nodes and edges.",
-    "RAG retrieves relevant documents and adds their text to a prompt before generating an answer.",
-    "A vector store keeps embeddings with their source text so similar material can be searched.",
-    "The application executes tools requested by a model and returns the results to the model.",
-]
-documents = [
-    Document(page_content=text, metadata={"source": f"course-note-{index}"})
-    for index, text in enumerate(sample_texts, start=1)
-]</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">sample_texts</span> <span class="o">=</span> <span class="p">[</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="s2">"LangGraph connects Python functions into a stateful workflow using nodes and edges."</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="3">    <span class="s2">"RAG retrieves relevant documents and adds their text to a prompt before generating an answer."</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="4">    <span class="s2">"A vector store keeps embeddings with their source text so similar material can be searched."</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="5">    <span class="s2">"The application executes tools requested by a model and returns the results to the model."</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="6"><span class="p">]</span>
-</span><span class="code-explorer__line" data-line="7"><span class="n">documents</span> <span class="o">=</span> <span class="p">[</span>
-</span><span class="code-explorer__line" data-line="8">    <span class="n">Document</span><span class="p">(</span><span class="n">page_content</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"source"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"course-note-</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">})</span>
-</span><span class="code-explorer__line" data-line="9">    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sample_texts</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="10"><span class="p">]</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">These four short notes are the knowledge collection. The source labels are local names for these sample notes. We are not asking the model to browse the web; this application will search only the Documents we put into its index.</p>
-<p class="snippet-result"><strong>Result</strong> Each note has text and a source label.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-03</a>
-</figcaption></figure>
-<h3>Make the notes searchable</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-04">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 04</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 4" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">vector_store = InMemoryVectorStore.from_documents(documents, embeddings)
-retriever = vector_store.as_retriever(search_kwargs={"k": 2})</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">vector_store</span> <span class="o">=</span> <span class="n">InMemoryVectorStore</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="2"><span class="n">retriever</span> <span class="o">=</span> <span class="n">vector_store</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(</span><span class="n">search_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"k"</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">from_documents embeds and indexes the notes. search_kwargs passes k to the retriever, so each search returns up to two candidates. We keep this index in memory for a small example. The reference uses FAISS; the same retrieve-then-answer idea works here without adding another database package.</p>
-<p class="snippet-result"><strong>Result</strong> The retriever is ready to return the original text selected by vector similarity.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-04</a>
-</figcaption></figure>
-<h3>Describe the four-field state</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-05">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 05</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 5" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">from typing_extensions import TypedDict
-from langgraph.graph import StateGraph, START, END
-
-class RagState(TypedDict):
-    question: str
-    documents: list[Document]
-    answer: str
-    needs_retrieval: bool</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span>
-</span><span class="code-explorer__line" data-line="2"><span class="kn">from</span><span class="w"> </span><span class="nn">langgraph.graph</span><span class="w"> </span><span class="kn">import</span> <span class="n">StateGraph</span><span class="p">,</span> <span class="n">START</span><span class="p">,</span> <span class="n">END</span>
-</span><span class="code-explorer__line" data-line="3"></span><span class="code-explorer__line" data-line="4"><span class="k">class</span><span class="w"> </span><span class="nc">RagState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
-</span><span class="code-explorer__line" data-line="5">    <span class="n">question</span><span class="p">:</span> <span class="nb">str</span>
-</span><span class="code-explorer__line" data-line="6">    <span class="n">documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Document</span><span class="p">]</span>
-</span><span class="code-explorer__line" data-line="7">    <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span>
-</span><span class="code-explorer__line" data-line="8">    <span class="n">needs_retrieval</span><span class="p">:</span> <span class="nb">bool</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">question is the input. documents holds retrieved evidence, answer holds the reply, and needs_retrieval records our decision. These fields use replacement updates. Each node returns only the fields it changes.</p>
-<p class="snippet-result"><strong>Result</strong> Our working record separates the question, evidence, answer, and routing decision.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-05</a>
-</figcaption></figure>
-<h3>Decide whether to search the notes</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-06">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 06</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 6" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">def decide_retrieval(state: RagState) -&gt; dict:
-    keywords = ["what", "how", "explain", "describe", "tell me"]
-    needs_retrieval = any(word in state["question"].lower() for word in keywords)
-    return {"needs_retrieval": needs_retrieval}
-
-def should_retrieve(state: RagState) -&gt; str:
-    return "retrieve" if state["needs_retrieval"] else "generate"</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">decide_retrieval</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">RagState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"what"</span><span class="p">,</span> <span class="s2">"how"</span><span class="p">,</span> <span class="s2">"explain"</span><span class="p">,</span> <span class="s2">"describe"</span><span class="p">,</span> <span class="s2">"tell me"</span><span class="p">]</span>
-</span><span class="code-explorer__line" data-line="3">    <span class="n">needs_retrieval</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">word</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s2">"question"</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="4">    <span class="k">return</span> <span class="p">{</span><span class="s2">"needs_retrieval"</span><span class="p">:</span> <span class="n">needs_retrieval</span><span class="p">}</span>
-</span><span class="code-explorer__line" data-line="5"></span><span class="code-explorer__line" data-line="6"><span class="k">def</span><span class="w"> </span><span class="nf">should_retrieve</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">RagState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="7">    <span class="k">return</span> <span class="s2">"retrieve"</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"needs_retrieval"</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"generate"</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">The first function updates the decision flag. The second reads that flag and returns a route name. A greeting such as Hello skips retrieval; a question beginning with How takes the retrieval path. This rule is deliberately limited: it can miss a question phrased differently and can retrieve for an unrelated question.</p>
-<p class="snippet-result"><strong>Result</strong> We can see which branch runs without hiding the decision inside a model call.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-06</a>
-</figcaption></figure>
-<h3>Retrieve the relevant documents</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-07">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 07</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 7" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">def retrieve_documents(state: RagState) -&gt; dict:
-    return {"documents": retriever.invoke(state["question"])}</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">retrieve_documents</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">RagState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="p">{</span><span class="s2">"documents"</span><span class="p">:</span> <span class="n">retriever</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"question"</span><span class="p">])}</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">The retriever searches using the question and returns Documents. It does not generate an answer. Its partial return replaces the documents field while leaving the question and routing flag intact.</p>
-<p class="snippet-result"><strong>Result</strong> The generation node can read the retrieved text from state.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-07</a>
-</figcaption></figure>
-<h3>Prepare readable context with source labels</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-08">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 08</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 8" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">def format_context(documents: list[Document]) -&gt; str:
-    return "\n\n".join(
-        f"[{doc.metadata['source']}]\n{doc.page_content}"
-        for doc in documents
-    )</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">format_context</span><span class="p">(</span><span class="n">documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Document</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-</span><span class="code-explorer__line" data-line="3">        <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">'source'</span><span class="p">]</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="si">{</span><span class="n">doc</span><span class="o">.</span><span class="n">page_content</span><span class="si">}</span><span class="s2">"</span>
-</span><span class="code-explorer__line" data-line="4">        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">documents</span>
-</span><span class="code-explorer__line" data-line="5">    <span class="p">)</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">We join the retrieved text into the context the chat model will receive. The bracketed filename gives the model a label it can cite. Our application still returns the actual Documents so we can check the supporting text ourselves.</p>
-<p class="snippet-result"><strong>Result</strong> A model prompt can include both the evidence and its source names.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-08</a>
-</figcaption></figure>
-<h3>Generate from context or answer directly</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-09">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 09</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 9" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">def generate_answer(state: RagState) -&gt; dict:
-    if state["needs_retrieval"]:
-        instruction = (
-            "Use only the context. If it is insufficient, say you could not find the answer. "
-            "Cite source labels in brackets.\nContext:\n" + format_context(state["documents"])
-        )
-    else:
-        instruction = "Reply briefly to the user."
-    reply = model.invoke([
-        SystemMessage(instruction), HumanMessage(state["question"]),
-    ])
-    return {"answer": reply.text}</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">generate_answer</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">RagState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"needs_retrieval"</span><span class="p">]:</span>
-</span><span class="code-explorer__line" data-line="3">        <span class="n">instruction</span> <span class="o">=</span> <span class="p">(</span>
-</span><span class="code-explorer__line" data-line="4">            <span class="s2">"Use only the context. If it is insufficient, say you could not find the answer. "</span>
-</span><span class="code-explorer__line" data-line="5">            <span class="s2">"Cite source labels in brackets.</span><span class="se">\n</span><span class="s2">Context:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">format_context</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">])</span>
-</span><span class="code-explorer__line" data-line="6">        <span class="p">)</span>
-</span><span class="code-explorer__line" data-line="7">    <span class="k">else</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="8">        <span class="n">instruction</span> <span class="o">=</span> <span class="s2">"Reply briefly to the user."</span>
-</span><span class="code-explorer__line" data-line="9">    <span class="n">reply</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span>
-</span><span class="code-explorer__line" data-line="10">        <span class="n">SystemMessage</span><span class="p">(</span><span class="n">instruction</span><span class="p">),</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"question"</span><span class="p">]),</span>
-</span><span class="code-explorer__line" data-line="11">    <span class="p">])</span>
-</span><span class="code-explorer__line" data-line="12">    <span class="k">return</span> <span class="p">{</span><span class="s2">"answer"</span><span class="p">:</span> <span class="n">reply</span><span class="o">.</span><span class="n">text</span><span class="p">}</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">The retrieval branch supplies the selected text as context and asks for source labels. Even an empty retrieval result stays on this grounded branch; it does not silently turn into an unrestricted factual answer. The direct branch handles the greeting. The model reads the prompt we construct; it does not search the vector store itself.</p>
-<p class="snippet-result"><strong>Result</strong> The answer is returned as one state update; retrieved Documents remain available for inspection.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-09</a>
-</figcaption></figure>
-<h3>Register the three working nodes</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-10">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 10</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 10" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">builder = StateGraph(RagState)
-builder.add_node("decide", decide_retrieval)
-builder.add_node("retrieve", retrieve_documents)
-builder.add_node("generate", generate_answer)</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span> <span class="o">=</span> <span class="n">StateGraph</span><span class="p">(</span><span class="n">RagState</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="2"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"decide"</span><span class="p">,</span> <span class="n">decide_retrieval</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="3"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"retrieve"</span><span class="p">,</span> <span class="n">retrieve_documents</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="4"><span class="n">builder</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">"generate"</span><span class="p">,</span> <span class="n">generate_answer</span><span class="p">)</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">The graph contains a decision step, a retrieval step, and an answer step. We keep the responsibilities separate so we can inspect what each part does.</p>
-<p class="snippet-result"><strong>Result</strong> The nodes are registered; they have not run.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-10</a>
-</figcaption></figure>
-<h3>Connect the retrieval branch</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-11">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 11</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 11" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">builder.add_edge(START, "decide")
-builder.add_conditional_edges(
-    "decide", should_retrieve,
-    {"retrieve": "retrieve", "generate": "generate"},
-)
-builder.add_edge("retrieve", "generate")
-builder.add_edge("generate", END)
-graph = builder.compile()</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">START</span><span class="p">,</span> <span class="s2">"decide"</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="2"><span class="n">builder</span><span class="o">.</span><span class="n">add_conditional_edges</span><span class="p">(</span>
-</span><span class="code-explorer__line" data-line="3">    <span class="s2">"decide"</span><span class="p">,</span> <span class="n">should_retrieve</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="4">    <span class="p">{</span><span class="s2">"retrieve"</span><span class="p">:</span> <span class="s2">"retrieve"</span><span class="p">,</span> <span class="s2">"generate"</span><span class="p">:</span> <span class="s2">"generate"</span><span class="p">},</span>
-</span><span class="code-explorer__line" data-line="5"><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="6"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"retrieve"</span><span class="p">,</span> <span class="s2">"generate"</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="7"><span class="n">builder</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">"generate"</span><span class="p">,</span> <span class="n">END</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="8"><span class="n">graph</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">After deciding, we either retrieve and then generate, or go straight to generation. Both paths end after the answer. This is a single retrieval pass, not the repeated model/tool loop from Part II.</p>
-<p class="snippet-result"><strong>Result</strong> The graph makes the two possible paths explicit.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-11</a>
-</figcaption></figure><figure aria-labelledby="graph-17-builder-title" class="lesson-graph" data-lesson-graph="graph-17-builder"><div class="lesson-graph__header"><span>GRAPH STRUCTURE</span><h4 id="graph-17-builder-title">Retrieve only when needed</h4></div><p class="lesson-graph__hint">Scroll sideways to explore the diagram →</p><div aria-label="Retrieve only when needed diagram; scroll horizontally on narrow screens" class="lesson-graph__canvas" role="region" tabindex="0"><svg aria-labelledby="graph-17-builder-svg-title" role="img" viewbox="0 0 660 700" xmlns="http://www.w3.org/2000/svg"><title id="graph-17-builder-svg-title">Retrieve only when needed. See the caption and graph connections for the text equivalent.</title><defs><marker id="graph-17-builder-arrow" markerheight="7" markerwidth="7" orient="auto-start-reverse" refx="9" refy="5" viewbox="0 0 10 10"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs><path class="graph-edge" d="M 330.0 100 C 330.0 140.0, 330.0 140.0, 330.0 180" marker-end="url(#graph-17-builder-arrow)"></path><text class="graph-edge-label" text-anchor="middle" x="330.0" y="133.0">next</text><path class="graph-edge graph-edge--choice" d="M 330.0 240 C 330.0 280.0, 330.0 280.0, 330.0 320" marker-end="url(#graph-17-builder-arrow)"></path><text class="graph-edge-label" text-anchor="middle" x="330.0" y="273.0">retrieve</text><path class="graph-edge graph-edge--choice" d="M 330.0 240 L 330.0 275 L 71 275 L 71 425 L 330.0 425 L 330.0 460" marker-end="url(#graph-17-builder-arrow)"></path><text class="graph-edge-label" text-anchor="middle" x="200.5" y="265">generate</text><path class="graph-edge" d="M 330.0 380 C 330.0 420.0, 330.0 420.0, 330.0 460" marker-end="url(#graph-17-builder-arrow)"></path><text class="graph-edge-label" text-anchor="middle" x="330.0" y="413.0">next</text><path class="graph-edge" d="M 330.0 520 C 330.0 560.0, 330.0 560.0, 330.0 600" marker-end="url(#graph-17-builder-arrow)"></path><text class="graph-edge-label" text-anchor="middle" x="330.0" y="553.0">next</text><g class="graph-node graph-node--terminal"><rect height="60" rx="30" width="190" x="235.0" y="40"></rect><text text-anchor="middle" x="330.0" y="76">START</text></g><g class="graph-node"><rect height="60" rx="6" width="190" x="235.0" y="180"></rect><text text-anchor="middle" x="330.0" y="216">decide</text></g><g class="graph-node"><rect height="60" rx="6" width="190" x="235.0" y="320"></rect><text text-anchor="middle" x="330.0" y="356">retrieve</text></g><g class="graph-node"><rect height="60" rx="6" width="190" x="235.0" y="460"></rect><text text-anchor="middle" x="330.0" y="496">generate</text></g><g class="graph-node graph-node--terminal"><rect height="60" rx="30" width="190" x="235.0" y="600"></rect><text text-anchor="middle" x="330.0" y="636">END</text></g></svg></div><figcaption><p>decide selects retrieve or generate. The retrieval route supplies documents before generation; the direct route skips retrieval.</p></figcaption><details class="lesson-graph__connections"><summary>Graph connections in text</summary><ul><li><code>START</code> → <code>decide</code> <span>(next)</span></li><li><code>decide</code> → <code>retrieve</code> <span>(retrieve)</span></li><li><code>decide</code> → <code>generate</code> <span>(generate)</span></li><li><code>retrieve</code> → <code>generate</code> <span>(next)</span></li><li><code>generate</code> → <code>END</code> <span>(next)</span></li></ul></details></figure>
-<h3>Start each question with fresh state</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-12">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 12</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 12" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">def ask_question(question: str) -&gt; RagState:
-    return graph.invoke({
-        "question": question, "documents": [],
-        "answer": "", "needs_retrieval": False,
-    })</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="k">def</span><span class="w"> </span><span class="nf">ask_question</span><span class="p">(</span><span class="n">question</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RagState</span><span class="p">:</span>
-</span><span class="code-explorer__line" data-line="2">    <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">invoke</span><span class="p">({</span>
-</span><span class="code-explorer__line" data-line="3">        <span class="s2">"question"</span><span class="p">:</span> <span class="n">question</span><span class="p">,</span> <span class="s2">"documents"</span><span class="p">:</span> <span class="p">[],</span>
-</span><span class="code-explorer__line" data-line="4">        <span class="s2">"answer"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"needs_retrieval"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-</span><span class="code-explorer__line" data-line="5">    <span class="p">})</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">Each invocation starts with an empty document list and answer. Evidence from an earlier question is not accidentally reused. This graph has no checkpointer; separate calls are independent.</p>
-<p class="snippet-result"><strong>Result</strong> We have a small helper for running either path.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-12</a>
-</figcaption></figure>
-<h3>Inspect a retrieval question</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-13">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 13</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 13" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">result = ask_question("How does RAG use retrieved documents?")
-print("Retrieved:", result["needs_retrieval"])
-print("Sources:", [doc.metadata["source"] for doc in result["documents"]])
-print("Answer:", result["answer"])</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">result</span> <span class="o">=</span> <span class="n">ask_question</span><span class="p">(</span><span class="s2">"How does RAG use retrieved documents?"</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Retrieved:"</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">"needs_retrieval"</span><span class="p">])</span>
-</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Sources:"</span><span class="p">,</span> <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">"source"</span><span class="p">]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">]])</span>
-</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"Answer:"</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">])</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">How triggers retrieval. The printed source labels show which notes were selected; the Documents also contain their actual text. The answer wording can vary. Compare its claims with those returned notes instead of trusting a citation label alone.</p>
-<p class="snippet-result"><strong>Result</strong> The retrieval flag is True, with up to two context documents and a generated reply.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-13</a>
-</figcaption></figure>
-<h3>Try the direct path</h3>
-<figure class="code-explorer snippet-card" data-source="code/Part III Give the model something to read/1-first-rag.ipynb#p3-1-step-14">
-<div class="code-explorer__panel"><div class="code-explorer__toolbar">
-<p class="code-explorer__title">Snippet 14</p>
-<div class="code-explorer__toolbar-actions"><span class="code-explorer__language">Python</span><button aria-label="Copy snippet 14" class="code-explorer__copy" data-copy-code="" title="Copy snippet" type="button">⧉</button></div></div>
-<code class="code-explorer__source" hidden="">greeting = ask_question("Hello!")
-print("Retrieved:", greeting["needs_retrieval"])
-print("Documents:", greeting["documents"])
-print("Answer:", greeting["answer"])</code>
-<pre class="code-explorer__lines"><code><span class="code-explorer__line" data-line="1"><span class="n">greeting</span> <span class="o">=</span> <span class="n">ask_question</span><span class="p">(</span><span class="s2">"Hello!"</span><span class="p">)</span>
-</span><span class="code-explorer__line" data-line="2"><span class="nb">print</span><span class="p">(</span><span class="s2">"Retrieved:"</span><span class="p">,</span> <span class="n">greeting</span><span class="p">[</span><span class="s2">"needs_retrieval"</span><span class="p">])</span>
-</span><span class="code-explorer__line" data-line="3"><span class="nb">print</span><span class="p">(</span><span class="s2">"Documents:"</span><span class="p">,</span> <span class="n">greeting</span><span class="p">[</span><span class="s2">"documents"</span><span class="p">])</span>
-</span><span class="code-explorer__line" data-line="4"><span class="nb">print</span><span class="p">(</span><span class="s2">"Answer:"</span><span class="p">,</span> <span class="n">greeting</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">])</span>
-</span></code></pre></div>
-<figcaption class="snippet-explanation"><p class="snippet-label">What happens here</p>
-<p class="snippet-prose">This input contains none of our retrieval keywords. The graph goes directly from decide to generate. The empty document list makes that difference visible.</p>
-<p class="snippet-result"><strong>Result</strong> The flag is False and the document list is empty.</p>
-<a class="snippet-source" href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb · p3-1-step-14</a>
-</figcaption></figure>
+<h2 class="snippet-section" data-index-heading="" id="lesson-section-06">Chunking: cut the book into snippets</h2>
+<p><strong><mark class="lesson-term lesson-term--concept" data-term="chunking" id="term-chunking" title="Splitting a document into smaller passages before embedding and retrieval.">Chunking</mark></strong> means splitting a long document into smaller passages before embedding it. A whole book may exceed an embedding model's input limit. Even when a document fits, one vector for many topics can make it harder to find the specific passage we need.</p>
+<p>Think of pizza slices: a huge slice is hard to handle, while tiny crumbs lose what makes the slice useful. <strong>Large chunks</strong> can include too much unrelated text. <strong>Very small chunks</strong> can lose context, such as who “she” refers to or which instruction comes next.</p>
+<h3>Four ways to cut the same text</h3>
+<div aria-label="Lesson comparison table" class="snippet-table" role="region" tabindex="0"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How it chooses a boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed size</td>
+<td>Count characters or tokens, then cut. A boundary can land inside a word or sentence.</td>
+</tr>
+<tr>
+<td>Recursive</td>
+<td>Try larger boundaries first, then smaller ones when the text is still too long.</td>
+</tr>
+<tr>
+<td>Semantic</td>
+<td>Group nearby sentences by related meaning or changes in topic.</td>
+</tr>
+<tr>
+<td>Structure-aware</td>
+<td>Follow headings, sections, or other structure already in the document.</td>
+</tr>
+</tbody>
+</table></div>
+<p>In the demo, set the size to <strong>80 characters</strong> and compare <strong>Fixed size</strong> with <strong>Recursive</strong>. Then choose <strong>Semantic</strong> and <strong>Structure-aware</strong> to see topic groups and heading boundaries. Semantic grouping here uses a small set of topic keywords to illustrate the idea; it does not run an embedding model.</p>
+<figure aria-labelledby="chunking-title" class="embedding-demo chunking-demo">
+<figcaption id="chunking-title">One document, four ways to cut it</figcaption>
+<p class="embedding-demo__badge">Interactive illustration · compare boundaries</p>
+<h4>The source: a small sample guide</h4>
+<pre class="chunking-demo__source" data-chunk-source=""></pre>
+<div aria-label="Choose a chunking strategy" class="embedding-demo__buttons" role="group">
+<button aria-pressed="true" data-chunk-strategy="fixed" type="button">Fixed size</button>
+<button aria-pressed="false" data-chunk-strategy="recursive" type="button">Recursive</button>
+<button aria-pressed="false" data-chunk-strategy="semantic" type="button">Semantic</button>
+<button aria-pressed="false" data-chunk-strategy="structure" type="button">Structure-aware</button>
+</div>
+<div class="chunking-demo__controls" data-chunk-size-controls=""><label for="chunk-size">Maximum chunk size: <output data-chunk-size-label="">120</output> characters</label><input id="chunk-size" max="240" min="40" step="1" type="range" value="120"/></div>
+<div class="chunking-demo__controls" data-chunk-overlap-controls=""><label for="chunk-overlap">Overlap: <output data-chunk-overlap-label="">0</output> characters</label><input id="chunk-overlap" max="30" min="0" step="1" type="range" value="0"/><p class="embedding-demo__note">Overlap is shown with fixed-size cuts. Underlined text is repeated from the previous chunk.</p></div>
+<p data-chunk-notice=""></p>
+<p aria-live="polite" class="chunking-demo__stats" data-chunk-stats=""></p>
+<div class="chunking-demo__chunks" data-chunk-cards=""></div>
+<p class="embedding-demo__note">Fixed cuts and boundary-aware cuts are computed in this browser. Semantic grouping uses simple topic keywords for this sample, not an embedding model. This illustrates the strategies; it is not the LangChain splitter implementation.</p>
+</figure>
+<h3>Why repeat some text between chunks?</h3>
+<p><strong>Overlap</strong> means the end of one chunk also appears at the start of the next. It can keep context around a boundary. In the fixed-size demo, increase overlap and look for the underlined repeated text. Notice that we store more characters because some words appear in multiple chunks.</p>
+<p>Overlap can help, but it does not guarantee that every answer fits into one chunk. There is no single best chunk size or overlap for every document. Inspect the returned passages and adjust the settings. In Lesson 18, we will apply a real splitter to the fables PDF.</p>
 <h2 class="snippet-section" data-index-heading="" id="lesson-section-07">Check your understanding</h2>
 <ol>
-<li>Which model searches and which model writes?</li>
-<li>Are vectors or retrieved text sent as answer context?</li>
-<li>What happens when our keyword rule misses a factual question?</li>
-<li>Does a citation label prove the model used the source correctly?</li>
+<li>What is the difference between a vector and an embedding?</li>
+<li>How many numbers does a 1,536-dimensional vector contain?</li>
+<li>Why do the question and chunks use the same embedding model?</li>
+<li>Does a high similarity score guarantee that a passage answers the question?</li>
+<li>What is sent to the chat model: vectors or retrieved text?</li>
+<li>What does the embedding model do, and what does the chat model do?</li>
+<li>What can go wrong when chunks are too large or too small?</li>
+<li>How does overlap change the text we store?</li>
 </ol>
 <h2 class="snippet-section" data-index-heading="" id="lesson-section-08">Where we go next</h2>
-<p>Next we will search longer files and resolve a follow-up such as Who helped him? using the conversation.</p>
-<p>Complete notebook: <a href="code/Part%20III%20Give%20the%20model%20something%20to%20read/1-first-rag.ipynb">1-first-rag.ipynb</a></p>
-<p>Further reading: <a href="https://docs.langchain.com/oss/python/langchain/retrieval">LangChain retrieval</a> and <a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI embeddings</a>.</p>
-<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-16.html"><span>← Previous · Lesson 16</span><strong>Approve or reject a refund</strong></a><a href="lesson-18.html"><span>→ Next · Lesson 18</span><strong>Let a follow-up keep its meaning</strong></a></nav></article><section aria-label="Record your lesson progress" class="lesson-completion" data-temporal-component="">
+<p>In Lesson 18, we will load <mark class="lesson-term lesson-term--file" data-term="Classic_Fables_Collection.pdf" id="term-classic-fables-collection-pdf" title="The supplied eleven-page PDF containing a title page and ten fables.">Classic_Fables_Collection.pdf</mark>, split it into chunks, save embeddings in Chroma, and inspect several searches with their scores.</p>
+<p>Further reading: <a href="https://developers.openai.com/api/docs/guides/embeddings">OpenAI embeddings</a> and <a href="https://arxiv.org/abs/1301.3781">the Word2Vec paper</a>.</p>
+<nav aria-label="Continue to another lesson" class="lesson-pagination"><a href="lesson-16.html"><span>← Previous · Lesson 16</span><strong>Approve or reject a refund</strong></a><a href="lesson-18.html"><span>→ Next · Lesson 18</span><strong>Turn a PDF into a searchable collection</strong></a></nav></article><section aria-label="Record your lesson progress" class="lesson-completion" data-temporal-component="">
 <span aria-hidden="true" class="lesson-end" data-lesson-end="17"></span>
 <div><span class="temporal-label">LESSON 17</span><p>Your lesson progress</p><small>Marked complete when you reach the end. You can undo it below.</small></div>
 <div><label><input data-complete="17" type="checkbox"/> Lesson complete</label><small data-save-note="">Saved on this browser</small></div></section></main><footer><a class="brand" href="index.html"><img alt="RAG to the Future" height="75" src="assets/rag-to-the-future-logo.png" width="150"/></a><p>Part III · Give The Model Something To Read · Lesson 01</p><a href="lesson-16.html">← Lesson 16</a><a href="lesson-18.html">Lesson 18 →</a></footer><script src="lesson-code-explorer.js"></script>
-
 <button aria-controls="lesson-glossary" aria-expanded="false" aria-label="Open lesson glossary" class="glossary-toggle" data-glossary-toggle="" title="Lesson glossary" type="button">
-<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span aria-hidden="true" class="glossary-badge">116</span></button>
-<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 17. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardized token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serializes a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labeled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives model chunks or graph events progressively as a run proceeds.", "lesson": 5, "anchor": "term-stream"}, {"term": "chunk", "category": "concept", "definition": "A smaller passage of a document prepared for retrieval.", "aliases": ["chunks"], "lesson": 5, "anchor": "term-chunk"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}, {"term": "7-Tools-and-Tool-Loops.ipynb", "category": "file", "definition": "The notebook showing how the application executes model-requested tools.", "lesson": 7, "anchor": "term-7-tools-and-tool-loops-ipynb"}, {"term": "decorator", "category": "concept", "definition": "An annotation such as @tool that adds behavior to a function or class.", "lesson": 7, "anchor": "term-decorator"}, {"term": "docstring", "category": "concept", "definition": "Text inside a function or class that describes what it does.", "lesson": 7, "anchor": "term-docstring"}, {"term": "bind_tools", "category": "function", "definition": "Makes tool descriptions available to a model so it can request tool calls.", "lesson": 7, "anchor": "term-bind-tools"}, {"term": "tool_calls", "category": "concept", "definition": "Structured requests from a model specifying tool names and proposed arguments.", "lesson": 7, "anchor": "term-tool-calls"}, {"term": "ToolMessage", "category": "class", "definition": "A message returning a tool's result with the ID of the corresponding tool call.", "lesson": 7, "anchor": "term-toolmessage"}, {"term": "8-Agents.ipynb", "category": "file", "definition": "The notebook for agents with stock and price lookup tools.", "lesson": 8, "anchor": "term-8-agents-ipynb"}, {"term": "check_stock_service", "category": "function", "definition": "Our local inventory tool returning an item's remaining stock.", "lesson": 8, "anchor": "term-check-stock-service"}, {"term": "get_price_service", "category": "function", "definition": "Our local inventory tool returning an item's price in rupees.", "lesson": 8, "anchor": "term-get-price-service"}, {"term": "Annotated", "category": "class", "definition": "Attaches metadata such as a reducer to a type annotation.", "lesson": 9, "anchor": "term-annotated"}, {"term": "StateGraph", "category": "class", "definition": "Builds a workflow from a state schema, nodes, and edges.", "lesson": 9, "anchor": "term-stategraph"}, {"term": "add_messages", "category": "function", "definition": "Merges message updates, appending new messages and replacing matching IDs.", "lesson": 9, "anchor": "term-add-messages"}, {"term": "1-first-graph.ipynb", "category": "file", "definition": "The first Part II notebook: two simple functions adding messages through a graph.", "lesson": 9, "anchor": "term-1-first-graph-ipynb"}, {"term": "reducer", "category": "concept", "definition": "The rule for combining an existing state value with a new update.", "aliases": ["reducers"], "lesson": 9, "anchor": "term-reducer"}, {"term": "add_node", "category": "function", "definition": "Registers a named function as a graph step.", "lesson": 9, "anchor": "term-add-node"}, {"term": "add_edge", "category": "function", "definition": "Connects graph steps, including waiting for multiple predecessor nodes.", "lesson": 9, "anchor": "term-add-edge"}, {"term": "compile", "category": "function", "definition": "Checks the graph structure and creates a runnable graph.", "lesson": 9, "anchor": "term-compile"}, {"term": "2-working-with-edges.ipynb", "category": "file", "definition": "The Part II notebook for pizza orders, trip lookups, support routing, and OTP retries.", "lesson": 10, "anchor": "term-2-working-with-edges-ipynb"}, {"term": "PizzaState", "category": "class", "definition": "The pizza record: ordered items, current total, and confirmation status.", "lesson": 10, "anchor": "term-pizzastate"}, {"term": "partial update", "category": "concept", "definition": "A node result containing only the state keys it needs to change.", "aliases": ["partial updates"], "lesson": 10, "anchor": "term-partial-update"}, {"term": "fan-out", "category": "concept", "definition": "One graph step starts several independent next steps.", "lesson": 10, "anchor": "term-fan-out"}, {"term": "fan-in", "category": "concept", "definition": "Several graph paths meet; an explicit join waits for all named predecessors.", "lesson": 10, "anchor": "term-fan-in"}, {"term": "TripState", "category": "class", "definition": "The trip record: city, collected lookup messages, and final report.", "lesson": 10, "anchor": "term-tripstate"}, {"term": "super-step", "category": "concept", "definition": "One execution round; independent nodes in that round can run together.", "aliases": ["super-steps"], "lesson": 10, "anchor": "term-super-step"}, {"term": "TicketState", "category": "class", "definition": "The support record: ticket text, classified type, and handler response.", "lesson": 10, "anchor": "term-ticketstate"}, {"term": "add_conditional_edges", "category": "function", "definition": "Uses a routing function to select the next graph destination.", "lesson": 10, "anchor": "term-add-conditional-edges"}, {"term": "OtpState", "category": "class", "definition": "The retry record: sample entries, submitted code, attempt count, verification, and outcome.", "lesson": 10, "anchor": "term-otpstate"}, {"term": "recursion_limit", "category": "concept", "definition": "Limits the number of graph super-steps before a run is stopped.", "lesson": 10, "anchor": "term-recursion-limit"}, {"term": "GraphRecursionError", "category": "class", "definition": "The error when a graph exceeds its configured execution-round limit without finishing.", "lesson": 10, "anchor": "term-graphrecursionerror"}, {"term": "3-Connecting-LLM.ipynb", "category": "file", "definition": "The Part II notebook: Draft an office email reply.", "lesson": 11, "anchor": "term-3-connecting-llm-ipynb"}, {"term": "EmailState", "category": "class", "definition": "Our email record: incoming email, reply tone, draft, and status.", "lesson": 11, "anchor": "term-emailstate"}, {"term": "get_leave_balance", "category": "function", "definition": "Our tool looking up an employee's sample leave allowance, used days, and remaining days.", "lesson": 12, "anchor": "term-get-leave-balance"}, {"term": "4-Using-Tools.ipynb", "category": "file", "definition": "The Part II notebook: Look up an employee's leave balance.", "lesson": 12, "anchor": "term-4-using-tools-ipynb"}, {"term": "ToolNode", "category": "class", "definition": "Executes requested calls against the tools supplied to this graph.", "lesson": 12, "anchor": "term-toolnode"}, {"term": "tools_condition", "category": "function", "definition": "Routes to tools when the latest model message contains tool calls.", "lesson": 12, "anchor": "term-tools-condition"}, {"term": "LeaveState", "category": "class", "definition": "Our leave lookup record: employee ID, request type, messages, and status.", "lesson": 12, "anchor": "term-leavestate"}, {"term": "find_routes", "category": "function", "definition": "Our tool finding sample route IDs for the selected cities.", "lesson": 13, "anchor": "term-find-routes"}, {"term": "get_route_details", "category": "function", "definition": "Our tool returning sample price, duration, and availability for a route ID.", "lesson": 13, "anchor": "term-get-route-details"}, {"term": "ReAct", "category": "concept", "definition": "A pattern that alternates model decisions and tool results until an answer is ready.", "lesson": 13, "anchor": "term-react"}, {"term": "5-ReActive-Graph.ipynb", "category": "file", "definition": "The Part II notebook: Compare travel options with a tool loop.", "lesson": 13, "anchor": "term-5-reactive-graph-ipynb"}, {"term": "TravelState", "category": "class", "definition": "Our travel record: origin, destination, budget, messages, and status.", "lesson": 13, "anchor": "term-travelstate"}, {"term": "5-adding-memory.ipynb", "category": "file", "definition": "The Part II notebook: Remember a student's selected topics.", "lesson": 14, "anchor": "term-5-adding-memory-ipynb"}, {"term": "StudyState", "category": "class", "definition": "Our student record: ID, learning level, topics, messages, and latest answer.", "lesson": 14, "anchor": "term-studystate"}, {"term": "get_state", "category": "function", "definition": "Reads the saved state snapshot for a configured graph thread.", "lesson": 14, "anchor": "term-get-state"}, {"term": "6-Streaming.ipynb", "category": "file", "definition": "The Part II notebook: Watch a recipe appear.", "lesson": 15, "anchor": "term-6-streaming-ipynb"}, {"term": "RecipeState", "category": "class", "definition": "Our recipe record: ingredients, servings, model request, recipe, and status.", "lesson": 15, "anchor": "term-recipestate"}, {"term": "interrupt", "category": "function", "definition": "Pauses a graph with a payload for external review or input.", "lesson": 16, "anchor": "term-interrupt"}, {"term": "7-human-in-loop.ipynb", "category": "file", "definition": "The Part II notebook: Approve or reject a refund.", "lesson": 16, "anchor": "term-7-human-in-loop-ipynb"}, {"term": "RefundState", "category": "class", "definition": "Our refund state: order ID, amount, reason, human decision, and status.", "lesson": 16, "anchor": "term-refundstate"}, {"term": "RAG", "category": "concept", "definition": "Find relevant source text, add it to a prompt, and generate an answer using that context.", "lesson": 17, "anchor": "term-rag"}, {"term": "Document", "category": "class", "definition": "LangChain's object pairing page_content text with source metadata.", "lesson": 17, "anchor": "term-document"}, {"term": "vector", "category": "concept", "definition": "A list of numbers used here to represent text for comparison.", "aliases": ["vectors"], "lesson": 17, "anchor": "term-vector"}, {"term": "embedding", "category": "concept", "definition": "A vector created by an embedding model to represent text for comparison.", "aliases": ["embeddings"], "lesson": 17, "anchor": "term-embedding"}, {"term": "vector store", "category": "concept", "definition": "Stores text together with its vector and source details so a search can return the matching text.", "aliases": ["vector stores"], "lesson": 17, "anchor": "term-vector-store"}, {"term": "retriever", "category": "concept", "definition": "A component returning candidate Documents for a search question.", "aliases": ["retrievers"], "lesson": 17, "anchor": "term-retriever"}, {"term": "InMemoryVectorStore", "category": "class", "definition": "A vector store held in the current Python process rather than saved to disk.", "lesson": 17, "anchor": "term-inmemoryvectorstore"}, {"term": "1-first-rag.ipynb", "category": "file", "definition": "The Part III notebook: Give the model something to read.", "lesson": 17, "anchor": "term-1-first-rag-ipynb"}, {"term": "OpenAIEmbeddings", "category": "class", "definition": "The LangChain integration calling OpenAI to create text embeddings.", "lesson": 17, "anchor": "term-openaiembeddings"}]</script><script defer="True" src="lesson-glossary.js"></script><nav aria-label="Three-part journey" class="era-route" data-temporal-component=""><a data-route-part="1" href="part-one.html">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 5v15M12 5C8 2 4 3 2 4v15c3-1 6-1 10 1 4-2 7-2 10-1V4c-2-1-6-2-10 1Z"></path></svg><span class="glossary-label">Glossary</span><span aria-hidden="true" class="glossary-badge">119</span></button>
+<aside aria-labelledby="glossary-title" class="glossary-panel" hidden="" id="lesson-glossary" role="dialog"><div class="glossary-header"><h2 id="glossary-title">Your lesson glossary</h2><button aria-label="Close glossary" class="glossary-close" data-glossary-close="" type="button">×</button><p class="glossary-intro">Terms introduced through Lesson 17. Each is highlighted only at its first explanation.</p><label for="glossary-search">Find a term</label><input autocomplete="off" id="glossary-search" placeholder="e.g. init_chat_model" type="search"/><p aria-live="polite" class="glossary-count" data-glossary-count=""></p></div><ul class="glossary-list" data-glossary-list=""></ul></aside><script id="lesson-terms" type="application/json">[{"term": "system message", "category": "concept", "definition": "A message containing the application's instructions for the assistant.", "lesson": 1, "anchor": "term-system-message"}, {"term": "requirements.txt", "category": "file", "definition": "A text file listing the Python packages to install.", "lesson": 2, "anchor": "term-requirements-txt"}, {"term": "hi.py", "category": "file", "definition": "The small Python script used to check the lesson's environment.", "lesson": 2, "anchor": "term-hi-py"}, {"term": "Command", "category": "class", "definition": "Carries a graph instruction, such as the value used to resume an interrupt.", "lesson": 2, "anchor": "term-command"}, {"term": ".env", "category": "file", "definition": "A local settings file used here to hold provider API keys.", "lesson": 2, "anchor": "term-env"}, {"term": "load_dotenv", "aliases": ["load_dotenv()"], "category": "function", "definition": "Loads settings from a .env file into the Python process's environment.", "lesson": 2, "anchor": "term-load-dotenv"}, {"term": "os.getenv", "category": "function", "definition": "Reads an environment setting, with an optional fallback value.", "lesson": 2, "anchor": "term-os-getenv"}, {"term": "1-Connecting-to-an-LLM.ipynb", "category": "file", "definition": "The notebook with our first direct Groq and Gemini SDK calls.", "lesson": 2, "anchor": "term-1-connecting-to-an-llm-ipynb"}, {"term": "OpenAI", "category": "class", "definition": "The SDK client class used here to call Groq's OpenAI-compatible API.", "lesson": 2, "anchor": "term-openai"}, {"term": "responses.create", "category": "function", "definition": "The SDK method that sends a request through the Responses API.", "lesson": 2, "anchor": "term-responses-create"}, {"term": "output_text", "category": "concept", "definition": "The readable generated text exposed by the SDK response used here.", "lesson": 2, "anchor": "term-output-text"}, {"term": "metadata", "category": "concept", "definition": "Information about a response, such as the reported model name or token usage.", "lesson": 2, "anchor": "term-metadata"}, {"term": "models.list", "category": "function", "definition": "Requests the provider's list of model identifiers available to the account.", "lesson": 2, "anchor": "term-models-list"}, {"term": "genai.Client", "category": "class", "definition": "The Google Gen AI SDK client used to make direct Gemini requests.", "lesson": 2, "anchor": "term-genai-client"}, {"term": "2-Using-LangChain.ipynb", "category": "file", "definition": "The notebook introducing LangChain model connections and settings.", "lesson": 3, "anchor": "term-2-using-langchain-ipynb"}, {"term": "init_chat_model", "category": "function", "definition": "Creates a LangChain chat-model object for the chosen model and provider.", "lesson": 3, "anchor": "term-init-chat-model"}, {"term": "invoke", "category": "function", "definition": "Runs a model, agent, or graph with the supplied input and returns its completed result.", "lesson": 3, "anchor": "term-invoke"}, {"term": "AIMessage", "category": "class", "definition": "A LangChain message representing a model reply, including any metadata or tool calls.", "lesson": 3, "anchor": "term-aimessage"}, {"term": "token", "aliases": ["tokens"], "category": "concept", "definition": "A small piece of text that a model reads or generates.", "lesson": 3, "anchor": "term-token"}, {"term": "temperature", "category": "concept", "definition": "A model setting controlling how much variation token selection allows.", "lesson": 3, "anchor": "term-temperature"}, {"term": "3-Responses-and-Prompts.ipynb", "category": "file", "definition": "The notebook for response metadata, token usage, and prompts.", "lesson": 4, "anchor": "term-3-responses-and-prompts-ipynb"}, {"term": "model_provider", "category": "concept", "definition": "The integration LangChain uses to send requests to the model provider.", "lesson": 4, "anchor": "term-model-provider"}, {"term": "response_metadata", "category": "concept", "definition": "The response dictionary containing provider-reported details about the call.", "lesson": 4, "anchor": "term-response-metadata"}, {"term": "usage_metadata", "category": "concept", "definition": "LangChain's standardized token-usage information, when the provider supplies it.", "lesson": 4, "anchor": "term-usage-metadata"}, {"term": "dictionary", "category": "concept", "definition": "A Python collection that stores values under named keys.", "lesson": 4, "anchor": "term-dictionary"}, {"term": "input tokens", "category": "concept", "definition": "Tokens sent to the model, including instructions, questions, and context.", "lesson": 4, "anchor": "term-input-tokens"}, {"term": "output tokens", "category": "concept", "definition": "Tokens generated by the model in its response.", "lesson": 4, "anchor": "term-output-tokens"}, {"term": "f-string", "aliases": ["f-strings"], "category": "concept", "definition": "A Python string that inserts values into text using braces.", "lesson": 4, "anchor": "term-f-string"}, {"term": "PromptTemplate", "category": "class", "definition": "A reusable prompt with named placeholders that must be filled before use.", "lesson": 4, "anchor": "term-prompttemplate"}, {"term": "Path", "category": "class", "definition": "The pathlib class for working with file and folder paths.", "lesson": 4, "anchor": "term-path"}, {"term": "dumps", "category": "function", "definition": "In this lesson, serializes a LangChain template into a JSON string.", "lesson": 4, "anchor": "term-dumps"}, {"term": "loads", "category": "function", "definition": "In this lesson, reconstructs a LangChain object from trusted JSON.", "lesson": 4, "anchor": "term-loads"}, {"term": "4-Messages-Streaming-Batching-and-Memory.ipynb", "category": "file", "definition": "The notebook demonstrating labeled messages, streaming, and batching.", "lesson": 5, "anchor": "term-4-messages-streaming-batching-and-memory-ipynb"}, {"term": "stream", "category": "function", "definition": "Receives model chunks or graph events progressively as a run proceeds.", "lesson": 5, "anchor": "term-stream"}, {"term": "chunk", "category": "concept", "definition": "A smaller passage of a document prepared for retrieval.", "aliases": ["chunks"], "lesson": 5, "anchor": "term-chunk"}, {"term": "flush=True", "category": "concept", "definition": "Tells Python's print function to send buffered text to the output immediately.", "lesson": 5, "anchor": "term-flush-true"}, {"term": "batch", "category": "function", "definition": "Runs a collection of independent inputs and returns their results.", "lesson": 5, "anchor": "term-batch"}, {"term": "zip", "category": "function", "definition": "Pairs corresponding items from collections so they can be processed together.", "lesson": 5, "anchor": "term-zip"}, {"term": "5-Structured-Outputs.ipynb", "category": "file", "definition": "The Pokémon notebook for Pydantic, nested output, and TypedDict.", "lesson": 5, "anchor": "term-5-structured-outputs-ipynb"}, {"term": "Pokemon", "category": "class", "definition": "Our Pydantic model for one Pokémon's name, type, level, and evolutions.", "lesson": 5, "anchor": "term-pokemon"}, {"term": "BaseModel", "category": "class", "definition": "Pydantic's base class for defining a validated data object.", "lesson": 5, "anchor": "term-basemodel"}, {"term": "Field", "category": "function", "definition": "Adds descriptions and optional constraints to a Pydantic model field.", "lesson": 5, "anchor": "term-field"}, {"term": "Pydantic", "category": "class", "definition": "A Python library that defines data models and validates their fields.", "lesson": 5, "anchor": "term-pydantic"}, {"term": "schema", "category": "concept", "definition": "A description of the fields and types an output should contain.", "lesson": 5, "anchor": "term-schema"}, {"term": "with_structured_output", "category": "function", "definition": "Wraps a chat model so its response follows the supplied output schema.", "lesson": 5, "anchor": "term-with-structured-output"}, {"term": "PokemonList", "category": "class", "definition": "Our outer Pydantic model containing a list of Pokemon objects.", "lesson": 5, "anchor": "term-pokemonlist"}, {"term": "PokemonDict", "category": "class", "definition": "Our TypedDict schema for a Pokémon returned as a regular dictionary.", "lesson": 5, "anchor": "term-pokemondict"}, {"term": "TypedDict", "category": "class", "definition": "Describes dictionary keys and value types without Pydantic-style runtime validation.", "lesson": 5, "anchor": "term-typeddict"}, {"term": "HumanMessage", "category": "class", "definition": "A LangChain message carrying the user's text and human role.", "lesson": 5, "anchor": "term-humanmessage"}, {"term": "SystemMessage", "category": "class", "definition": "A LangChain message carrying instructions for the assistant.", "lesson": 5, "anchor": "term-systemmessage"}, {"term": "6-Memory.ipynb", "category": "file", "definition": "The notebook for manual history, summaries, and checkpointers.", "lesson": 6, "anchor": "term-6-memory-ipynb"}, {"term": "reasoning_effort", "category": "concept", "definition": "A supported model setting requesting a level of reasoning effort.", "lesson": 6, "anchor": "term-reasoning-effort"}, {"term": "append", "category": "function", "definition": "Adds an item to the end of a Python list, such as a new conversation message.", "lesson": 6, "anchor": "term-append"}, {"term": "len", "category": "function", "definition": "Counts the items in a collection; counting messages does not count their tokens.", "lesson": 6, "anchor": "term-len"}, {"term": "create_agent", "category": "function", "definition": "Builds an agent that manages the model-and-tool conversation using supplied tools.", "lesson": 6, "anchor": "term-create-agent"}, {"term": "InMemorySaver", "category": "class", "definition": "A LangGraph checkpointer that stores state in the current Python process.", "lesson": 6, "anchor": "term-inmemorysaver"}, {"term": "checkpointer", "category": "concept", "definition": "Storage that saves and restores conversation state for a thread.", "lesson": 6, "anchor": "term-checkpointer"}, {"term": "thread_id", "category": "concept", "definition": "The conversation identifier a checkpointer uses to select saved state.", "lesson": 6, "anchor": "term-thread-id"}, {"term": "7-Tools-and-Tool-Loops.ipynb", "category": "file", "definition": "The notebook showing how the application executes model-requested tools.", "lesson": 7, "anchor": "term-7-tools-and-tool-loops-ipynb"}, {"term": "decorator", "category": "concept", "definition": "An annotation such as @tool that adds behavior to a function or class.", "lesson": 7, "anchor": "term-decorator"}, {"term": "docstring", "category": "concept", "definition": "Text inside a function or class that describes what it does.", "lesson": 7, "anchor": "term-docstring"}, {"term": "bind_tools", "category": "function", "definition": "Makes tool descriptions available to a model so it can request tool calls.", "lesson": 7, "anchor": "term-bind-tools"}, {"term": "tool_calls", "category": "concept", "definition": "Structured requests from a model specifying tool names and proposed arguments.", "lesson": 7, "anchor": "term-tool-calls"}, {"term": "ToolMessage", "category": "class", "definition": "A message returning a tool's result with the ID of the corresponding tool call.", "lesson": 7, "anchor": "term-toolmessage"}, {"term": "8-Agents.ipynb", "category": "file", "definition": "The notebook for agents with stock and price lookup tools.", "lesson": 8, "anchor": "term-8-agents-ipynb"}, {"term": "check_stock_service", "category": "function", "definition": "Our local inventory tool returning an item's remaining stock.", "lesson": 8, "anchor": "term-check-stock-service"}, {"term": "get_price_service", "category": "function", "definition": "Our local inventory tool returning an item's price in rupees.", "lesson": 8, "anchor": "term-get-price-service"}, {"term": "Annotated", "category": "class", "definition": "Attaches metadata such as a reducer to a type annotation.", "lesson": 9, "anchor": "term-annotated"}, {"term": "StateGraph", "category": "class", "definition": "Builds a workflow from a state schema, nodes, and edges.", "lesson": 9, "anchor": "term-stategraph"}, {"term": "add_messages", "category": "function", "definition": "Merges message updates, appending new messages and replacing matching IDs.", "lesson": 9, "anchor": "term-add-messages"}, {"term": "1-first-graph.ipynb", "category": "file", "definition": "The first Part II notebook: two simple functions adding messages through a graph.", "lesson": 9, "anchor": "term-1-first-graph-ipynb"}, {"term": "reducer", "category": "concept", "definition": "The rule for combining an existing state value with a new update.", "aliases": ["reducers"], "lesson": 9, "anchor": "term-reducer"}, {"term": "add_node", "category": "function", "definition": "Registers a named function as a graph step.", "lesson": 9, "anchor": "term-add-node"}, {"term": "add_edge", "category": "function", "definition": "Connects graph steps, including waiting for multiple predecessor nodes.", "lesson": 9, "anchor": "term-add-edge"}, {"term": "compile", "category": "function", "definition": "Checks the graph structure and creates a runnable graph.", "lesson": 9, "anchor": "term-compile"}, {"term": "2-working-with-edges.ipynb", "category": "file", "definition": "The Part II notebook for pizza orders, trip lookups, support routing, and OTP retries.", "lesson": 10, "anchor": "term-2-working-with-edges-ipynb"}, {"term": "PizzaState", "category": "class", "definition": "The pizza record: ordered items, current total, and confirmation status.", "lesson": 10, "anchor": "term-pizzastate"}, {"term": "partial update", "category": "concept", "definition": "A node result containing only the state keys it needs to change.", "aliases": ["partial updates"], "lesson": 10, "anchor": "term-partial-update"}, {"term": "fan-out", "category": "concept", "definition": "One graph step starts several independent next steps.", "lesson": 10, "anchor": "term-fan-out"}, {"term": "fan-in", "category": "concept", "definition": "Several graph paths meet; an explicit join waits for all named predecessors.", "lesson": 10, "anchor": "term-fan-in"}, {"term": "TripState", "category": "class", "definition": "The trip record: city, collected lookup messages, and final report.", "lesson": 10, "anchor": "term-tripstate"}, {"term": "super-step", "category": "concept", "definition": "One execution round; independent nodes in that round can run together.", "aliases": ["super-steps"], "lesson": 10, "anchor": "term-super-step"}, {"term": "overlap", "category": "concept", "definition": "Text repeated at the end of one chunk and the start of the next to help retain context around a boundary.", "lesson": 10, "anchor": "term-overlap"}, {"term": "TicketState", "category": "class", "definition": "The support record: ticket text, classified type, and handler response.", "lesson": 10, "anchor": "term-ticketstate"}, {"term": "add_conditional_edges", "category": "function", "definition": "Uses a routing function to select the next graph destination.", "lesson": 10, "anchor": "term-add-conditional-edges"}, {"term": "OtpState", "category": "class", "definition": "The retry record: sample entries, submitted code, attempt count, verification, and outcome.", "lesson": 10, "anchor": "term-otpstate"}, {"term": "recursion_limit", "category": "concept", "definition": "Limits the number of graph super-steps before a run is stopped.", "lesson": 10, "anchor": "term-recursion-limit"}, {"term": "GraphRecursionError", "category": "class", "definition": "The error when a graph exceeds its configured execution-round limit without finishing.", "lesson": 10, "anchor": "term-graphrecursionerror"}, {"term": "3-Connecting-LLM.ipynb", "category": "file", "definition": "The Part II notebook: Draft an office email reply.", "lesson": 11, "anchor": "term-3-connecting-llm-ipynb"}, {"term": "EmailState", "category": "class", "definition": "Our email record: incoming email, reply tone, draft, and status.", "lesson": 11, "anchor": "term-emailstate"}, {"term": "get_leave_balance", "category": "function", "definition": "Our tool looking up an employee's sample leave allowance, used days, and remaining days.", "lesson": 12, "anchor": "term-get-leave-balance"}, {"term": "4-Using-Tools.ipynb", "category": "file", "definition": "The Part II notebook: Look up an employee's leave balance.", "lesson": 12, "anchor": "term-4-using-tools-ipynb"}, {"term": "ToolNode", "category": "class", "definition": "Executes requested calls against the tools supplied to this graph.", "lesson": 12, "anchor": "term-toolnode"}, {"term": "tools_condition", "category": "function", "definition": "Routes to tools when the latest model message contains tool calls.", "lesson": 12, "anchor": "term-tools-condition"}, {"term": "LeaveState", "category": "class", "definition": "Our leave lookup record: employee ID, request type, messages, and status.", "lesson": 12, "anchor": "term-leavestate"}, {"term": "find_routes", "category": "function", "definition": "Our tool finding sample route IDs for the selected cities.", "lesson": 13, "anchor": "term-find-routes"}, {"term": "get_route_details", "category": "function", "definition": "Our tool returning sample price, duration, and availability for a route ID.", "lesson": 13, "anchor": "term-get-route-details"}, {"term": "ReAct", "category": "concept", "definition": "A pattern that alternates model decisions and tool results until an answer is ready.", "lesson": 13, "anchor": "term-react"}, {"term": "5-ReActive-Graph.ipynb", "category": "file", "definition": "The Part II notebook: Compare travel options with a tool loop.", "lesson": 13, "anchor": "term-5-reactive-graph-ipynb"}, {"term": "TravelState", "category": "class", "definition": "Our travel record: origin, destination, budget, messages, and status.", "lesson": 13, "anchor": "term-travelstate"}, {"term": "5-adding-memory.ipynb", "category": "file", "definition": "The Part II notebook: Remember a student's selected topics.", "lesson": 14, "anchor": "term-5-adding-memory-ipynb"}, {"term": "StudyState", "category": "class", "definition": "Our student record: ID, learning level, topics, messages, and latest answer.", "lesson": 14, "anchor": "term-studystate"}, {"term": "get_state", "category": "function", "definition": "Reads the saved state snapshot for a configured graph thread.", "lesson": 14, "anchor": "term-get-state"}, {"term": "6-Streaming.ipynb", "category": "file", "definition": "The Part II notebook: Watch a recipe appear.", "lesson": 15, "anchor": "term-6-streaming-ipynb"}, {"term": "RecipeState", "category": "class", "definition": "Our recipe record: ingredients, servings, model request, recipe, and status.", "lesson": 15, "anchor": "term-recipestate"}, {"term": "interrupt", "category": "function", "definition": "Pauses a graph with a payload for external review or input.", "lesson": 16, "anchor": "term-interrupt"}, {"term": "7-human-in-loop.ipynb", "category": "file", "definition": "The Part II notebook: Approve or reject a refund.", "lesson": 16, "anchor": "term-7-human-in-loop-ipynb"}, {"term": "RefundState", "category": "class", "definition": "Our refund state: order ID, amount, reason, human decision, and status.", "lesson": 16, "anchor": "term-refundstate"}, {"term": "RAG", "category": "concept", "definition": "Find relevant source text, add it to a prompt, and generate an answer using that context.", "lesson": 17, "anchor": "term-rag"}, {"term": "vector", "category": "concept", "definition": "A list of numbers used here to represent text for comparison.", "aliases": ["vectors"], "lesson": 17, "anchor": "term-vector"}, {"term": "embedding", "category": "concept", "definition": "A vector created by an embedding model to represent text for comparison.", "aliases": ["embeddings"], "lesson": 17, "anchor": "term-embedding"}, {"term": "Document", "category": "class", "definition": "LangChain's object pairing page_content text with source metadata.", "lesson": 17, "anchor": "term-document"}, {"term": "dimensions", "category": "concept", "definition": "The number of coordinates, or numbers, in a vector.", "lesson": 17, "anchor": "term-dimensions"}, {"term": "cosine similarity", "category": "concept", "definition": "A comparison of vector directions: larger values mean a smaller angle, not a more reliable answer.", "lesson": 17, "anchor": "term-cosine-similarity"}, {"term": "vector store", "category": "concept", "definition": "Stores text together with its vector and source details so a search can return the matching text.", "aliases": ["vector stores"], "lesson": 17, "anchor": "term-vector-store"}, {"term": "Chroma", "category": "class", "definition": "A vector database that stores text, vectors, and source details; configured here to save collections on disk.", "lesson": 17, "anchor": "term-chroma"}, {"term": "retriever", "category": "concept", "definition": "A component returning candidate Documents for a search question.", "aliases": ["retrievers"], "lesson": 17, "anchor": "term-retriever"}, {"term": "chunking", "category": "concept", "definition": "Splitting a document into smaller passages before embedding and retrieval.", "lesson": 17, "anchor": "term-chunking"}, {"term": "Classic_Fables_Collection.pdf", "category": "file", "definition": "The supplied eleven-page PDF containing a title page and ten fables.", "lesson": 17, "anchor": "term-classic-fables-collection-pdf"}]</script><script defer="True" src="lesson-glossary.js"></script><nav aria-label="Three-part journey" class="era-route" data-temporal-component=""><a data-route-part="1" href="part-one.html">
 <span class="era-route__heading"><span class="era-route__number">01</span><b>1985</b><small>Analog workshop</small><span class="era-route__count" data-end="8" data-route-count="" data-start="1">0 / 8</span></span></a><a data-route-part="2" href="part-two.html">
 <span class="era-route__heading"><span class="era-route__number">02</span><b>2015</b><small>Future workshop</small><span class="era-route__count" data-end="16" data-route-count="" data-start="9">0 / 8</span></span></a><a aria-current="step" data-route-part="3" href="part-three.html">
-<span class="era-route__heading"><span class="era-route__number">03</span><b>1885</b><small>Frontier workshop</small><span class="era-route__count" data-end="20" data-route-count="" data-start="17">0 / 4</span></span></a><div aria-label="Journey completion" aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="route-progress" data-route-progress="" role="progressbar">
+<span class="era-route__heading"><span class="era-route__number">03</span><b>1885</b><small>Frontier workshop</small><span class="era-route__count" data-end="21" data-route-count="" data-start="17">0 / 5</span></span></a><div aria-label="Current course position" aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="route-progress" data-current-lesson="17" data-current-part="3" data-route-progress="" role="progressbar">
 <span class="route-progress__fill"></span><img alt="" class="route-progress__vehicle" height="72" src="assets/progress-car.svg" width="160"/></div></nav><aside class="lesson-index" data-temporal-component="">
 <details open=""><summary>On this page</summary>
-<nav aria-label="Lesson sections"><ol><li><a href="#lesson-section-01">A note from me</a></li><li><a href="#lesson-section-02">What is RAG?</a></li><li><a href="#lesson-section-03">Why RAG?</a></li><li><a href="#lesson-section-04">Components of a RAG system</a></li><li><a href="#lesson-section-05">How does the LLM fit in?</a></li><li><a href="#lesson-section-06">What we are building</a></li><li><a href="#lesson-section-07">Check your understanding</a></li><li><a href="#lesson-section-08">Where we go next</a></li></ol></nav></details></aside></body></html>
+<nav aria-label="Lesson sections"><ol><li><a href="#lesson-section-01">A note from me</a></li><li><a href="#lesson-section-02">What is RAG?</a></li><li><a href="#lesson-section-03">Embeddings: words become coordinates</a></li><li><a href="#lesson-section-04">Cosine similarity: compare directions</a></li><li><a href="#lesson-section-05">Components of a RAG system</a></li><li><a href="#lesson-section-06">Chunking: cut the book into snippets</a></li><li><a href="#lesson-section-07">Check your understanding</a></li><li><a href="#lesson-section-08">Where we go next</a></li></ol></nav></details></aside></body></html>

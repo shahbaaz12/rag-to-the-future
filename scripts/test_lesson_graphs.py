@@ -92,7 +92,8 @@ builder.compile()
     def test_every_published_construction_is_covered_and_rebuild_is_stable(self):
         counts = {"graph": 0, "agent": 0}
         keys = set()
-        for lesson in range(1, 21):
+        last_lesson = max(int(key.split(':')[0]) for key in CAPTIONS)
+        for lesson in range(1, last_lesson + 1):
             page = BeautifulSoup((ROOT / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
             article = page.select_one("#lesson")
             originals = [node.get_text() for node in article.select(".code-explorer__source")]
@@ -110,7 +111,7 @@ builder.compile()
             self.assertEqual(first, str(page))
             self.assertEqual(originals, [node.get_text() for node in article.select(".code-explorer__source")])
             self.assertEqual(len(article.select("[data-lesson-graph]")), len(models))
-        self.assertEqual(counts, {"graph": 13, "agent": 3})
+        self.assertEqual(counts, {"graph": 12, "agent": 3})
         self.assertEqual(keys, set(CAPTIONS))
 
 

@@ -3,24 +3,24 @@
   if (!progress) return;
 
   function refreshRoutes() {
-    let completed = 0;
-    let partFractions = 0;
-    const counts = document.querySelectorAll('[data-route-count]');
-    counts.forEach(label => {
-      const start = Number(label.dataset.start);
-      const end = Number(label.dataset.end);
-      const total = end - start + 1;
-      const count = progress.count(start, end);
-      label.textContent = `${count} / ${total}`;
-      completed += count;
-      partFractions += count / total;
-    });
+    const counts = [...document.querySelectorAll('[data-route-count]')];
     document.querySelectorAll('[data-route-progress]').forEach(track => {
-      const percent = counts.length ? partFractions / counts.length * 100 : 0;
-      const vehicle = partFractions >= 2 ? 'train' : partFractions >= 1 ? 'flying-car' : 'car';
+      const lesson = Number(track.dataset.currentLesson);
+      const part = Number(track.dataset.currentPart);
+      const index = counts.findIndex(label => lesson >= Number(label.dataset.start) && lesson <= Number(label.dataset.end));
+      const current = counts[index];
+      const position = current ? lesson - Number(current.dataset.start) + 1 : 0;
+      const total = current ? Number(current.dataset.end) - Number(current.dataset.start) + 1 : 0;
+      const segment = current ? index : Math.max(0, part - 1);
+      const percent = counts.length ? (segment + (current ? position / total : 0)) / counts.length * 100 : 0;
+      const vehicle = segment >= 2 ? 'train' : segment >= 1 ? 'flying-car' : 'car';
+      counts.forEach(label => {
+        const size = Number(label.dataset.end) - Number(label.dataset.start) + 1;
+        label.textContent = label === current ? `${position} / ${size}` : `${size} lessons`;
+      });
       track.style.setProperty('--route-progress', `${percent}%`);
       track.setAttribute('aria-valuenow', String(Math.round(percent)));
-      track.setAttribute('aria-valuetext', `${completed} of 20 lessons complete`);
+      track.setAttribute('aria-valuetext', current ? `Lesson ${lesson}, lesson ${position} of ${total} in Part ${index + 1}` : part ? `Part ${part}` : 'Course start');
       track.querySelector('img').setAttribute('src', `assets/progress-${vehicle}.svg`);
     });
   }

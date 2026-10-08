@@ -1,0 +1,21 @@
+<figure class="embedding-demo vector-map-demo" aria-labelledby="vector-map-title">
+  <figcaption id="vector-map-title">Vector space mini-map</figcaption>
+  <p class="embedding-demo__badge">Interactive illustration · click a relationship</p>
+  <div class="embedding-demo__scroll" role="region" aria-label="Word vector map; scroll horizontally on narrow screens" tabindex="0">
+    <svg viewBox="0 0 700 340" role="img" aria-label="Handmade word coordinates with selectable relationship arrows.">
+      <defs><marker id="word-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
+      <path d="M 45 30 V 300 H 665" class="embedding-axis"/>
+      <text x="48" y="20" class="embedding-label">Illustrative coordinate 2</text>
+      <text x="430" y="329" class="embedding-label">Illustrative coordinate 1</text>
+      <g data-map-links></g><g data-map-points></g>
+    </svg>
+  </div>
+  <div class="embedding-demo__buttons" role="group" aria-label="Choose a map relationship">
+    <button type="button" data-map-pair="royalty" aria-pressed="false">king → queen / man → woman</button>
+    <button type="button" data-map-pair="capital" aria-pressed="false">france → paris / india → delhi</button>
+    <button type="button" data-map-pair="food" aria-pressed="false">banana / grape / aeroplane</button>
+    <button type="button" data-map-pair="clear" aria-pressed="true">Clear arrows</button>
+  </div>
+  <p data-map-explanation aria-live="polite">Choose a pair to see the relationship between its points.</p>
+  <p class="embedding-demo__note">A teaching map, not a projection of a trained model. Real projections into two dimensions can distort distances and directions.</p>
+</figure>

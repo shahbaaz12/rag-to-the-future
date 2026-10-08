@@ -1,18 +1,62 @@
 {
-  "6:agent": ["A conversation with saved state", "The wrapper calls the model with this thread's conversation state. There are no tools in this example. The checkpointer saves and restores state; it is storage, not an execution node."],
-  "8:basic_inventory_agent": ["The stock-checking agent", "The model can request check_stock_service, receive its result and continue. It can also answer directly. This is a conceptual view of the framework-managed loop."],
-  "8:shopping_agent": ["The shopping agent", "The model can request one or several supplied tools, then see their returned results. These branches show the available stock and price tools, not a required order. This is a conceptual view of the framework-managed loop."],
-  "9:builder": ["Our first graph", "START leads to STEP ONE, then STEP TWO, then END. Each working node contributes a message to the shared state."],
-  "10:sequential_builder": ["Pizza order pipeline", "Validate the order, calculate its total, apply the coupon, then confirm the discounted amount. Each step follows the previous one."],
-  "10:parallel_builder": ["Trip dashboard: three lookups, one join", "After plan, weather, flights, and hotels run independently. The join at combine waits for all three lookup results."],
-  "10:conditional_builder": ["Choose one support handler", "Classification stores a category. The router chooses urgent, billing, or general; exactly one handler runs before END. The urgent handler records a queue for human review."],
-  "10:loop_builder": ["OTP retry with two exits", "A wrong code before attempt three returns from verify to ask_otp. A correct code reaches success, including on the third attempt. Three failures reach locked."],
-  "11:builder": ["An LLM inside a node", "draft_reply reads EmailState, calls the model and returns an update. The graph itself follows a fixed path."],
-  "12:builder": ["A tool call with a final answer step", "ask_model can finish directly or request tools. On the tools route, answer runs after the tool result; this graph has no edge back to ask_model."],
-  "13:builder": ["The reactive tool loop", "assistant chooses a tool call or a final reply. tools returns to assistant so the model can inspect the result and decide again."],
-  "14:builder": ["The tutor with a checkpointer", "The execution path remains START → tutor → END. The checkpointer restores and saves state for thread_id; it does not add another graph node."],
-  "15:builder": ["The streaming recipe graph", "prepare_request runs before write_recipe. Streaming reveals output as work proceeds; it does not change these graph connections."],
-  "16:builder": ["Pause for a refund decision", "review pauses at interrupt for human input. After resuming, approve selects process and reject selects reject. The checkpointer preserves the paused run."],
-  "17:builder": ["Retrieve only when needed", "decide selects retrieve or generate. The retrieval route supplies documents before generation; the direct route skips retrieval."],
-  "20:builder": ["Choose detail or summary retrieval", "route selects DETAIL or SUMMARY. Only the selected retrieval node runs, and both possible paths lead to generate."]
+  "6:agent": [
+    "A conversation with saved state",
+    "The wrapper calls the model with this thread's conversation state. There are no tools in this example. The checkpointer saves and restores state; it is storage, not an execution node."
+  ],
+  "8:basic_inventory_agent": [
+    "The stock-checking agent",
+    "The model can request check_stock_service, receive its result and continue. It can also answer directly. This is a conceptual view of the framework-managed loop."
+  ],
+  "8:shopping_agent": [
+    "The shopping agent",
+    "The model can request one or several supplied tools, then see their returned results. These branches show the available stock and price tools, not a required order. This is a conceptual view of the framework-managed loop."
+  ],
+  "9:builder": [
+    "Our first graph",
+    "START leads to STEP ONE, then STEP TWO, then END. Each working node contributes a message to the shared state."
+  ],
+  "10:sequential_builder": [
+    "Pizza order pipeline",
+    "Validate the order, calculate its total, apply the coupon, then confirm the discounted amount. Each step follows the previous one."
+  ],
+  "10:parallel_builder": [
+    "Trip dashboard: three lookups, one join",
+    "After plan, weather, flights, and hotels run independently. The join at combine waits for all three lookup results."
+  ],
+  "10:conditional_builder": [
+    "Choose one support handler",
+    "Classification stores a category. The router chooses urgent, billing, or general; exactly one handler runs before END. The urgent handler records a queue for human review."
+  ],
+  "10:loop_builder": [
+    "OTP retry with two exits",
+    "A wrong code before attempt three returns from verify to ask_otp. A correct code reaches success, including on the third attempt. Three failures reach locked."
+  ],
+  "11:builder": [
+    "An LLM inside a node",
+    "draft_reply reads EmailState, calls the model and returns an update. The graph itself follows a fixed path."
+  ],
+  "12:builder": [
+    "A tool call with a final answer step",
+    "ask_model can finish directly or request tools. On the tools route, answer runs after the tool result; this graph has no edge back to ask_model."
+  ],
+  "13:builder": [
+    "The reactive tool loop",
+    "assistant chooses a tool call or a final reply. tools returns to assistant so the model can inspect the result and decide again."
+  ],
+  "14:builder": [
+    "The tutor with a checkpointer",
+    "The execution path remains START \u2192 tutor \u2192 END. The checkpointer restores and saves state for thread_id; it does not add another graph node."
+  ],
+  "15:builder": [
+    "The streaming recipe graph",
+    "prepare_request runs before write_recipe. Streaming reveals output as work proceeds; it does not change these graph connections."
+  ],
+  "16:builder": [
+    "Pause for a refund decision",
+    "review pauses at interrupt for human input. After resuming, approve selects process and reject selects reject. The checkpointer preserves the paused run."
+  ],
+  "21:builder": [
+    "Choose detail or summary retrieval",
+    "route selects DETAIL or SUMMARY. Only the selected retrieval node runs, and both possible paths lead to generate."
+  ]
 }

@@ -4,6 +4,7 @@ Navigation instruments sit outside lesson teaching articles; graph visuals
 sit beside their source snippets. Existing teaching prose and code are preserved.
 """
 from pathlib import Path
+import json
 from hashlib import sha256
 from bs4 import BeautifulSoup
 from lesson_stories import opening, remove_legacy_story
@@ -15,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PARTS = {
     1: ("one", "1985", "Analog workshop", "analogue", 1, 8),
     2: ("two", "2015", "Future workshop", "future", 9, 16),
-    3: ("three", "1885", "Frontier workshop", "frontier", 17, 20),
+    3: ("three", "1885", "Frontier workshop", "frontier", 17, max(entry['number'] for entry in json.loads((ROOT / 'part-three-lessons.json').read_text(encoding='utf-8')))),
 }
 
 
@@ -29,7 +30,7 @@ def route(part, lesson=None):
         current = f' aria-current="{"step" if lesson else "page"}"' if number == part else ""
         links.append(f'''<a href="part-{word}.html"{current} data-route-part="{number}">
           <span class="era-route__heading"><span class="era-route__number">0{number}</span><b>{year}</b><small>{label}</small><span class="era-route__count" data-route-count data-start="{start}" data-end="{end}">0 / {end-start+1}</span></span></a>''')
-    track = '''<div class="route-progress" role="progressbar" aria-label="Journey completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-route-progress>
+    track = f'''<div class="route-progress" role="progressbar" aria-label="Current course position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-route-progress data-current-lesson="{lesson or 0}" data-current-part="{part}">
       <span class="route-progress__fill"></span><img class="route-progress__vehicle" src="assets/progress-car.svg" width="160" height="72" alt=""/></div>'''
     return '<nav class="era-route" aria-label="Three-part journey" data-temporal-component>' + ''.join(links) + track + '</nav>'
 
@@ -39,7 +40,7 @@ def circuit(part, lesson=None):
     position = f"LESSON {lesson - start + 1:02d} / {end - start + 1:02d}" if lesson else f"PART {part:02d} / 03"
     return f'''<section class="temporal-circuit" aria-label="Current workshop" data-temporal-component>
       <div class="temporal-circuit__readout"><span>DESTINATION / {label.upper()}</span><strong>{year}</strong></div>
-      <div class="temporal-circuit__position"><span>{position}</span><b>{f'COURSE {lesson:02d}' if lesson else '20 AVAILABLE · 4 PLANNED'}</b></div>
+      <div class="temporal-circuit__position"><span>{position}</span><b>{f'COURSE {lesson:02d}' if lesson else f'{PARTS[3][-1]} AVAILABLE · {24-PARTS[3][-1]} PLANNED'}</b></div>
       </section>'''
 
 
@@ -48,7 +49,7 @@ def stage(part):
     systems = {
         1: [("VOICE", "1,2,3"), ("MEMORY", "4,5,6"), ("TOOLS", "7,8")],
         2: [("STATE", "9,10,11"), ("ROUTES", "12,13,14"), ("APPROVAL", "15,16")],
-        3: [("RETRIEVE", "17"), ("FOLLOW-UP", "18"), ("SEARCH", "19,20")],
+        3: [("RETRIEVE", "17,18"), ("FOLLOW-UP", "19"), ("SEARCH", "20,21")],
     }
     readouts = ''.join(f'<div><dt>{name}</dt><dd data-subsystem="{lessons}">PENDING</dd></div>' for name, lessons in systems[part])
     return f'''<aside class="workshop-stage" aria-label="{label} setting" data-temporal-component>
@@ -72,6 +73,8 @@ def versioned(source):
 
 
 def assets(page):
+    for link in page.select('link[href^="lesson-glossary.css"]'):
+        link["href"] = versioned("lesson-glossary.css")
     styles = [link for link in page.select("link[href]") if link["href"].split("?")[0] == "temporal-design.css"]
     for link in styles:
         link.decompose()
@@ -89,6 +92,19 @@ def assets(page):
     if page.select_one('.tokenizer-playground'):
         page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-tokenizer.css')))
         page.head.append(page.new_tag('script', src=versioned('lesson-tokenizer.js'), defer=True))
+    for node in page.select('link[href^="lesson-embeddings.css"], script[src^="lesson-embeddings.js"]'):
+        node.decompose()
+    if page.select_one('.embedding-demo'):
+        page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-embeddings.css')))
+        page.head.append(page.new_tag('script', src=versioned('lesson-embeddings.js'), defer=True))
+    for node in page.select('link[href^="lesson-hybrid.css"]'):
+        node.decompose()
+    if page.select_one('.hybrid-search-visual'):
+        page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-hybrid.css')))
+    for node in page.select('link[href^="lesson-catalog.css"]'):
+        node.decompose()
+    if page.select_one('.catalog-index-visual'):
+        page.head.append(page.new_tag('link', rel='stylesheet', href=versioned('lesson-catalog.css')))
     for source in ("course-progress.js", "temporal-ui.js", "lesson-reading.js"):
         scripts = [script for script in page.select("script[src]") if script["src"].split("?")[0] == source]
         for script in scripts:
@@ -156,7 +172,7 @@ def apply_design(page, part=None, lesson=None):
         add_graph_visuals(page, lesson)
         for old in page.select('link[href^="lesson-graphs.css"]'):
             old.decompose()
-        if article.select_one('[data-lesson-graph]'):
+        if article.select_one('[data-lesson-graph], .rag-flow'):
             page.head.append(page.new_tag("link", rel="stylesheet", href=versioned("lesson-graphs.css")))
         if lesson == 1:
             remove_legacy_story(article)
@@ -185,7 +201,7 @@ def apply_design(page, part=None, lesson=None):
 if __name__ == "__main__":
     targets = [("index.html", None, None)]
     targets += [(f"part-{info[0]}.html", part, None) for part, info in PARTS.items()]
-    targets += [(f"lesson-{number}.html", 1 if number <= 8 else 2 if number <= 16 else 3, number) for number in range(1, 21)]
+    targets += [(f"lesson-{number}.html", 1 if number <= 8 else 2 if number <= 16 else 3, number) for number in range(1, PARTS[3][-1]+1)]
     for filename, part, lesson in targets:
         path = ROOT / filename
         page = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")

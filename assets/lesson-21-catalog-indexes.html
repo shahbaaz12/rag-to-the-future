@@ -1,0 +1,45 @@
+<figure class="catalog-index-visual" aria-labelledby="catalog-index-title">
+  <figcaption id="catalog-index-title">One catalog → two ways to search</figcaption>
+  <div class="catalog-index-visual__source">
+    <span class="catalog-index-visual__label">Start with the same JSON catalog</span>
+    <p>20 products · 26 variants · 10 category and subcategory groups</p>
+  </div>
+  <svg class="catalog-index-visual__split" viewBox="0 0 600 50" aria-hidden="true">
+    <path d="M300 0 V18 H150 V42 M300 18 H450 V42"/>
+    <path d="M144 35 L150 43 L156 35 M444 35 L450 43 L456 35"/>
+  </svg>
+  <div class="catalog-index-visual__paths">
+    <section class="catalog-index-visual__path" aria-labelledby="catalog-detail-title">
+      <h4 id="catalog-detail-title">DETAIL · keep the specifics</h4>
+      <ol>
+        <li><span class="catalog-index-visual__label">1 · Build 46 Documents</span>
+          <p>One per product + one per variant.</p>
+          <div class="catalog-index-visual__example"><span>Example detail</span><p>AeroTherm X1 Plus: $319. Adds remote occupancy sensor and humidity control.</p></div>
+          <p class="catalog-index-visual__note">Product Documents also keep specifications, setup, usage, errors, and all variants.</p>
+        </li>
+        <li><span class="catalog-index-visual__label">2 · Embed the detailed text</span><p>The shared embedding model creates one vector for each Document.</p></li>
+        <li><span class="catalog-index-visual__label">3 · Save the detail index</span><p>Chroma collection: <code>detail_documents</code></p><p>46 records: text + vector + metadata.</p></li>
+        <li><span class="catalog-index-visual__label">4 · Create the detail retriever</span><p><strong>k=3</strong> → up to three matching Documents.</p><p class="catalog-index-visual__question">“Which AeroTherm X1 variant adds humidity control?”</p></li>
+      </ol>
+    </section>
+    <section class="catalog-index-visual__path" aria-labelledby="catalog-summary-title">
+      <h4 id="catalog-summary-title">SUMMARY · cover more products</h4>
+      <ol>
+        <li><span class="catalog-index-visual__label">1 · Build 10 group summaries</span>
+          <p>Group products by category and subcategory. Python assembles each overview.</p>
+          <div class="catalog-index-visual__example"><span>Example group</span><p>Home Systems / Climate Control: AeroTherm X1 and BreezeSense V2.</p></div>
+          <p class="catalog-index-visual__note">Each product contributes its name, ID, description, starting price, and variant count.</p>
+        </li>
+        <li><span class="catalog-index-visual__label">2 · Embed the summary text</span><p>The same embedding model creates one vector for each group summary.</p></li>
+        <li><span class="catalog-index-visual__label">3 · Save the summary index</span><p>Chroma collection: <code>summary_documents</code></p><p>10 records: text + vector + metadata.</p></li>
+        <li><span class="catalog-index-visual__label">4 · Create the summary retriever</span><p><strong>k=10</strong> → all ten summaries in this small catalog.</p><p class="catalog-index-visual__question">“Compare all Climate Control products.”</p></li>
+      </ol>
+    </section>
+  </div>
+  <div class="catalog-index-visual__shared">
+    <span class="catalog-index-visual__label">What is shared?</span>
+    <p><strong>One embedding model</strong> creates vectors for both collections and for incoming questions.</p>
+    <p><strong>One chat model</strong> chooses DETAIL or SUMMARY, then writes the answer using text from the selected path.</p>
+  </div>
+  <p class="catalog-index-visual__note">The difference is the text we store and how much we retrieve. Summaries cover more products, but leave out detailed specifications and individual variant features.</p>
+</figure>

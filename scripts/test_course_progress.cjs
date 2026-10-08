@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const source = readFileSync(resolve(__dirname, '../course-progress.js'), 'utf8');
 const key = 'rag-to-the-future-course-progress';
 const legacyKey = 'rag-to-the-future-part-one-progress';
+const structureKey = 'rag-to-the-future-course-structure-version';
 
 function load(initial = {}, blocked = false) {
   const stored = new Map(Object.entries(initial));
@@ -75,4 +76,17 @@ test('storage changes and history restoration refresh the record', () => {
   window.dispatchEvent({ type: 'pageshow' });
   assert.equal(progress.count(), 1);
   assert.equal(progress.has(17), true);
+});
+
+test('moves existing Part III completions once when the PDF lesson is inserted', () => {
+  const first = load({ [key]: '[1,17,18,19,20,24]' });
+  assert.deepEqual(JSON.parse(first.stored.get(key)), [1,17,19,20,21]);
+  assert.equal(first.progress.has(18), false);
+  assert.equal(first.stored.get(structureKey), '2');
+  const second = load(Object.fromEntries(first.stored));
+  assert.equal(second.progress.count(), 5);
+  assert.equal(second.progress.has(19), true);
+  assert.equal(second.progress.has(21), true);
+  second.progress.set(18, true);
+  assert.equal(second.progress.count(17,21), 5);
 });

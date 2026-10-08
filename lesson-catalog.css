@@ -1,0 +1,25 @@
+.temporal-lesson .catalog-index-visual { margin: 2rem 0; padding: 1.4rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); }
+.catalog-index-visual figcaption { font: 600 1.35rem/1.5 var(--sans, sans-serif); margin-bottom: 1rem; }
+.catalog-index-visual p { font-size: 1rem; line-height: 1.65; margin: .6rem 0; }
+.catalog-index-visual__label { display: block; color: var(--temporal-accent); font: 600 .95rem/1.5 var(--sans, sans-serif); }
+.catalog-index-visual__source, .catalog-index-visual__shared { padding: 1rem; border: 1px solid var(--temporal-border); border-left: 3px solid var(--temporal-accent); }
+.catalog-index-visual__split { display: block; width: 100%; height: auto; fill: none; stroke: var(--temporal-accent); stroke-width: 2; }
+.catalog-index-visual__paths { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.catalog-index-visual__path { min-width: 0; padding: 1rem; border: 1px solid var(--temporal-border); background: color-mix(in srgb, var(--temporal-accent) 5%, transparent); }
+.catalog-index-visual__path h4 { margin: 0 0 1rem; color: var(--temporal-accent); font: 600 1.1rem/1.5 var(--sans, sans-serif); }
+.catalog-index-visual__path ol { list-style: none; padding: 0; margin: 0; }
+.catalog-index-visual__path li { margin: 0; padding: 1rem 0; border-top: 1px solid var(--temporal-border); }
+.catalog-index-visual__path li:first-child { padding-top: 0; border-top: 0; }
+.catalog-index-visual__path li:last-child { padding-bottom: 0; }
+.catalog-index-visual__example { padding: .7rem; margin: .8rem 0; border-left: 3px solid var(--temporal-accent); background: var(--temporal-panel); }
+.catalog-index-visual__example > span { font-size: .8rem; color: var(--temporal-muted); }
+.catalog-index-visual p.catalog-index-visual__note { color: var(--temporal-muted); font-size: .85rem; }
+.catalog-index-visual p.catalog-index-visual__question { font-size: .9rem; font-style: italic; }
+.catalog-index-visual code { overflow-wrap: anywhere; font-size: .85rem; }
+.catalog-index-visual__shared { margin-top: 1.2rem; }
+@media(max-width:650px) {
+  .temporal-lesson .catalog-index-visual { padding: 1rem; }
+  .catalog-index-visual__paths { grid-template-columns: minmax(0,1fr); }
+  .catalog-index-visual__split { display: none; }
+  .catalog-index-visual__paths { margin-top: 1rem; }
+}

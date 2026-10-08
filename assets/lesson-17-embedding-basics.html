@@ -1,0 +1,29 @@
+<figure class="embedding-demo" aria-labelledby="embedding-map-title">
+  <figcaption id="embedding-map-title">Coordinates let us compare positions</figcaption>
+  <div class="embedding-demo__plots">
+    <div>
+      <h4>Two familiar dimensions</h4>
+      <svg viewBox="0 0 360 270" role="img" aria-label="Illustrative height and weight chart: A at 170 centimeters and 65 kilograms is close to B at 172 and 67, while C at 190 and 95 is farther away.">
+        <path d="M 55 22 V 225 H 335" class="embedding-axis"/>
+        <text x="58" y="19" class="embedding-label">Weight (kg)</text><text x="220" y="256" class="embedding-label">Height (cm)</text>
+        <text x="18" y="205" class="embedding-label">60</text><text x="18" y="52" class="embedding-label">100</text><text x="75" y="242" class="embedding-label">160</text><text x="288" y="242" class="embedding-label">190</text>
+        <circle cx="160" cy="180" r="7" class="embedding-dot"/><text x="88" y="166" class="embedding-label">A · (170, 65)</text>
+        <circle cx="175" cy="172" r="7" class="embedding-dot"/><text x="187" y="178" class="embedding-label">B · (172, 67)</text>
+        <circle cx="310" cy="65" r="7" class="embedding-dot embedding-dot--other"/><text x="218" y="47" class="embedding-label">C · (190, 95)</text>
+      </svg>
+      <p>A and B have a similar build, so their points are close.</p>
+    </div>
+    <div>
+      <h4>A simple picture of related text</h4>
+      <svg viewBox="0 0 360 270" role="img" aria-label="Handmade illustrative map: cat and dog are drawn together, while airplane is drawn farther away. These points are not real model embeddings.">
+        <path d="M 40 25 V 225 H 335" class="embedding-axis"/>
+        <text x="42" y="19" class="embedding-label">Illustrative coordinate 2</text><text x="145" y="256" class="embedding-label">Illustrative coordinate 1</text>
+        <ellipse cx="100" cy="176" rx="57" ry="36" class="embedding-cluster"/>
+        <circle cx="80" cy="190" r="7" class="embedding-dot"/><text x="56" y="215" class="embedding-label">cat</text>
+        <circle cx="120" cy="165" r="7" class="embedding-dot"/><text x="128" y="151" class="embedding-label">dog</text>
+        <circle cx="280" cy="70" r="7" class="embedding-dot embedding-dot--other"/><text x="245" y="54" class="embedding-label">airplane</text>
+      </svg>
+      <p>Related text can have similar vectors. This map is an illustration.</p>
+    </div>
+  </div>
+</figure>

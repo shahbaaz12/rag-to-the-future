@@ -4,27 +4,39 @@
     "number": 17,
     "filename": "1-first-rag.ipynb",
     "title": "Give the model something to read",
-    "lead": "What RAG is, why we need it, and how a small graph retrieves notes before answering."
+    "lead": "Explore RAG, embeddings, vector dimensions, similarity, and chunking with interactive demonstrations.",
+    "kind": "first_rag"
   },
   {
     "local": 2,
     "number": 18,
-    "filename": "2-conversational-rag.ipynb",
-    "title": "Let a follow-up keep its meaning",
-    "lead": "Use conversation history to rewrite a question before searching the supplied fables."
+    "filename": "2-pdf-retrieval.ipynb",
+    "kind": "pdf_retrieval",
+    "title": "Turn a PDF into a searchable collection",
+    "lead": "Load the fables PDF, chunk it, save vectors in Chroma, and inspect repeated searches with scores."
   },
   {
     "local": 3,
     "number": 19,
-    "filename": "3-hybrid-rag.ipynb",
-    "title": "Search by meaning and by exact words",
-    "lead": "Combine vector search and BM25 to answer questions from the supplied product guides."
+    "filename": "3-conversational-rag.ipynb",
+    "title": "Let a follow-up keep its meaning",
+    "lead": "Use conversation history to rewrite a question before searching the supplied fables.",
+    "kind": "conversational"
   },
   {
     "local": 4,
     "number": 20,
-    "filename": "4-hierarchical-rag.ipynb",
+    "filename": "4-hybrid-rag.ipynb",
+    "title": "Search by meaning and by exact words",
+    "lead": "Combine vector search and BM25 to answer questions from the supplied product guides.",
+    "kind": "hybrid"
+  },
+  {
+    "local": 5,
+    "number": 21,
+    "filename": "5-hierarchical-rag.ipynb",
     "title": "Choose a detail or the bigger picture",
-    "lead": "Route catalog questions to product and variant details or complete subcategory summaries."
+    "lead": "Route catalog questions to product and variant details or complete subcategory summaries.",
+    "kind": "hierarchical"
   }
 ]

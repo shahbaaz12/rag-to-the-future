@@ -1,0 +1,20 @@
+<figure class="embedding-demo cosine-demo" aria-labelledby="cosine-title">
+  <figcaption id="cosine-title">Two arrows, one angle, one score</figcaption>
+  <div class="cosine-demo__body">
+    <svg viewBox="0 0 300 280" role="img" aria-label="Two arrows from the same center; changing their angle changes cosine similarity.">
+      <circle cx="150" cy="145" r="105" class="embedding-cluster"/>
+      <path d="M 30 145 H 270 M 150 25 V 265" class="embedding-axis"/>
+      <path d="M 150 145 H 245 M 232 137 L 245 145 L 232 153" class="cosine-reference"/>
+      <g data-cosine-arrow><path d="M 150 145 H 235 M 222 137 L 235 145 L 222 153" class="cosine-moving"/></g>
+      <circle cx="150" cy="145" r="4" class="embedding-dot"/>
+    </svg>
+    <div class="cosine-demo__controls">
+      <label for="cosine-angle">Angle between the arrows: <output id="cosine-angle-label">30°</output></label>
+      <input id="cosine-angle" type="range" min="0" max="180" step="1" value="30"/>
+      <div class="cosine-demo__presets"><button type="button" data-cosine-angle="0">Same direction</button><button type="button" data-cosine-angle="90">Right angle</button><button type="button" data-cosine-angle="180">Opposite directions</button></div>
+      <p class="cosine-demo__score"><output id="cosine-score" aria-live="polite">0.866</output><span>cosine similarity</span></p>
+      <p id="cosine-explanation">A small angle gives a high similarity.</p>
+      <p class="embedding-demo__note">This demo compares arrows. It does not call an embedding model.</p>
+    </div>
+  </div>
+</figure>

@@ -27,18 +27,41 @@
 
 .temporal-lesson .rag-flow { margin: 2rem 0; padding: 1.4rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); }
 .rag-flow > figcaption { margin-bottom: 1.2rem; font: 600 1.4rem/1.4 var(--temporal-sans, sans-serif); }
-.rag-flow__phases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem; }
-.rag-flow h4 { margin: 0; color: var(--temporal-accent); font: 600 1.15rem/1.5 var(--temporal-sans, sans-serif); }
-.rag-flow .rag-flow__timing { margin: .35rem 0 1.1rem; font-size: .9rem; }
-.rag-flow .rag-flow__steps { list-style: none; padding: 0; margin: 0; }
-.temporal-lesson #lesson .rag-flow__steps > li { position: relative; display: flex; align-items: flex-start; gap: .7rem; margin: 0 0 2.1rem; padding: .9rem; border: 1px solid var(--temporal-border); border-left: 3px solid var(--temporal-accent); overflow-wrap: anywhere; }
-.rag-flow__steps > li:not(:last-child)::after { content: "↓"; position: absolute; left: 50%; bottom: -1.9rem; transform: translateX(-50%); color: var(--temporal-accent); font-size: 1.5rem; line-height: 1.8rem; }
-.temporal-lesson #lesson .rag-flow__steps > li:last-child { margin-bottom: 0; }
-.rag-flow__number { flex: 0 0 1.6rem; height: 1.6rem; text-align: center; border-radius: 50%; background: var(--temporal-accent); color: var(--temporal-panel); font: 700 .9rem/1.6rem var(--temporal-sans, sans-serif); }
-.rag-flow__steps strong { font-size: 1rem; }
-.rag-flow__steps p { margin: .35rem 0 .5rem; font-size: .95rem; line-height: 1.55; }
-.rag-flow__steps small { display: block; font-size: .85rem; line-height: 1.5; }
-@media (max-width: 800px) {
-  .rag-flow__phases { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+.rag-flow { --rag-text: #45b8b3; --rag-vector: #a993e8; }
+:root[data-theme="light"] .rag-flow { --rag-text: #147b78; --rag-vector: #714baa; }
+.rag-flow__legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .9rem; }
+.rag-flow__legend span { display: flex; align-items: center; gap: .4rem; }
+.rag-flow__legend i { width: .7rem; height: .7rem; border-radius: 50%; }
+.rag-flow__text-key { background: var(--rag-text); }
+.rag-flow__vector-key { background: var(--rag-vector); }
+.rag-flow__canvas { max-width: 100%; overflow-x: auto; margin-top: 1.5rem; }
+.rag-flow__canvas svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.rag-flow__canvas:focus-visible { outline: 2px solid var(--temporal-accent); outline-offset: 4px; }
+.rag-flow__hint { display: none; }
+.rag-flow__takeaway { border-top: 1px solid var(--temporal-border); padding-top: 1rem; font-size: 1rem; }
+.rag-flow svg text { fill: var(--temporal-text); font-family: var(--temporal-sans, sans-serif); }
+.rag-phase { font-size: 21px; font-weight: 700; }
+.rag-title { font-size: 16px; font-weight: 700; }
+.rag-label { font-size: 15px; }
+.rag-flow svg .rag-muted { fill: var(--temporal-muted); font-size: 13px; }
+.rag-box > rect { fill: var(--temporal-panel); stroke: var(--rag-text); stroke-width: 1.5; }
+.rag-box--vector > rect, .rag-box--store > rect { stroke: var(--rag-vector); fill: color-mix(in srgb, var(--rag-vector) 6%, var(--temporal-panel)); }
+.rag-box--answer > rect { stroke: var(--temporal-accent); fill: color-mix(in srgb, var(--temporal-accent) 8%, var(--temporal-panel)); }
+.rag-box rect.rag-mini { fill: color-mix(in srgb, var(--rag-text) 8%, var(--temporal-panel)); stroke: var(--temporal-border); }
+.rag-icon { fill: none; stroke: var(--rag-text); stroke-width: 1.8; }
+.rag-box--store .rag-icon { stroke: var(--rag-vector); }
+.rag-flow svg .rag-vector-value { fill: var(--rag-vector); font: 15px var(--temporal-mono); }
+.rag-link-text, .rag-link-vector { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.rag-link-text { stroke: var(--rag-text); }
+.rag-link-vector { stroke: var(--rag-vector); }
+.rag-link-original { stroke-dasharray: 5 4; }
+.rag-arrow-text { fill: var(--rag-text); }
+.rag-arrow-vector { fill: var(--rag-vector); }
+.rag-flow svg .rag-vector-label { fill: var(--rag-vector); font-size: 13px; }
+.rag-flow svg .rag-text-label { fill: var(--rag-text); font-size: 14px; }
+@media (max-width: 950px) {
+  .rag-flow__hint { display: block; color: var(--temporal-muted); font-size: .85rem; }
+}
+@media (max-width: 650px) {
   .temporal-lesson .rag-flow { padding: 1rem; }
 }

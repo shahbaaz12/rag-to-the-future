@@ -1,0 +1,63 @@
+.temporal-lesson .embedding-demo { margin: 2rem 0; padding: 1.4rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); }
+.embedding-demo figcaption { font: 600 1.35rem/1.5 var(--temporal-sans, sans-serif); margin-bottom: 1rem; }
+.embedding-demo__plots { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem; }
+.embedding-demo h4 { margin: .5rem 0; font: 600 1.1rem/1.5 var(--temporal-sans, sans-serif); }
+.embedding-demo svg { width: 100%; height: auto; display: block; }
+.embedding-demo p { font-size: 1rem; line-height: 1.7; }
+.embedding-axis { fill: none; stroke: var(--temporal-muted); stroke-width: 1; opacity: .65; }
+.embedding-label { fill: var(--temporal-text); font: 13px var(--temporal-sans, sans-serif); }
+.embedding-dot { fill: var(--temporal-accent); }
+.embedding-dot--other { fill: var(--temporal-muted); }
+.embedding-cluster { stroke: var(--temporal-accent); stroke-dasharray: 4 4; fill: color-mix(in srgb, var(--temporal-accent) 5%, transparent); }
+.cosine-demo__body { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); align-items: center; gap: 1.5rem; }
+.cosine-reference { fill: none; stroke: var(--temporal-muted); stroke-width: 4; }
+.cosine-moving { fill: none; stroke: var(--temporal-accent); stroke-width: 3; }
+.cosine-demo__controls label { font-size: 1rem; display: block; }
+.cosine-demo__controls input { display: block; width: 100%; margin: 1.2rem 0; accent-color: var(--temporal-accent); }
+.cosine-demo__presets { display: flex; flex-wrap: wrap; gap: .5rem; }
+.cosine-demo button { padding: .6rem .7rem; border: 1px solid var(--temporal-border); color: var(--temporal-text); background: var(--temporal-panel); cursor: pointer; font: inherit; font-size: .85rem; }
+.cosine-demo button[aria-pressed="true"] { border-color: var(--temporal-accent); background: color-mix(in srgb, var(--temporal-accent) 12%, var(--temporal-panel)); }
+.cosine-demo button:focus-visible, .cosine-demo input:focus-visible { outline: 2px solid var(--temporal-accent); outline-offset: 3px; }
+.cosine-demo__score output { display: block; color: var(--temporal-accent); font: 600 2.5rem/1.3 var(--temporal-mono); }
+.cosine-demo__score span, .embedding-demo p.embedding-demo__note { font-size: .85rem; color: var(--temporal-muted); }
+@media(max-width:650px) { .embedding-demo__plots, .cosine-demo__body { grid-template-columns: minmax(0,1fr); } .temporal-lesson .embedding-demo { padding: 1rem; } .cosine-demo__body > svg { max-width: 300px; margin: auto; } }
+
+.embedding-demo__badge { color: var(--temporal-accent); font-size: .85rem !important; letter-spacing: .04em; }
+.embedding-demo__buttons { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.2rem 0; }
+.embedding-demo__buttons button { padding: .7rem .85rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); font: 500 .9rem/1.5 var(--temporal-sans, sans-serif); cursor: pointer; text-align: left; }
+.embedding-demo__buttons button:hover, .embedding-demo__buttons button[aria-pressed="true"] { border-color: var(--temporal-accent); background: color-mix(in srgb, var(--temporal-accent) 12%, var(--temporal-panel)); }
+.embedding-demo button:focus-visible, .embedding-demo input:focus-visible, .embedding-demo textarea:focus-visible, .embedding-demo__scroll:focus-visible { outline: 2px solid var(--temporal-accent); outline-offset: 3px; }
+.embedding-demo__scroll { overflow-x: auto; max-width: 100%; }
+.arithmetic-demo p.arithmetic-demo__equation { color: var(--temporal-accent); font: 600 clamp(1.2rem, 3vw, 1.9rem)/1.7 var(--temporal-mono, monospace); overflow-wrap: anywhere; padding: 1rem 0; }
+.arithmetic-demo__steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .6rem; }
+.arithmetic-demo__steps > div { padding: .8rem; border-left: 3px solid var(--temporal-accent); background: color-mix(in srgb, var(--temporal-accent) 5%, transparent); }
+.arithmetic-demo__steps span, .arithmetic-demo__steps strong { display: block; font-size: .9rem; overflow-wrap: anywhere; }
+.arithmetic-demo__steps strong { font-family: var(--temporal-mono, monospace); margin-top: .5rem; color: var(--temporal-accent); }
+.vector-map-demo svg { min-width: 560px; }
+.vector-map-link { stroke: var(--temporal-accent); stroke-width: 2.5; }
+.vector-map-link--1 { stroke: var(--temporal-text); stroke-dasharray: 5 3; }
+.similarity-demo__inputs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.similarity-demo label, .chunking-demo label { display: block; font: 500 1rem/1.7 var(--temporal-sans, sans-serif); }
+.similarity-demo textarea { box-sizing: border-box; display: block; width: 100%; resize: vertical; margin-top: .5rem; padding: .8rem; border: 1px solid var(--temporal-border); background: var(--temporal-panel); color: var(--temporal-text); font: 1rem/1.7 var(--temporal-sans, sans-serif); }
+.similarity-demo__result { padding: 1.2rem 0; }
+.similarity-demo__score { display: block; font: 600 2.7rem/1.4 var(--temporal-mono, monospace); color: var(--temporal-accent); }
+.similarity-demo__result > span { font-size: .9rem; color: var(--temporal-muted); }
+.similarity-demo__track { height: .6rem; margin: 1rem 0; border: 1px solid var(--temporal-border); background: var(--temporal-panel); }
+.similarity-demo__track > div { height: 100%; background: var(--temporal-accent); transition: width .2s ease; }
+.similarity-demo__vectors { border-top: 1px solid var(--temporal-border); padding-top: .6rem; }
+.similarity-demo__vectors table { width: 100%; font-size: .9rem; }
+.similarity-demo__vectors th, .similarity-demo__vectors td { padding: .5rem .7rem; border-bottom: 1px solid var(--temporal-border); text-align: left; overflow-wrap: anywhere; }
+.chunking-demo pre.chunking-demo__source { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--temporal-text); background: var(--temporal-panel); padding: 1rem; font: .95rem/1.8 var(--temporal-mono, monospace); max-height: 300px; overflow-y: auto; border: 1px solid var(--temporal-border); }
+.chunking-demo input { display: block; width: 100%; margin: 1rem 0; accent-color: var(--temporal-accent); }
+.chunking-demo [hidden] { display: none !important; }
+.chunking-demo__stats { border-block: 1px solid var(--temporal-border); padding: .8rem 0; color: var(--temporal-accent); }
+.chunking-demo__chunks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .8rem; }
+.chunking-demo__card { min-width: 0; padding: 1rem; background: color-mix(in srgb, var(--temporal-accent) 6%, var(--temporal-panel)); border-left: 3px solid var(--temporal-accent); }
+.chunking-demo__card:nth-child(2n) { border-left-color: var(--temporal-text); }
+.chunking-demo__card h4 { color: var(--temporal-accent); font-size: .9rem; }
+.chunking-demo__card p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.chunking-demo__repeated { text-decoration: underline; text-decoration-color: var(--temporal-accent); text-underline-offset: .2em; background: color-mix(in srgb, var(--temporal-accent) 15%, transparent); }
+.chunking-demo__warning { display: block; font-size: .85rem; margin-top: .6rem; }
+.chunking-demo__card > .embedding-demo__note { color: var(--temporal-muted); font-size: .85rem; }
+@media(max-width:650px) { .arithmetic-demo__steps { grid-template-columns: repeat(2,minmax(0,1fr)); } .similarity-demo__inputs, .chunking-demo__chunks { grid-template-columns: minmax(0,1fr); } }
+@media(prefers-reduced-motion:reduce) { .similarity-demo__track > div { transition: none; } }

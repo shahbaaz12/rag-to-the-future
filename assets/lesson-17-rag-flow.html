@@ -1,26 +1,105 @@
 <figure class="rag-flow" aria-labelledby="rag-flow-title">
   <figcaption id="rag-flow-title">From documents to an answer</figcaption>
-  <div class="rag-flow__phases">
-    <section aria-labelledby="rag-prepare-title">
-      <h4 id="rag-prepare-title">A · Prepare the documents</h4>
-      <p class="rag-flow__timing">Before questions arrive</p>
-      <ol class="rag-flow__steps">
-        <li><span class="rag-flow__number">1</span><div><strong>Load documents</strong><p>Read the notes or files we want to search.</p><small>Input: our course notes</small></div></li>
-        <li><span class="rag-flow__number">2</span><div><strong>Split into chunks</strong><p>Break long documents into smaller pieces of text.</p><small>Short notes can stay in one piece.</small></div></li>
-        <li><span class="rag-flow__number">3</span><div><strong>Create chunk vectors</strong><p>The embedding model turns each chunk into a list of numbers.</p><small>One chunk → one vector</small></div></li>
-        <li><span class="rag-flow__number">4</span><div><strong>Save in the vector store</strong><p>Keep each vector with its original chunk and source details.</p><small>Saved together: vector + text + source</small></div></li>
-      </ol>
-    </section>
-    <section aria-labelledby="rag-answer-title">
-      <h4 id="rag-answer-title">B · Answer a question</h4>
-      <p class="rag-flow__timing">Repeat for each question that needs retrieval</p>
-      <ol class="rag-flow__steps" start="5">
-        <li><span class="rag-flow__number">5</span><div><strong>Create the question vector</strong><p>Embed the whole question with the same embedding model.</p><small>“What does RAG do?” → one vector</small></div></li>
-        <li><span class="rag-flow__number">6</span><div><strong>Search the saved vectors</strong><p>Compare the question vector with the chunk vectors saved in Step 4.</p><small>Look for similar vectors.</small></div></li>
-        <li><span class="rag-flow__number">7</span><div><strong>Retrieve the matching text</strong><p>Return the selected chunks' original text and source details.</p><small>Example text: “RAG retrieves relevant documents…”</small></div></li>
-        <li><span class="rag-flow__number">8</span><div><strong>Build the prompt</strong><p>Combine the original question, retrieved text, and answer instructions.</p><small>The chat model receives text.</small></div></li>
-        <li><span class="rag-flow__number">9</span><div><strong>Write the answer</strong><p>The chat model reads the prompt and answers using the supplied text.</p><small>Example: “RAG finds useful text before generating an answer.”</small></div></li>
-      </ol>
-    </section>
+  <div class="rag-flow__legend"><span><i class="rag-flow__text-key"></i>Text</span><span><i class="rag-flow__vector-key"></i>Vectors used for search</span></div>
+  <p class="rag-flow__hint">On a small screen, scroll sideways to follow the arrows →</p>
+  <div class="rag-flow__canvas" tabindex="0" role="region" aria-label="RAG diagram; scroll horizontally on narrow screens">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 800" role="img" aria-labelledby="rag-diagram-title rag-diagram-description">
+      <title id="rag-diagram-title">Nine steps from documents to a RAG answer</title>
+      <desc id="rag-diagram-description">Preparation: load documents, split them into chunks, embed the chunks, and store each vector with its text and source. Answering: embed the question, compare its vector with stored vectors, and retrieve matching text. The original question and retrieved text both enter the prompt. The chat model reads that prompt and writes an answer.</desc>
+      <defs>
+        <marker id="rag-text-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="rag-arrow-text"/></marker>
+        <marker id="rag-vector-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="rag-arrow-vector"/></marker>
+      </defs>
+      <text x="20" y="30" class="rag-phase">A · Prepare the documents</text>
+      <text x="20" y="53" class="rag-muted">Before questions arrive · update when the documents change</text>
+      <g class="rag-box rag-box--text">
+        <rect x="20" y="80" width="170" height="155" rx="12"/>
+        <text x="35" y="109" class="rag-title">1 · Load files</text>
+        <path d="M 72 128 H 121 L 135 142 V 207 H 72 Z M 121 128 V 142 H 135 M 84 157 H 123 M 84 170 H 123 M 84 183 H 115" class="rag-icon"/>
+        <text x="105" y="224" text-anchor="middle" class="rag-muted">Course notes</text>
+      </g>
+      <path d="M 190 160 H 224" class="rag-link-text" marker-end="url(#rag-text-arrow)"/>
+      <g class="rag-box rag-box--text">
+        <rect x="225" y="80" width="175" height="155" rx="12"/>
+        <text x="240" y="109" class="rag-title">2 · Split into chunks</text>
+        <rect x="242" y="128" width="141" height="36" rx="4" class="rag-mini"/>
+        <text x="252" y="151" class="rag-label">“RAG retrieves…”</text>
+        <rect x="242" y="176" width="141" height="36" rx="4" class="rag-mini"/>
+        <text x="252" y="199" class="rag-label">“Tools execute…”</text>
+        <text x="313" y="224" text-anchor="middle" class="rag-muted">Smaller pieces of text</text>
+      </g>
+      <path d="M 400 160 H 434" class="rag-link-text" marker-end="url(#rag-text-arrow)"/>
+      <g class="rag-box rag-box--vector">
+        <rect x="435" y="80" width="190" height="155" rx="12"/>
+        <text x="450" y="109" class="rag-title">3 · Embed each chunk</text>
+        <text x="450" y="143" class="rag-label">Embedding model</text>
+        <text x="450" y="173" class="rag-vector-value">[0.2, −0.5, …]</text>
+        <text x="450" y="196" class="rag-vector-value">[0.7, 0.1, …]</text>
+        <text x="450" y="224" class="rag-muted">Illustrative vectors</text>
+      </g>
+      <path d="M 625 160 H 669" class="rag-link-vector" marker-end="url(#rag-vector-arrow)"/>
+      <g class="rag-box rag-box--store">
+        <rect x="670" y="80" width="230" height="155" rx="12"/>
+        <text x="685" y="109" class="rag-title">4 · Save in the vector store</text>
+        <path d="M 695 145 C 695 131, 745 131, 745 145 V 183 C 745 197, 695 197, 695 183 Z M 695 145 C 695 159, 745 159, 745 145" class="rag-icon"/>
+        <text x="757" y="153" class="rag-label">Vector</text>
+        <text x="757" y="176" class="rag-label">Original text</text>
+        <text x="757" y="199" class="rag-label">Source details</text>
+        <text x="685" y="224" class="rag-muted">Keep all three together.</text>
+      </g>
+      <path d="M 785 235 V 273 H 463 V 354" class="rag-link-vector" marker-end="url(#rag-vector-arrow)"/>
+      <text x="590" y="263" class="rag-vector-label">Stored chunk vectors</text>
+      <text x="20" y="303" class="rag-phase">B · Answer a question</text>
+      <text x="20" y="326" class="rag-muted">Repeat for each question that needs retrieval</text>
+      <g class="rag-box rag-box--vector">
+        <rect x="20" y="355" width="240" height="155" rx="12"/>
+        <text x="35" y="384" class="rag-title">5 · Embed the question</text>
+        <text x="35" y="417" class="rag-label">“What does RAG do?”</text>
+        <text x="35" y="444" class="rag-muted">Same embedding model</text>
+        <text x="35" y="477" class="rag-vector-value">[0.3, −0.4, …]</text>
+        <text x="35" y="498" class="rag-muted">One question → one vector</text>
+      </g>
+      <path d="M 260 431 H 344" class="rag-link-vector" marker-end="url(#rag-vector-arrow)"/>
+      <text x="302" y="399" text-anchor="middle" class="rag-vector-label"><tspan x="302">Question</tspan><tspan x="302" dy="18">vector</tspan></text>
+      <g class="rag-box rag-box--vector">
+        <rect x="345" y="355" width="235" height="155" rx="12"/>
+        <text x="360" y="384" class="rag-title">6 · Search saved vectors</text>
+        <text x="360" y="417" class="rag-label">Compare the question vector</text>
+        <text x="360" y="440" class="rag-label">with the stored chunk vectors.</text>
+        <text x="360" y="477" class="rag-vector-value">Find similar vectors</text>
+      </g>
+      <path d="M 580 431 H 659" class="rag-link-text" marker-end="url(#rag-text-arrow)"/>
+      <text x="620" y="407" text-anchor="middle" class="rag-muted">Get text</text>
+      <g class="rag-box rag-box--text">
+        <rect x="660" y="355" width="240" height="155" rx="12"/>
+        <text x="675" y="384" class="rag-title">7 · Retrieve matching text</text>
+        <rect x="675" y="402" width="210" height="76" rx="5" class="rag-mini"/>
+        <text x="687" y="426" class="rag-label">“RAG retrieves relevant</text>
+        <text x="687" y="449" class="rag-label">documents…”</text>
+        <text x="675" y="498" class="rag-muted">Return text and source details.</text>
+      </g>
+      <path d="M 780 510 V 560 H 463 V 609" class="rag-link-text" marker-end="url(#rag-text-arrow)"/>
+      <text x="565" y="549" class="rag-text-label">Retrieved text</text>
+      <path d="M 140 510 V 685 H 344" class="rag-link-text rag-link-original" marker-end="url(#rag-text-arrow)"/>
+      <text x="155" y="607" class="rag-text-label"><tspan x="155">Keep the original</tspan><tspan x="155" dy="21">question as text.</tspan></text>
+      <g class="rag-box rag-box--text">
+        <rect x="345" y="610" width="280" height="160" rx="12"/>
+        <text x="360" y="639" class="rag-title">8 · Build the prompt</text>
+        <text x="360" y="674" class="rag-label">Original question</text>
+        <text x="360" y="700" class="rag-label">+ Retrieved text</text>
+        <text x="360" y="726" class="rag-label">+ Instructions for answering</text>
+        <text x="360" y="754" class="rag-muted">Give the model text to read.</text>
+      </g>
+      <path d="M 625 685 H 669" class="rag-link-text" marker-end="url(#rag-text-arrow)"/>
+      <g class="rag-box rag-box--answer">
+        <rect x="670" y="610" width="230" height="160" rx="12"/>
+        <text x="685" y="639" class="rag-title">9 · Write the answer</text>
+        <text x="685" y="670" class="rag-label">The chat model reads the</text>
+        <text x="685" y="693" class="rag-label">prompt and writes an answer.</text>
+        <text x="685" y="727" class="rag-muted">“RAG finds useful text</text>
+        <text x="685" y="749" class="rag-muted">before generating an answer.”</text>
+      </g>
+    </svg>
   </div>
+  <p class="rag-flow__takeaway">Vectors find the passages. The chat model reads the passages as text.</p>
 </figure>

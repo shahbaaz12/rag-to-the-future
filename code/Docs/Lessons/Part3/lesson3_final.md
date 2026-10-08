@@ -1,34 +1,34 @@
-# Part III · Lesson 3 — Search by meaning and by exact words
-
-## A note from me
-
-“My robot's brush is jammed” and “What does E922 mean?” can point to the same product guide. One question describes the problem; the other gives us an exact code.
-
-**Vector search** is useful for related meaning.
-
-**Keyword search** is useful when a particular code or product ID matters. Let’s give both a vote instead of expecting one search method to handle every question equally well.
+# Part III · Lesson 3 — Let a follow-up keep its meaning
 
 ## What we are building
 
-We search the supplied Nexa product guides twice, combine the ranked results, and send the selected text to the model. This is hybrid retrieval: **vector results + keyword results → one ranked list → answer**.
+We are building a **story assistant that understands follow-up questions**, using the supplied fables. We can ask, “What happened to the grasshopper in winter?” and then, “Who helped him?” The assistant should understand that “him” means the grasshopper and search the right story.
 
-**BM25** is a keyword-ranking method. It rewards matching terms while accounting for how common they are and the document's length. Our tokenizer makes words lowercase and keeps hyphenated IDs together. These are search terms, not the chat model's billing tokens.
+We will store the story chunks in **Chroma**, a vector database that saves our searchable collection to disk. We will search those chunks for each question and keep the conversation as messages.
 
-The two methods return different kinds of scores.
+### The idea behind it
 
-**Reciprocal rank fusion**, or RRF, combines their positions rather than pretending the raw scores are interchangeable. A document ranked highly by both methods receives two contributions.
+In Lesson 18, we searched using the user's question directly. A follow-up such as “Who helped him?” is missing the name the search needs. Here, we give the model the earlier conversation first and ask it to rewrite the follow-up as a complete search question: for example, “Who helped the grasshopper in winter?”
 
-Run the notebook from its directory. Live runs use the same Groq and OpenAI keys; rank-bm25 and langchain-text-splitters are declared in the project. We use the provided text guides rather than their PDF companions.
+**A standalone question** makes sense without reading earlier messages. We use that rewritten question to retrieve story text, then ask the model to answer the user's original question using that text. Finally, we save the new question and answer in history so the next follow-up has context too.
+
+Our flow is **history + question → rewrite → retrieve from Chroma → answer → save history**. It builds on the sequential steps and message history we already learned. History tells us what the user means; the retrieved story supplies the facts for the answer.
+
+Chroma saves the searchable stories on disk. The conversation history is a separate Python list in this example. Saving one does not automatically save the other.
+
+The reference shows manual prompts, templates, and older chain helpers. We will keep one clear version using ChatPromptTemplate and MessagesPlaceholder. It lets us see the work without teaching three wrappers for the same flow.
+
+Live runs need GROQ_API_KEY and OPENAI_API_KEY. Run the notebook from its directory; uv sync from the code project installs its dependencies, including langchain-chroma. The embedding model is used for indexing and search, and Groq writes the rewrite and answer. Local Chroma needs no separate database service or Chroma API key.
 
 ### Import the document and model helpers
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-01 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-01 -->
 ```python
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.documents import Document
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 ```
 
@@ -36,13 +36,13 @@ from langchain_openai import OpenAIEmbeddings
 
 **Document** pairs a piece of text with metadata about its source.
 
-**InMemoryVectorStore** keeps documents and their vectors in this Python process. We import separate helpers for embeddings and chat replies.
+**Chroma** is the vector database used in the supplied example. With persist_directory, it saves the indexed text, vectors, and source details to a local folder. We import separate helpers for embeddings and chat replies.
 
 **Result:** The building blocks are available; importing them makes no provider request.
 
 ### Connect the two kinds of model
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-02 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-02 -->
 ```python
 load_dotenv()
 # Groq generates answers; OpenAI creates search embeddings.
@@ -60,26 +60,26 @@ Keep GROQ_API_KEY and OPENAI_API_KEY in the code project's .env file. The chat m
 
 ### Find the supplied text documents
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-03 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-03 -->
 ```python
 from pathlib import Path
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Run this notebook with its own directory as the working directory.
-data_dir = Path("../doc/products")
+data_dir = Path("../doc/smallStories")
 text_files = sorted(data_dir.glob("*.txt"))
 print("Files:", len(text_files))
 ```
 
 **What happens here**
 
-We use the text companions supplied alongside your PDFs. This lets us focus on retrieval rather than PDF extraction. The relative path points from this notebook's folder to code/doc/products. These are the actual product guides used by the example.
+We use the text companions supplied alongside your PDFs. This lets us focus on retrieval rather than PDF extraction. The relative path points from this notebook's folder to code/doc/smallStories. These are the actual fables used by the example.
 
 **Result:** The source filenames are listed in a predictable order.
 
 ### Keep text and source together
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-04 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-04 -->
 ```python
 documents = [
     Document(
@@ -99,7 +99,7 @@ Each file becomes a Document. page_content holds its text, and metadata records 
 
 ### Split the documents into searchable pieces
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-05 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-05 -->
 ```python
 splitter = RecursiveCharacterTextSplitter(chunk_size=600, chunk_overlap=80)
 chunks = splitter.split_documents(documents)
@@ -114,23 +114,47 @@ A chunk is a smaller piece we can retrieve and send to the model. This splitter 
 
 **Result:** Every searchable chunk keeps its source filename and its own ID.
 
-### Build the vector index
+### Save the vector index in Chroma
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-06 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-06 -->
 ```python
-vector_store = InMemoryVectorStore.from_documents(chunks, embeddings)
+vector_store = Chroma.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    ids=[chunk.metadata["chunk_id"] for chunk in chunks],
+    collection_name="fables",
+    persist_directory="./chroma_db",
+)
 retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 ```
 
 **What happens here**
 
-The store asks the embedding model to encode the chunks, then keeps the vectors with their text. The retriever encodes a question with the same model and selects up to three similar chunks. This index is rebuilt when we rerun setup; it is not saved to disk. A returned search hit is a candidate, not proof that the question is answered.
+Chroma embeds the chunks and saves their text, vectors, and metadata in the fables collection inside ./chroma_db. The IDs come from chunk_id, so rerunning this cell with the unchanged notes updates the same entries instead of adding duplicates. It still makes embedding requests. The retriever embeds a question with the same model and selects up to three similar chunks. A search hit is a candidate, not proof that the question is answered.
 
 **Result:** We can retrieve Documents by meaning without rebuilding the index for every question.
 
+### Reopen the saved collection
+
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-06-reopen -->
+```python
+vector_store = Chroma(
+    collection_name="fables",
+    embedding_function=embeddings,
+    persist_directory="./chroma_db",
+)
+retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+```
+
+**What happens here**
+
+Chroma opens the existing fables collection from the same folder. This cell also works after restarting the kernel and rerunning the imports and embedding-model setup. Opening the collection does not embed its saved documents again. Searching still embeds each new question, so we use the same embedding model that created the stored vectors. After a restart, skip the previous indexing cell if the saved collection is already ready.
+
+**Result:** The retriever searches the saved collection without re-indexing the source documents.
+
 ### Prepare readable context with source labels
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-07 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-07 -->
 ```python
 def format_context(documents: list[Document]) -> str:
     return "\n\n".join(
@@ -145,157 +169,151 @@ We join the retrieved text into the context the chat model will receive. The bra
 
 **Result:** A model prompt can include both the evidence and its source names.
 
-### Use the same tokenizer for documents and questions
+### Keep the conversation as typed messages
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-08 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-08 -->
 ```python
-import re
-from rank_bm25 import BM25Okapi
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-def tokenize(text: str) -> list[str]:
-    return re.findall(r"\b[\w-]+\b", text.lower())
-
-bm25 = BM25Okapi([tokenize(chunk.page_content) for chunk in chunks])
+chat_history = []
 ```
 
 **What happens here**
 
-BM25Okapi builds a keyword index from lists of terms. The regular expression keeps a value such as NEX-1008 as one term. rank-bm25 does not preprocess our text for us, so we apply this same tokenize function when querying.
+We keep earlier HumanMessage and AIMessage objects in a list. MessagesPlaceholder will insert that list into a prompt without flattening the roles into one text blob. This list belongs to this notebook session.
 
-**Result:** We now have a keyword index over the same chunks as the vector store.
+**Result:** We have an initially empty conversation and reusable prompt helpers.
 
-### Return only keyword hits with a positive score
+### Describe the question-rewriting job
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-09 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-09 -->
 ```python
-def keyword_search(question: str, k: int = 5) -> list[Document]:
-    scores = bm25.get_scores(tokenize(question))
-    ranked = sorted(range(len(scores)), key=lambda index: scores[index], reverse=True)
-    return [chunks[index] for index in ranked[:k] if scores[index] > 0]
+rewrite_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Rewrite the latest question so it makes sense alone. "
+     "Use the history to resolve references. Do not answer it. Return only the question."),
+    MessagesPlaceholder("history"),
+    ("human", "{question}"),
+])
 ```
 
 **What happens here**
 
-get_scores returns one score per chunk, in corpus order. We sort the indices and return up to k positive-scoring candidates. For a code that never appears, this branch returns an empty list rather than filling the result with zero-score matches.
+The model sees earlier messages and the latest question. Its job here is to replace a reference such as him with the relevant character. We ask for only the question because a generated answer would be the wrong thing to search for.
 
-**Result:** Exact matches can contribute useful evidence, while absent terms add no keyword candidates.
+**Result:** The template expects history and question values.
 
-### Inspect both methods for one error code
+### Rewrite only when there is earlier history
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-10 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-10 -->
 ```python
-question = "What does E922 mean?"
-vector_results = vector_store.similarity_search(question, k=5)
-keyword_results = keyword_search(question)
-print("Vector IDs:", [doc.metadata["chunk_id"] for doc in vector_results])
-print("Keyword IDs:", [doc.metadata["chunk_id"] for doc in keyword_results])
+def contextualize_question(question: str) -> str:
+    if not chat_history:
+        return question
+    prompt = rewrite_prompt.invoke({"history": chat_history, "question": question})
+    return model.invoke(prompt).text.strip()
 ```
 
 **What happens here**
 
-The vector search ranks by embedding similarity. BM25 ranks matching terms. In the supplied CleanBot guide, E922 means a brush jam. Inspecting the IDs shows whether the two methods selected the same chunk; their rankings need not agree.
+The first turn is already standalone, so we avoid an unnecessary rewrite call. Later turns use the saved conversation. A rewritten question can still be wrong; returning it in the final result helps us inspect that step.
 
-**Result:** We have two lists of candidate Documents for the same question.
+**Result:** The retriever will receive a question that includes the missing reference.
 
-### Combine rankings without duplicating a chunk
+### Describe the answering job separately
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-11 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-11 -->
 ```python
-def reciprocal_rank_fusion(vector_results, keyword_results, final_k=3):
-    scores, documents_by_id = {}, {}
-    for results in [vector_results, keyword_results]:
-        for rank, document in enumerate(results, start=1):
-            chunk_id = document.metadata["chunk_id"]
-            documents_by_id[chunk_id] = document
-            scores[chunk_id] = scores.get(chunk_id, 0) + 1 / (60 + rank)
-    ranked_ids = sorted(scores, key=scores.get, reverse=True)
-    return [documents_by_id[chunk_id] for chunk_id in ranked_ids[:final_k]]
+answer_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Use only the context for factual claims. History helps resolve references. "
+     "If the context is insufficient, say you could not find the answer. "
+     "Cite filenames in brackets.\nContext:\n{context}"),
+    MessagesPlaceholder("history"),
+    ("human", "{question}"),
+])
 ```
 
 **What happens here**
 
-Each position contributes 1 divided by 60 plus its rank. The 60 is a smoothing constant, not the number of results or a similarity threshold. We identify each chunk by its stable ID, so a shared hit gains score without appearing twice. Different chunks from the same file remain separate candidates.
+This prompt has a different job: answer from the retrieved story text. History helps the conversation make sense, but an earlier model reply is not a source document. We ask the model to acknowledge missing evidence rather than complete the story from its general knowledge.
 
-**Result:** The fused list contains up to three unique chunks, ordered by their combined rank contributions.
+**Result:** The answer prompt expects context as well as history and question.
 
-### Make hybrid retrieval reusable
+### Run and store one conversation turn
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-12 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-12 -->
 ```python
-def hybrid_search(question: str) -> list[Document]:
-    vector_results = vector_store.similarity_search(question, k=5)
-    keyword_results = keyword_search(question, k=5)
-    return reciprocal_rank_fusion(vector_results, keyword_results)
-
-hybrid_results = hybrid_search("What does E922 mean?")
-for document in hybrid_results:
-    print(document.metadata["source"], document.page_content[:120])
-```
-
-**What happens here**
-
-Both searches use the same question and underlying chunks. Fusion chooses the final candidates. We print a source and excerpt so the retrieval behavior is visible before involving the answer model.
-
-**Result:** Hybrid retrieval returns Documents ready to be used as context.
-
-### Generate an answer and keep its evidence
-
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-13 -->
-```python
-def ask_hybrid_rag(question: str) -> dict:
-    retrieved_documents = hybrid_search(question)
-    instruction = (
-        "Answer using only the context. If it is insufficient, say you could not find the answer. "
-        "Cite filenames in brackets.\nContext:\n" + format_context(retrieved_documents)
-    )
-    answer = model.invoke([SystemMessage(instruction), HumanMessage(question)]).text
+def ask_conversational_rag(question: str) -> dict:
+    standalone_question = contextualize_question(question)
+    retrieved_documents = retriever.invoke(standalone_question)
+    prompt = answer_prompt.invoke({
+        "history": chat_history, "question": question,
+        "context": format_context(retrieved_documents),
+    })
+    answer = model.invoke(prompt).text
+    chat_history.extend([HumanMessage(question), AIMessage(answer)])
     return {
-        "question": question, "answer": answer, "documents": retrieved_documents,
-        "sources": sorted({doc.metadata["source"] for doc in retrieved_documents}),
+        "question": question, "standalone_question": standalone_question,
+        "answer": answer, "documents": retrieved_documents,
     }
 ```
 
 **What happens here**
 
-The generation step has the same job as before: read selected text and answer the question. Hybrid retrieval changes how we select the context, not how a chat model learns. We return distinct filenames plus the actual chunks, so multiple excerpts from one guide do not create duplicate source labels.
+We search with the standalone question while answering the user's original wording. Only after generation do we store the user question and reply. The four returned fields let us inspect the original input, search input, answer, and evidence together.
 
-**Result:** The result carries the question, answer, retrieved Documents, and source filenames.
+**Result:** A completed turn adds exactly two messages to history.
 
-### Try an exact code and a natural description
+### Ask the first question
 
-<!-- snippet: code/Part III Give the model something to read/3-hybrid-rag.ipynb#p3-3-step-14 -->
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-13 -->
 ```python
-code_result = ask_hybrid_rag("What does E922 mean and how do I fix it?")
-description_result = ask_hybrid_rag("The brush on my robot vacuum is jammed. What should I do?")
-print("Code:", code_result["answer"], code_result["sources"])
-print("Description:", description_result["answer"], description_result["sources"])
+first_turn = ask_conversational_rag("What happened to the grasshopper in winter?")
+print("Search question:", first_turn["standalone_question"])
+print("Answer:", first_turn["answer"])
 ```
 
 **What happens here**
 
-Both questions concern the CleanBot guide, but they supply different search clues. Generated answers can vary; check their claims against the returned chunks. The document says to turn off the robot and remove hair or thread from the main brush and end caps.
+There is no earlier history, so the search question is unchanged. The source story describes the hungry grasshopper visiting the ant in winter. Inspect the returned Documents to see the passage used; the exact generated wording varies.
 
-**Result:** We can compare retrieval evidence for an exact identifier and an everyday description.
+**Result:** The first question and answer are saved in history.
 
-## Why not just add the scores?
+### Ask a question that needs the previous turn
 
-A vector similarity score and a BM25 score are not on the same scale. RRF uses where a chunk appears in each list. It is a simple way to merge rankings, not a guarantee that hybrid search always beats either method alone.
+<!-- snippet: code/Part III Give the model something to read/3-conversational-rag.ipynb#p3-2-step-14 -->
+```python
+second_turn = ask_conversational_rag("Who helped him?")
+print("Original:", second_turn["question"])
+print("Search question:", second_turn["standalone_question"])
+print("Sources:", [doc.metadata["source"] for doc in second_turn["documents"]])
+print("Answer:", second_turn["answer"])
+print("History messages:", len(chat_history))
+```
 
-You can still miss the right passage. A very small chunk may separate an error code from its resolution, and a very large chunk may dilute the useful words. Inspect the excerpts before changing the model prompt.
+**What happens here**
 
-Further reading: [rank-bm25 usage](https://github.com/dorianbrown/rank_bm25) describes the keyword index and its preprocessing requirements.
+The rewrite should identify the grasshopper. For example, Who helped the grasshopper in winter? is a useful search question; it is illustrative, not a guaranteed string. We now have four history messages. The supplied story names the ant as the helper.
+
+**Result:** The original short follow-up remains visible beside the expanded search question and retrieved evidence.
+
+## What did memory change?
+
+It changed the query we sent to retrieval. We did not add every old message to the vector index, and we did not retrain either model. Our application used conversational context to choose a better search input.
+
+Restarting the kernel clears chat_history, but the Chroma index stays on disk. Saving source documents is different from saving the conversation: reopen the collection to search the stories again, and save or restore chat history separately if you want to continue the same conversation. Longer conversations also need a deliberate history policy; sending everything forever uses more input tokens. We keep that concern separate from this small example.
 
 ## Check your understanding
 
-1. Why do exact codes help keyword search?
-2. Why use the same tokenizer for documents and questions?
-3. How does fusion avoid duplicate chunks?
-4. Why is a search hit not proof that an answer is supported?
+1. Why rewrite before searching?
+2. Why does the first turn skip the rewrite call?
+3. Which question is stored in history?
+4. Why are earlier model answers different from source evidence?
 
 ## Where we go next
 
-Next we will choose the right information level: a product detail or a view across a catalog.
+Next we will combine meaning-based retrieval with keyword matching for an exact product error code.
 
-Complete notebook: [3-hybrid-rag.ipynb](../../../Part%20III%20Give%20the%20model%20something%20to%20read/3-hybrid-rag.ipynb)
+Complete notebook: [3-conversational-rag.ipynb](../../../Part%20III%20Give%20the%20model%20something%20to%20read/3-conversational-rag.ipynb)
 
-Further reading: [LangChain retrieval](https://docs.langchain.com/oss/python/langchain/retrieval) and [OpenAI embeddings](https://developers.openai.com/api/docs/guides/embeddings).
+Further reading: [LangChain Chroma integration](https://docs.langchain.com/oss/python/integrations/vectorstores/chroma), [LangChain retrieval](https://docs.langchain.com/oss/python/langchain/retrieval) and [OpenAI embeddings](https://developers.openai.com/api/docs/guides/embeddings).
