@@ -214,7 +214,7 @@ def main(database_root):
             kwargs["client_settings"] = Settings(anonymized_telemetry=False)
             super().__init__(*args, **kwargs)
 
-    entries = json.loads((ROOT / "part-three-lessons.json").read_text(encoding="utf-8"))
+    entries = json.loads((ROOT / "site/part-three-lessons.json").read_text(encoding="utf-8"))
     manifest = []
     for entry in entries:
         path = ROOT / "code/Part III Give the model something to read" / entry["filename"]

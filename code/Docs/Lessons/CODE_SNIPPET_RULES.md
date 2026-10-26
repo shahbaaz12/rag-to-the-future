@@ -42,7 +42,7 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 - End with the expected result or state change when it helps. Label illustrative model responses as examples, not guaranteed outputs.
 - Keep explanations readable without hover, expansion, truncated labels, or side panels. Use normal prose typography for explanations and monospace for code.
 - Highlight newly introduced terms only at their first explanation in course order. Use consistent colors for functions, classes, files, and concepts; never alter the code or source comments to add a highlight.
-- Maintain `lesson-terms.json` with a short, plain definition for each term. The floating glossary carries introduced terms forward, opens from its icon, and closes on an outside click or Escape.
+- Maintain `site/lesson-terms.json` with a short, plain definition for each term. The floating glossary carries introduced terms forward, opens from its icon, and closes on an outside click or Escape.
 
 ## Page layout
 
@@ -56,4 +56,4 @@ Apply these rules whenever drafting or updating a lesson or lesson page. Use [DR
 
 The `lessonN_final.md` drafts remain the content source. Each snippet has a `<!-- snippet: path#cell-id -->` source marker, its code fence, a **What happens here** explanation, and a **Result:** paragraph. Keep these together when editing. Supplementary examples cite the lesson Markdown itself.
 
-From the `code` project folder, run `uv run python ../scripts/render_lesson_snippets.py`. The renderer uses the shared styles, preserves copyable source text, and checks notebook snippets against their referenced cells. After changing a notebook, update the corresponding draft snippets before rendering.
+From the `code` project folder, run `uv run python ../scripts/render_lesson_snippets.py`. The renderer writes pages to `site/`, uses the shared styles, preserves copyable source text, and checks notebook snippets against their referenced cells. After changing a notebook, update the corresponding draft snippets before rendering.

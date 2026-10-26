@@ -20,15 +20,16 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import PythonLexer, PowerShellLexer, TextLexer
 from temporal_design import apply_design
 from lesson_tokenizer import tokenizer_playground
+from site_paths import SITE
 
 ROOT = Path(__file__).resolve().parents[1]
 DRAFTS = ROOT / "code/Docs/Lessons/Part1"
 NOTEBOOKS = ROOT / "code/Part I Understanding the Basics"
-PART_TWO = {entry["number"]: entry for entry in json.loads((ROOT / "part-two-lessons.json").read_text(encoding="utf-8"))}
-PART_THREE = {entry["number"]: entry for entry in json.loads((ROOT / "part-three-lessons.json").read_text(encoding="utf-8"))}
+PART_TWO = {entry["number"]: entry for entry in json.loads((SITE / "part-two-lessons.json").read_text(encoding="utf-8"))}
+PART_THREE = {entry["number"]: entry for entry in json.loads((SITE / "part-three-lessons.json").read_text(encoding="utf-8"))}
 ADVANCED_LESSONS = {**PART_TWO, **PART_THREE}
 LAST_LESSON = max(ADVANCED_LESSONS)
-TERMS = json.loads((ROOT / "lesson-terms.json").read_text(encoding="utf-8"))
+TERMS = json.loads((SITE / "lesson-terms.json").read_text(encoding="utf-8"))
 ENCOUNTERED = {}
 TERM_LOOKUP = {alias.lower(): entry for entry in TERMS for alias in [entry["term"], *entry.get("aliases", [])]}
 TERM_PATTERN = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(alias) for alias in sorted(TERM_LOOKUP, key=len, reverse=True)) + r")(?!\w)", re.I)
@@ -367,7 +368,7 @@ def add_learning_aids(page, article, lesson):
             if destination in ADVANCED_LESSONS:
                 title = ADVANCED_LESSONS[destination]["title"]
             else:
-                target = BeautifulSoup((ROOT / f"lesson-{destination}.html").read_text(encoding="utf-8"), "html.parser")
+                target = BeautifulSoup((SITE / f"lesson-{destination}.html").read_text(encoding="utf-8"), "html.parser")
                 title = target.select_one(".hero h1").get_text().strip().rstrip(".")
             href = f"lesson-{destination}.html"
             label = f"{'←' if direction == 'previous' else '→'} {direction.title()} · Lesson {destination}"
@@ -424,28 +425,28 @@ def render(lesson):
     body = body.replace('<p>@@RENDERED_TOKENIZER@@</p>', tokenizer_playground())
     if '<p>@@RENDERED_RAG_FLOW@@</p>' in body:
         body = body.replace('<p>@@RENDERED_RAG_FLOW@@</p>',
-                            (ROOT / 'assets/lesson-17-rag-flow.html').read_text(encoding='utf-8'))
+                            (SITE / 'assets/lesson-17-rag-flow.html').read_text(encoding='utf-8'))
     if '<p>@@RENDERED_HYBRID_SEARCH@@</p>' in body:
         body = body.replace('<p>@@RENDERED_HYBRID_SEARCH@@</p>',
-                            (ROOT / 'assets/lesson-20-hybrid-search.html').read_text(encoding='utf-8'))
+                            (SITE / 'assets/lesson-20-hybrid-search.html').read_text(encoding='utf-8'))
     if '<p>@@RENDERED_CATALOG_INDEXES@@</p>' in body:
         body = body.replace('<p>@@RENDERED_CATALOG_INDEXES@@</p>',
-                            (ROOT / 'assets/lesson-21-catalog-indexes.html').read_text(encoding='utf-8'))
+                            (SITE / 'assets/lesson-21-catalog-indexes.html').read_text(encoding='utf-8'))
     for visual in ('embedding-basics', 'cosine-demo', 'vector-arithmetic', 'vector-map', 'similarity-meter', 'chunking-demo'):
         token = f'<p>@@VISUAL_{visual}@@</p>'
         if token in body:
-            body = body.replace(token, (ROOT / f'assets/lesson-17-{visual}.html').read_text(encoding='utf-8'))
+            body = body.replace(token, (SITE / f'assets/lesson-17-{visual}.html').read_text(encoding='utf-8'))
     body = re.sub(r'<p>@@GRAPH_PREVIEW_([A-Za-z_]\w*)@@</p>',
                   r'<div data-graph-preview="\1"></div>', body)
     body = body.replace("../../../Part%20I%20Understanding%20the%20Basics/", "code/Part%20I%20Understanding%20the%20Basics/")
     body = body.replace("../../../Part%20II%20Connecting%20the%20dots/", "code/Part%20II%20Connecting%20the%20dots/")
     body = body.replace("../../../Part%20III%20Give%20the%20model%20something%20to%20read/", "code/Part%20III%20Give%20the%20model%20something%20to%20read/")
-    page_path = ROOT / f"lesson-{lesson}.html"
-    original = BeautifulSoup((page_path if page_path.exists() else ROOT / "lesson-6.html").read_text(encoding="utf-8"), "html.parser")
+    page_path = SITE / f"lesson-{lesson}.html"
+    original = BeautifulSoup((page_path if page_path.exists() else SITE / "lesson-6.html").read_text(encoding="utf-8"), "html.parser")
     if lesson in (7, 8):
         # Use the established document shell while keeping this page's title
         # and course navigation; older shells have unrelated condensed prose.
-        template = BeautifulSoup((ROOT / "lesson-6.html").read_text(encoding="utf-8"), "html.parser")
+        template = BeautifulSoup((SITE / "lesson-6.html").read_text(encoding="utf-8"), "html.parser")
         template.title.string = original.title.get_text()
         for selector in (".hero h1", ".hero .lede"):
             template.select_one(selector).string = original.select_one(selector).get_text()

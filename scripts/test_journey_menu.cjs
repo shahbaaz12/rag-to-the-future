@@ -3,7 +3,7 @@ const { test } = require('node:test');
 const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 const vm = require('node:vm');
-const source = readFileSync(resolve(__dirname, '../temporal-ui.js'), 'utf8');
+const source = readFileSync(resolve(__dirname, '../site/temporal-ui.js'), 'utf8');
 
 function load(lesson = 0, part = 0) {
   const labels = [[1, 8], [9, 16], [17, 21]].map(([start, end]) => ({ dataset: { start, end } }));
@@ -83,7 +83,7 @@ test('part maps place the vehicle at the start of their workshop', () => {
 
 test('each generated lesson supplies its current location and a visible glossary label', () => {
   for (let lesson = 1; lesson <= 21; lesson++) {
-    const html = readFileSync(resolve(__dirname, `../lesson-${lesson}.html`), 'utf8');
+    const html = readFileSync(resolve(__dirname, `../site/lesson-${lesson}.html`), 'utf8');
     assert.ok(html.includes(`data-current-lesson="${lesson}"`), `Lesson ${lesson} location`);
     assert.ok(html.includes('class="glossary-label">Glossary</span>'), `Lesson ${lesson} glossary label`);
   }

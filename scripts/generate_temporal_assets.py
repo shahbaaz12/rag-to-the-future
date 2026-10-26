@@ -1,8 +1,8 @@
 """Draw original, matching vector views of the workshop square in three eras."""
-from pathlib import Path
 from american_english import americanize
+from site_paths import SITE
 
-ASSETS = Path(__file__).resolve().parents[1] / "assets"
+ASSETS = SITE / "assets"
 
 
 def clocktower(accent, frontier=False):

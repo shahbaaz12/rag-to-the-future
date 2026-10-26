@@ -1,12 +1,11 @@
 """Static lesson graph visuals with topology read from the displayed source."""
 import html
 import json
-from pathlib import Path
 from bs4 import BeautifulSoup
 from graph_topology import read_graphs
+from site_paths import SITE
 
-ROOT = Path(__file__).resolve().parents[1]
-CAPTIONS = json.loads((ROOT / "lesson-graphs.json").read_text(encoding="utf-8"))
+CAPTIONS = json.loads((SITE / "lesson-graphs.json").read_text(encoding="utf-8"))
 escape = html.escape
 
 

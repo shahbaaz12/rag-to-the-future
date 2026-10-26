@@ -7,10 +7,8 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from graph_topology import GraphReader, read_graphs
 from lesson_graphs import CAPTIONS, add_graph_visuals, graph_svg
+from site_paths import SITE
 import ast
-
-ROOT = Path(__file__).resolve().parents[1]
-
 
 class TopologyTests(unittest.TestCase):
     def models(self, code):
@@ -65,7 +63,7 @@ builder.compile()
         self.assertTrue(all(edge[2] == "wait for all" for edge in model["edges"]))
 
     def test_lesson_ten_previews_precede_their_code(self):
-        page = BeautifulSoup((ROOT / "lesson-10.html").read_text(encoding="utf-8"), "html.parser")
+        page = BeautifulSoup((SITE / "lesson-10.html").read_text(encoding="utf-8"), "html.parser")
         article = page.select_one("#lesson")
         add_graph_visuals(page, 10)
         self.assertEqual(len(article.select("[data-graph-preview]")), 4)
@@ -94,7 +92,7 @@ builder.compile()
         keys = set()
         last_lesson = max(int(key.split(':')[0]) for key in CAPTIONS)
         for lesson in range(1, last_lesson + 1):
-            page = BeautifulSoup((ROOT / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
+            page = BeautifulSoup((SITE / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
             article = page.select_one("#lesson")
             originals = [node.get_text() for node in article.select(".code-explorer__source")]
             models = read_graphs(article)

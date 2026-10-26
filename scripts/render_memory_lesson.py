@@ -9,11 +9,12 @@ import mistune
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import PythonLexer
+from site_paths import SITE
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "code/Part I Understanding the Basics/6-Memory.ipynb"
 DRAFT = ROOT / "code/Docs/Lessons/Part1/lesson6_final.md"
-PAGE = ROOT / "lesson-6.html"
+PAGE = SITE / "lesson-6.html"
 cells = json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
 code_cells = {cell["id"]: "".join(cell["source"]).rstrip("\n") for cell in cells if cell["cell_type"] == "code"}
 

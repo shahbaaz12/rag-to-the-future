@@ -1,10 +1,10 @@
 """Optional narrative openings, rendered outside the teaching article."""
 import json
 from html import escape
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-STORIES = json.loads((ROOT / "lesson-stories.json").read_text(encoding="utf-8"))
+from site_paths import SITE
+
+STORIES = json.loads((SITE / "lesson-stories.json").read_text(encoding="utf-8"))
 
 
 def remove_legacy_story(article):

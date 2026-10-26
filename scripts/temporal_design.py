@@ -3,7 +3,6 @@
 Navigation instruments sit outside lesson teaching articles; graph visuals
 sit beside their source snippets. Existing teaching prose and code are preserved.
 """
-from pathlib import Path
 import json
 from hashlib import sha256
 from bs4 import BeautifulSoup
@@ -11,12 +10,12 @@ from lesson_stories import opening, remove_legacy_story
 from lesson_navigation import section_index, part_one_cards
 from american_english import standardize_page
 from lesson_graphs import add_graph_visuals
+from site_paths import SITE
 
-ROOT = Path(__file__).resolve().parents[1]
 PARTS = {
     1: ("one", "1985", "Analog workshop", "analogue", 1, 8),
     2: ("two", "2015", "Future workshop", "future", 9, 16),
-    3: ("three", "1885", "Frontier workshop", "frontier", 17, max(entry['number'] for entry in json.loads((ROOT / 'part-three-lessons.json').read_text(encoding='utf-8')))),
+    3: ("three", "1885", "Frontier workshop", "frontier", 17, max(entry['number'] for entry in json.loads((SITE / 'part-three-lessons.json').read_text(encoding='utf-8')))),
 }
 
 
@@ -68,7 +67,7 @@ def completion(lesson):
 
 
 def versioned(source):
-    version = sha256((ROOT / source).read_bytes()).hexdigest()[:10]
+    version = sha256((SITE / source).read_bytes()).hexdigest()[:10]
     return f"{source}?v={version}"
 
 
@@ -219,7 +218,7 @@ if __name__ == "__main__":
     targets += [(f"part-{info[0]}.html", part, None) for part, info in PARTS.items()]
     targets += [(f"lesson-{number}.html", 1 if number <= 8 else 2 if number <= 16 else 3, number) for number in range(1, PARTS[3][-1]+1)]
     for filename, part, lesson in targets:
-        path = ROOT / filename
+        path = SITE / filename
         page = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
         apply_design(page, part, lesson)
         path.write_text(str(page), encoding="utf-8")

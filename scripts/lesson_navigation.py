@@ -1,10 +1,7 @@
 """Static section index and the shared Part I lesson-card presentation."""
 from html import escape
-from pathlib import Path
 from bs4 import BeautifulSoup
-
-ROOT = Path(__file__).resolve().parents[1]
-
+from site_paths import SITE
 
 def section_index(article):
     links = []
@@ -26,7 +23,7 @@ def part_one_cards(page):
         return
     cards = []
     for number in range(1, 9):
-        lesson = BeautifulSoup((ROOT / f"lesson-{number}.html").read_text(encoding="utf-8"), "html.parser")
+        lesson = BeautifulSoup((SITE / f"lesson-{number}.html").read_text(encoding="utf-8"), "html.parser")
         title = escape(lesson.select_one(".hero h1").get_text())
         description = escape(lesson.select_one(".hero .lede").get_text())
         cards.append(f'''<article class="course-card" id="lesson-{number}">

@@ -206,7 +206,7 @@ def verify(lesson, scope):
 
 
 if __name__ == "__main__":
-    entries = json.loads((ROOT / "part-two-lessons.json").read_text(encoding="utf-8"))
+    entries = json.loads((ROOT / "site/part-two-lessons.json").read_text(encoding="utf-8"))
     for entry in entries:
         local = entry["local"]
         path = ROOT / "code/Part II Connecting the dots" / entry["filename"]

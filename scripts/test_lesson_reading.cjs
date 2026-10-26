@@ -3,7 +3,7 @@ const { test } = require('node:test');
 const { readFileSync } = require('node:fs');
 const { resolve } = require('node:path');
 const vm = require('node:vm');
-const source = readFileSync(resolve(__dirname, '../lesson-reading.js'), 'utf8');
+const source = readFileSync(resolve(__dirname, '../site/lesson-reading.js'), 'utf8');
 
 function load({ completed = false, visibility = 'visible', observation = true, endPresent = true } = {}) {
   const observers = [];

@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { splitTokens, summarize } = require('../lesson-tokenizer.js');
+const { splitTokens, summarize } = require('../site/lesson-tokenizer.js');
 
 test('reference sentence retains its twelve pieces and illustrative cost', () => {
   const state = summarize('AI Engineering is surprisingly approachable!');

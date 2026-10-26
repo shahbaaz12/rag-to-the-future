@@ -9,9 +9,10 @@ import io
 import json
 import tokenize
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
+from site_paths import SITE, public_path
 
 ROOT = Path(__file__).resolve().parents[1]
 introduced = {}
@@ -26,9 +27,9 @@ for path in (ROOT / "code").glob("Part*/*.ipynb"):
 for path in [*(ROOT / "code").glob("*.py"), *(ROOT / "scripts").glob("*.py")]:
     ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
-last_lesson = max(entry["number"] for filename in ("part-two-lessons.json", "part-three-lessons.json") for entry in json.loads((ROOT / filename).read_text(encoding="utf-8")))
+last_lesson = max(entry["number"] for filename in ("part-two-lessons.json", "part-three-lessons.json") for entry in json.loads((SITE / filename).read_text(encoding="utf-8")))
 for lesson in range(1, last_lesson + 1):
-    page = BeautifulSoup((ROOT / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
+    page = BeautifulSoup((SITE / f"lesson-{lesson}.html").read_text(encoding="utf-8"), "html.parser")
     for card in page.select(".snippet-card"):
         code = card.select_one(".code-explorer__source").get_text()
         visible = "\n".join(line.get_text().rstrip("\n") for line in card.select(".code-explorer__line"))
@@ -62,7 +63,8 @@ for lesson in range(1, last_lesson + 1):
     for element in page.select("a[href], link[href], script[src], img[src]"):
         url = urlsplit(element.get("href", element.get("src")))
         if not url.scheme and url.path:
-            assert (ROOT / unquote(url.path)).exists(), f"Lesson {lesson}: broken local link {url.path}"
+            target = public_path(url.path)
+            assert target and target.exists(), f"Lesson {lesson}: broken local link {url.path}"
     ids = [element["id"] for element in page.select("[id]")]
     assert len(ids) == len(set(ids)), f"Lesson {lesson}: duplicate element IDs"
     print(f"Lesson {lesson}: source, comments, glossary and navigation OK")

@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const demo = require('../lesson-embeddings.js');
+const demo = require('../site/lesson-embeddings.js');
 
 test('equations compute coordinates and find the matching toy word', () => {
   for (const [key, expected] of Object.entries({ royalty: 'queen', india: 'delhi', germany: 'berlin', tense: 'running' })) {
